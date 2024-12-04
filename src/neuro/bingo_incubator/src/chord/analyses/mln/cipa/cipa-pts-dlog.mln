@@ -1,0 +1,21 @@
+// domains
+*dom_H(h_dom)
+*dom_M(m_dom)
+*dom_V(v_dom)
+// input predicates
+*checkExcludedH(h_dom)
+*VH(v_dom, h_dom)
+*MH(m_dom, h_dom)
+*MV(m_dom, v_dom)
+*reachableM(m_dom)
+*checkExcludedV(v_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+reachableH(h_dom)
+reachableV(v_dom)
+ptsVH(v_dom, h_dom)
+
+// hard rules converted from dlog into soft rules
+1 MV(m,v1), reachableM(m) => reachableV(v1)
+1 MH(m,h), reachableM(m) => reachableH(h)
+1 VH(v1,h), !checkExcludedV(v1), !checkExcludedH(h), reachableV(v1), reachableH(h) => ptsVH(v1,h)

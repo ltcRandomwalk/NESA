@@ -1,0 +1,35 @@
+# name=downcast-cipa-0cfa-dlog_XZ89_
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.bddvarorder M0_T0_V0xV1_T1_H0
+
+
+#Input relations
+reachableM(m:M0) input
+VH(v:V0,h:H0) input
+HT(h:H0,t:T1) input
+sub(s:T1,t:T0) input
+McheckCastInst(m:M0,v1:V0,t:T0,v2:V1) input
+checkExcludedM(m:M0) input
+
+#Output relations
+reachableCast(t:T0,v:V0) output
+ptsVT(v:V0,t:T0) output
+unsafeDowncast(v:V0,t:T0) output
+
+#Instrumented relations
+reachableCast_XZ89_0_68(t:T0,v2:V0,m:M0,v_XZ89_0:V1) output
+ptsVT_XZ89_1_68(v:V0,t:T0,h:H0) output
+unsafeDowncast_XZ89_2_68(v:V0,t1:T0,t2:T1) output
+
+#Original rules
+reachableCast(t,v2) :- McheckCastInst(m,_,t,v2), reachableM(m), !checkExcludedM(m).
+ptsVT(v,t) :- VH(v,h), HT(h,t).
+unsafeDowncast(v,t1) :- reachableCast(t1,v), ptsVT(v,t2), !sub(t2,t1).
+
+#Instrumented rules
+reachableCast_XZ89_0_68(t,v2,m,v_XZ89_0) :- McheckCastInst(m,v_XZ89_0,t,v2), reachableM(m), !checkExcludedM(m).
+ptsVT_XZ89_1_68(v,t,h) :- VH(v,h), HT(h,t).
+unsafeDowncast_XZ89_2_68(v,t1,t2) :- reachableCast(t1,v), ptsVT(v,t2), !sub(t2,t1).

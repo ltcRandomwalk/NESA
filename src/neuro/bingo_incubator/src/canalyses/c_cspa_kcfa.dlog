@@ -1,0 +1,54 @@
+
+# name=c-cspa-kcfa-dlog
+
+.include "ZV.dom"   
+.include "ZI.dom"
+.include "ZC.dom"
+.include "ZF.dom"
+
+
+.bddvarorder ZV0xZV1_ZC0xZC1xZI0xZF0
+
+# v1 = v2
+copy(v1:ZV0,v2:ZV1) input
+
+# *v1 = v2
+store(v1:ZV0,v2:ZV1) input
+
+# v1 = *v2
+load(v1:ZV0,v2:ZV1) input
+
+# v1 = &v2
+pt(v1:ZV0,v2:ZV1) input
+
+pass(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+
+ret(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+
+ie(c1:ZC0,i:ZI0,c2:ZC1,f:ZF0) input
+
+copyC(c1:ZC0,x:ZV0,c2:ZC1,y:ZV1) 
+
+ptC(c1:ZC0,x:ZV0,y:ZV1) 
+
+pt0(v1:ZV0,v2:ZV1) output
+
+# Rules 
+
+ptC(c,x,y) :- pt(x,y),ie(c,_,_,_).
+
+copyC(c1,x,c2,y) :- copy(x,y),ie(c1,_,_,_),c1=c2.
+copyC(c1,y,c2,z) :- ptC(c1,x,z),load(x,y),c1=c2.
+copyC(c1,z,c2,y) :- ptC(c1,x,z),store(x,y),c1=c2.
+#copyC(c1,x,c2,y) :- ie(c1,i,c2,f),pass(i,f,x,y).
+
+# call
+copyC(c2,x,c1,y) :- ie(c1,i,c2,f),pass(i,f,x,y).
+
+# return 
+copyC(c1,x,c2,y) :- ie(c1,i,c2,f),ret(i,f,x,y).
+
+
+ptC(c1,x,y) :- copyC(c1,x,c2,z),ptC(c2,z,y).
+
+pt0(x,y) :- ptC(_,x,y).

@@ -1,0 +1,34 @@
+Arcs:
+  R1 Allow(1,0) <- OK(1,0)
+  R1 Allow(1,0) <- OK(1,1)
+  R1 Allow(1,1) <- OK(1,1)
+  R2 Deny(1,1) <- OK(1,0)
+  R2 Deny(1,2) <- OK(1,1)
+  R1 Allow(2,0) <- OK(2,0)
+  R2 Deny(2,1) <- OK(2,0)
+  R2 Deny(2,2) <- OK(2,0)
+  R1 Allow(3,0) <- OK(3,0)
+  R2 Deny(3,1) <- OK(3,0)
+  R2 Deny(3,2) <- OK(3,0)
+  R3 unsafeDowncast <- Allow(1,0) Allow(2,0)
+  R3 unsafeDowncast <- Allow(2,0) Allow(3,0)
+Vertices:
+  OK(1,0)
+  OK(1,1)
+  OK(2,0)
+  OK(3,0)
+  Allow(1,0)
+  Allow(2,0)
+  Allow(3,0)
+  Allow(1,1)
+  Deny(1,1)
+  Deny(1,2)
+  Deny(2,1)
+  Deny(2,2)
+  Deny(3,1)
+  Deny(3,2)
+  unsafeDowncast
+Rules:
+  R1 allow rule
+  R2 deny rule
+  R3 allow and

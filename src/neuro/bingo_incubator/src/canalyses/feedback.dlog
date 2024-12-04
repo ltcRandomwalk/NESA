@@ -1,0 +1,14 @@
+
+# name=feedback
+
+.include "ZV.dom"   
+
+
+.bddvarorder ZV0xZV1
+
+npt0(v1:ZV0,v2:ZV1) output
+
+
+# Rules 
+
+npt0(8,25).

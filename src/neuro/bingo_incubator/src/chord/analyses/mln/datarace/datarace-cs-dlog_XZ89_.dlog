@@ -1,0 +1,114 @@
+# name=datarace-cs-dlog_XZ89_
+.include "AS.dom"
+.include "F.dom"
+.include "E.dom"
+.include "H.dom"
+.include "M.dom"
+.include "L.dom"
+.include "K.dom"
+.include "C.dom"
+.include "I.dom"
+.bddvarorder L0_F0_E0_E1_M0_AS0xAS1_H0_K0_C0xC1xC2_I0
+
+
+#Input relations
+writeE(e:E0) input
+ME(m:M0,e:E0) input
+EF(e:E0,f:F0) input
+thrSenCICM(c:C0,i:I0,d:C1,m:M0) input
+threadACM(t:AS0,c:C0,m:M0) input
+MI(m:M0,i:I0) input
+reachableACM(t:AS0,c:C0,m:M0) input
+checkExcludedM(m:M0) input
+excludeInitMethods(k:K0) input
+initM(m:M0) input
+statF(f:F0) input
+CEC(c:C0,e:E0,o:C1) input
+mhe_cs(c:C0,e:E0,t1:AS0,t2:AS1) input
+syncCLC(c:C0,l:L0,o:C1) input
+excludeSameThread(k:K0) input
+unlockedE_cs(t:AS0,c1:C0,e:E0,c2:C1) input
+syncC(c:C1) input
+
+#Output relations
+excludeInitM(m:M0) output
+relevantTCM(t:AS0,c:C0,m:M0) output
+relevantTCE(t:AS0,c:C0,e:E0) output
+rdOrWrTCEF(t:AS0,c:C0,e:E0,f:F0) output
+onlyWrTCEF(t:AS0,c:C0,e:E0,f:F0) output
+startingRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+statE(e:E0) output
+escapingRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+parallelRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+unlikelyRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+guardedE(t:AS0,c:C0,e:E0,o:C1) output
+datarace(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+ctxtInsStartingRace(e1:E0,e2:E1) output
+racePairs_cs(e1:E0,e2:E1) output
+raceEEC(e1:E0,e2:E1,c:C0) output
+
+#Instrumented relations
+excludeInitM_XZ89_0_28(m:M0) output
+rdOrWrTCEF_XZ89_3_28(t:AS0,c:C0,e:E0,f:F0) output
+onlyWrTCEF_XZ89_4_28(t:AS0,c:C0,e:E0,f:F0) output
+relevantTCM_XZ89_1_28(t:AS0,c:C0,m:M0) output
+relevantTCE_XZ89_2_28(t:AS0,c:C0,e:E0,m:M0) output
+startingRaceHext_XZ89_8_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,f:F0) output
+startingRaceHext_XZ89_7_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,f:F0) output
+startingRaceHext_XZ89_6_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,f:F0) output
+startingRaceHext_XZ89_5_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,f:F0) output
+escapingRaceHext_XZ89_12_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+escapingRaceHext_XZ89_11_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,o:C2) output
+statE_XZ89_10_28(e:E0,f:F0) output
+ctxtInsStartingRace_XZ89_9_28(e1:E0,e2:E1,v_XZ89_0:AS0,v_XZ89_1:C0,v_XZ89_2:AS1,v_XZ89_3:C1) output
+unlikelyRaceHext_XZ89_16_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+unlikelyRaceHext_XZ89_15_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,o:C2) output
+guardedE_XZ89_14_28(t:AS0,c:C0,e:E0,o:C1) output
+parallelRaceHext_XZ89_13_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+racePairs_cs_XZ89_19_28(e1:E0,e2:E1,v_XZ89_0:AS0,v_XZ89_1:C0,v_XZ89_2:AS1,v_XZ89_3:C1) output
+raceEEC_XZ89_18_28(e1:E0,e2:E1,c:C0,v_XZ89_0:AS0,c1:C1,v_XZ89_1:AS1,c2:C2) output
+datarace_XZ89_17_28(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+
+#Original rules
+excludeInitM(m) :- excludeInitMethods(1), initM(m).
+relevantTCM(t,c,m) :- reachableACM(t,c,m), !checkExcludedM(m), !excludeInitM(m).
+relevantTCE(t,c,e) :- relevantTCM(t,c,m), ME(m,e).
+rdOrWrTCEF(t,c,e,f) :- relevantTCE(t,c,e), EF(e,f).
+onlyWrTCEF(t,c,e,f) :- relevantTCE(t,c,e), EF(e,f), writeE(e).
+startingRaceHext(t1,c1,e1,t2,c2,e2) :- onlyWrTCEF(t1,c1,e1,f), rdOrWrTCEF(t2,c2,e2,f), e1 < e2.
+startingRaceHext(t1,c1,e1,t2,c2,e2) :- rdOrWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1 < e2.
+startingRaceHext(t1,c1,e1,t2,c2,e2) :- onlyWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1=e2, c1 < c2.
+startingRaceHext(t1,c1,e1,t2,c2,e2) :- onlyWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1=e2, c1=c2, t1<=t2.
+ctxtInsStartingRace(e1,e2) :- startingRaceHext(_,_,e1,_,_,e2).
+statE(e) :- EF(e,f), statF(f).
+escapingRaceHext(t1,c1,e1,t2,c2,e2) :- startingRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o).
+escapingRaceHext(t1,c1,e1,t2,c2,e2) :- startingRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2).
+parallelRaceHext(t1,c1,e1,t2,c2,e2) :- escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1).
+guardedE(t,c,e,o) :- relevantTCE(t,c,e), syncC(o), !unlockedE_cs(t,c,e,o).
+unlikelyRaceHext(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), guardedE(t1,c1,e1,o), guardedE(t2,c2,e2,o).
+unlikelyRaceHext(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1=t2.
+datarace(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), !unlikelyRaceHext(t1,c1,e1,t2,c2,e2).
+raceEEC(e1,e2,c) :- datarace(_,c1,e1,_,c2,e2), CEC(c1,e1,c), CEC(c2,e2,c).
+racePairs_cs(e1,e2) :- datarace(_,_,e1,_,_,e2).
+
+#Instrumented rules
+excludeInitM_XZ89_0_28(m) :- excludeInitMethods(1), initM(m).
+relevantTCM_XZ89_1_28(t,c,m) :- reachableACM(t,c,m), !checkExcludedM(m), !excludeInitM(m).
+relevantTCE_XZ89_2_28(t,c,e,m) :- relevantTCM(t,c,m), ME(m,e).
+rdOrWrTCEF_XZ89_3_28(t,c,e,f) :- relevantTCE(t,c,e), EF(e,f).
+onlyWrTCEF_XZ89_4_28(t,c,e,f) :- relevantTCE(t,c,e), EF(e,f), writeE(e).
+startingRaceHext_XZ89_5_28(t1,c1,e1,t2,c2,e2,f) :- onlyWrTCEF(t1,c1,e1,f), rdOrWrTCEF(t2,c2,e2,f), e1 < e2.
+startingRaceHext_XZ89_6_28(t1,c1,e1,t2,c2,e2,f) :- rdOrWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1 < e2.
+startingRaceHext_XZ89_7_28(t1,c1,e1,t2,c2,e2,f) :- onlyWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1=e2, c1 < c2.
+startingRaceHext_XZ89_8_28(t1,c1,e1,t2,c2,e2,f) :- onlyWrTCEF(t1,c1,e1,f), onlyWrTCEF(t2,c2,e2,f), e1=e2, c1=c2, t1<=t2.
+ctxtInsStartingRace_XZ89_9_28(e1,e2,v_XZ89_0,v_XZ89_1,v_XZ89_2,v_XZ89_3) :- startingRaceHext(v_XZ89_0,v_XZ89_1,e1,v_XZ89_2,v_XZ89_3,e2).
+statE_XZ89_10_28(e,f) :- EF(e,f), statF(f).
+escapingRaceHext_XZ89_11_28(t1,c1,e1,t2,c2,e2,o) :- startingRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o).
+escapingRaceHext_XZ89_12_28(t1,c1,e1,t2,c2,e2) :- startingRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2).
+parallelRaceHext_XZ89_13_28(t1,c1,e1,t2,c2,e2) :- escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1).
+guardedE_XZ89_14_28(t,c,e,o) :- relevantTCE(t,c,e), syncC(o), !unlockedE_cs(t,c,e,o).
+unlikelyRaceHext_XZ89_15_28(t1,c1,e1,t2,c2,e2,o) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), guardedE(t1,c1,e1,o), guardedE(t2,c2,e2,o).
+unlikelyRaceHext_XZ89_16_28(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1=t2.
+datarace_XZ89_17_28(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), !unlikelyRaceHext(t1,c1,e1,t2,c2,e2).
+raceEEC_XZ89_18_28(e1,e2,c,v_XZ89_0,c1,v_XZ89_1,c2) :- datarace(v_XZ89_0,c1,e1,v_XZ89_1,c2,e2), CEC(c1,e1,c), CEC(c2,e2,c).
+racePairs_cs_XZ89_19_28(e1,e2,v_XZ89_0,v_XZ89_1,v_XZ89_2,v_XZ89_3) :- datarace(v_XZ89_0,v_XZ89_1,e1,v_XZ89_2,v_XZ89_3,e2).

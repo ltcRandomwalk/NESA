@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE results SYSTEM "results.dtd" [
+  <!ENTITY groups SYSTEM "groups.xml">
+  <!ENTITY Mlist SYSTEM "Mlist.xml">
+  <!ENTITY Vlist SYSTEM "Vlist.xml">
+  <!ENTITY Hlist SYSTEM "Hlist.xml">
+]>
+<results>
+&groups;
+&Mlist;
+&Vlist;
+&Hlist;
+</results>

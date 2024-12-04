@@ -1,0 +1,153 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# Context-insensitive may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=fil-cipa-0cfa-filt-dlog
+
+.include "T.dom"
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "Z.dom"
+
+.bddvarorder I0xM0xM1_T0_V0xV1_T1_H0_F0_H1_Z0
+
+###
+# Relations
+###
+
+F_HT(h:H0,t:T1) input 
+F_sub(t1:T1,t2:T0) input 
+F_MmethArg(m:M0,n:Z0,v:V0) input
+F_MmethRet(m:M0,n:Z0,v:V0) input
+F_IinvkArg0(i:I0,v:V1) input
+F_IinvkArg(i:I0,n:Z0,v:V1) input
+F_IinvkRet(i:I0,n:Z0,v:V0) input
+F_MI(m:M,i:I) input
+F_statIM(i:I,m:M) input
+F_specIM(i:I,m:M) input
+
+F_MobjValAsgnInst(m:M0,l:V0,h:H0) input
+F_MobjVarAsgnInst(m:M0,l:V0,r:V1) input
+F_MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) input
+F_MputInstFldInst(m:M0,b:V0,f:F0,r:V1) input
+F_MgetStatFldInst(m:M0,l:V0,f:F0) input
+F_MputStatFldInst(m:M0,f:F0,r:V) input
+
+F_clsForNameIT(i:I0,t:T0) input
+F_objNewInstIH(i:I0,h:H0) input
+F_objNewInstIM(i:I0,m:M0) input
+F_conNewInstIH(i:I0,h:H0) input
+F_conNewInstIM(i:I0,m:M0) input
+F_aryNewInstIH(i:I0,h:H0) input
+
+F_classT(t:T) input
+F_staticTM(t:T,m:M) input
+F_staticTF(t:T,f:F) input
+F_clinitTM(t:T,m:M) input
+
+F_IHM(i:I,h:H,m:M) input
+F_VHfilter(v:V,h:H) input
+
+VV(v1:V,v2:V)
+specIMV(i:I,m:M,v:V)
+
+objValAsgnInst(l:V,h:H) 
+objVarAsgnInst(l:V,r:V) 
+getInstFldInst(l:V,b:V,f:F) 
+putInstFldInst(b:V,f:F,r:V) 
+getStatFldInst(l:V,f:F) 
+putStatFldInst(f:F,r:V) 
+
+reachableT(t:T) output
+VH(v:V,h:H) output 
+FH(f:F,h:H) output
+HFH(h1:H,f:F,h2:H) output 
+rootM(m:M) output
+reachableI(i:I) output
+reachableM(m:M) output 
+IM(i:I,m:M) output
+MM(m:M,n:M) output
+
+###
+# Constraints
+###
+
+# base cases: each root method and each class initializer is reachable
+reachableM(0).
+reachableM(m) :- reachableT(t), F_clinitTM(t,m).
+# inductive case
+reachableM(m) :- IM(_,m).
+
+reachableI(i) :- F_MI(m,i), reachableM(m).
+
+# possibly-multiple-target call sites
+IM(i,m) :- reachableI(i), F_IinvkArg0(i,v), VH(v,h), F_IHM(i,h,m).
+# definitely-single-target call sites
+specIMV(i,m,v) :- F_specIM(i,m), F_IinvkArg0(i,v).
+
+IM(i,m) :- reachableI(i), specIMV(i,m,v), VH(v,_).
+IM(i,m) :- reachableI(i), F_statIM(i,m).
+
+# arguments and return/throw variables
+VV(v,u) :- F_IinvkArg(i,z,u), IM(i,m), F_MmethArg(m,z,v).
+VV(u,v) :- F_IinvkRet(i,z,u), IM(i,m), F_MmethRet(m,z,v).
+
+VH(u,h) :- VV(u,v), VH(v,h), F_VHfilter(u,h).
+
+objValAsgnInst(l,h)   :- reachableM(m), F_MobjValAsgnInst(m,l,h).
+objVarAsgnInst(l,r)   :- reachableM(m), F_MobjVarAsgnInst(m,l,r).
+getInstFldInst(l,b,f) :- reachableM(m), F_MgetInstFldInst(m,l,b,f).
+putInstFldInst(b,f,r) :- reachableM(m), F_MputInstFldInst(m,b,f,r).
+getStatFldInst(l,f)   :- reachableM(m), F_MgetStatFldInst(m,l,f).
+putStatFldInst(f,r)   :- reachableM(m), F_MputStatFldInst(m,f,r).
+
+reachableT(t) :- reachableI(i), F_conNewInstIH(i,h), F_HT(h,t).
+reachableT(t) :- reachableI(i), F_objNewInstIH(i,h), F_HT(h,t).
+reachableT(t) :- reachableI(i), F_clsForNameIT(i,t).
+
+reachableM(m) :- reachableI(i), F_objNewInstIM(i,m).
+reachableM(m) :- reachableI(i), F_conNewInstIM(i,m).
+
+VH(v,h)  :- reachableI(i), F_objNewInstIM(i,m), F_MmethArg(m,0,v), F_objNewInstIH(i,h), F_VHfilter(v,h).
+VH(v,h)  :- reachableI(i), F_objNewInstIH(i,h), F_IinvkRet(i,0,v), F_VHfilter(v,h).
+VH(v,h2) :- reachableI(i), F_conNewInstIM(i,m), F_IinvkArg(i,1,u), F_MmethArg(m,1,v), VH(u,h), HFH(h,0,h2), F_VHfilter(v,h2).
+VH(v,h)  :- reachableI(i), F_conNewInstIM(i,m), F_MmethArg(m,0,v), F_conNewInstIH(i,h), F_VHfilter(v,h).
+VH(v,h)  :- reachableI(i), F_conNewInstIH(i,h), F_IinvkRet(i,0,v), F_VHfilter(v,h).
+VH(v,h)  :- reachableI(i), F_aryNewInstIH(i,h), F_IinvkRet(i,0,v), F_VHfilter(v,h).
+
+VH(l,h) :- objValAsgnInst(l,h), F_VHfilter(l,h).
+VH(l,h) :- objVarAsgnInst(l,r), VH(r,h), F_VHfilter(l,h).
+VH(l,h2) :- getInstFldInst(l,b,f), VH(b,h1), HFH(h1,f,h2), F_VHfilter(l,h2). split
+HFH(h1,f,h2) :- putInstFldInst(b,f,r), VH(b,h1), VH(r,h2). split
+VH(l,h) :- getStatFldInst(l,f), FH(f,h), F_VHfilter(l,h).
+FH(f,h) :- putStatFldInst(f,r), VH(r,h).
+
+## See: http://java.sun.com/docs/books/jls/second_edition/html/execution.doc.html
+## Section 12.4 Initialization of Classes and Interfaces
+## A class or interface type T will be initialized immediately before
+## the first occurrence of any one of the following:
+
+# 1. T is a class and an instance of T is created.
+# this handles both normal allocation and reflective allocation
+reachableT(t) :- objValAsgnInst(_,h), F_HT(h,t).
+# 2. T is a class and a static method declared by T is invoked
+reachableT(t) :- reachableM(m), F_staticTM(t,m).
+# 3. A static field declared by T is assigned. 
+reachableT(t) :- putStatFldInst(f,_), F_staticTF(t,f).
+# 4. A static field declared by T is used and the reference to the
+#    field is not a compile-time constant.
+reachableT(t) :- getStatFldInst(_,f), F_staticTF(t,f).
+# 5. Before a class is initialized, its direct superclass must be
+#    initialized.
+reachableT(t) :- F_classT(t), reachableT(s), F_sub(s,t).
+
+rootM(0).
+rootM(m) :- reachableT(t), F_clinitTM(t,m).
+MM(m,n) :- IM(i,n), F_MI(m,i).

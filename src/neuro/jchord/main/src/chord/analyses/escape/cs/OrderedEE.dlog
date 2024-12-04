@@ -1,0 +1,20 @@
+# name=orderedEE-dlog
+
+.include "E.dom"
+
+.bddvarorder E0xE1
+
+###
+# Relations
+###
+
+OrderedEEBase(e1:E0,e2:E1) input
+OrderedEE(e1:E0,e2:E1) output
+
+###
+# Constraints
+###
+
+OrderedEE(e1,e2) :- OrderedEEBase(e1,e2).
+
+OrderedEE(e1,e3) :- OrderedEE(e1,e2),OrderedEE(e2,e3).

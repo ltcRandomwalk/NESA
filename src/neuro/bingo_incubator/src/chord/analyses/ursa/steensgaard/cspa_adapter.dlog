@@ -1,0 +1,21 @@
+# Author: Xin Zhang
+# name=cspa-adapter-dlog
+
+.include "C.dom"
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+
+.bddvarorder C0xV0xC1_H0
+
+###
+# Relations
+###
+
+CVC(c0:C0,v:V0,c1:C1) input
+CH(c0:C0,h:H0) input
+
+sVH(v:V0,h:H0) output
+
+sVH(v,h) :- CVC(_,v,c), CH(c,h).

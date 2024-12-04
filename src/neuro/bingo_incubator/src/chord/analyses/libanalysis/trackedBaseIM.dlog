@@ -1,0 +1,31 @@
+# name=trackedBase-IM-dlog
+
+#Includes all IM pairs such that I is a method invoke instruction in the
+#application code and M is the base resolved method for I. Base method
+#implies that the resolved M for I is computed, prior to the availability
+#of any aliasing information
+
+.include "I.dom"
+.include "M.dom"
+
+.bddvarorder I0_M0
+
+specIM(i:I,m:M) input
+statIM(i:I,m:M) input
+virtIM(i:I,m:M) input
+MI(m:M0,i:I0) input
+appM(m:M) input
+libM(m:M) input
+appI(i:I0)
+
+trackedBaseIM(i:I,m:M) output
+internalLibM(m:M) output
+externalLibM(m:M) output
+
+appI(i) :- MI(m,i), appM(m).
+trackedBaseIM(i,m) :- appI(i), specIM(i,m), libM(m).
+trackedBaseIM(i,m) :- appI(i), statIM(i,m), libM(m).
+trackedBaseIM(i,m) :- appI(i), virtIM(i,m), libM(m).
+
+externalLibM(m) :- trackedBaseIM(_,m).
+internalLibM(m) :- libM(m), !externalLibM(m).

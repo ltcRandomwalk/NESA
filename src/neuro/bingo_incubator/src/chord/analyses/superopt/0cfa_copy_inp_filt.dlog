@@ -1,0 +1,102 @@
+
+# name=0cfa-copy-inp-filt-dlog
+
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "T.dom"
+.include "Z.dom"
+
+.bddvarorder I0_M0xM1_V0xV1_H0_F0_H1_T0_Z0
+
+###
+# Relations
+###
+
+M_rest(m:M) input
+M_app(m:M) input
+M_full(m:M) input
+MIM1(m0:M,i:I,m1:M) input
+
+MV(m:M,v:V) input
+F_MI(m:M,i:I) input
+F_MobjValAsgnInst(m:M0,l:V0,h:H0) input
+F_MobjVarAsgnInst(m:M0,l:V0,r:V1) input
+F_MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) input
+F_MputInstFldInst(m:M0,b:V0,f:F0,r:V1) input
+F_MgetStatFldInst(m:M0,l:V0,f:F0) input
+F_MputStatFldInst(m:M0,f:F0,r:V) input
+
+F_IinvkArg0(i:I0,v:V1) input
+F_IinvkRet(i:I0,n:Z0,v:V0) input
+F_IinvkArg(i:I0,n:Z0,v:V1) input
+F_MmethRet(m:M0,n:Z0,v:V0) input
+
+reachableM(m:M) input 
+
+no_deletion(m:M,i:I) output
+M_opt(m:M) output
+M_no_opt(m:M) output
+
+asave_MI(m:M,i:I) output
+asave_MobjValAsgnInst(m:M0,l:V0,h:H0) output
+asave_MobjVarAsgnInst(m:M0,l:V0,r:V1) output
+asave_MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) output
+asave_MputInstFldInst(m:M0,b:V0,f:F0,r:V1) output
+asave_MgetStatFldInst(m:M0,l:V0,f:F0) output
+asave_MputStatFldInst(m:M0,f:F0,r:V) output
+asave_MIinvkArg0(m:M,i:I0,v:V1) output
+asave_MIinvkArg(m:M,i:I0,n:Z0,v:V1) output
+asave_MmethRet(m:M,n:Z0,v:V1) output
+
+lsave_MI(m:M,i:I) output
+lsave_MobjValAsgnInst(m:M0,l:V0,h:H0) output
+lsave_MobjVarAsgnInst(m:M0,l:V0,r:V1) output
+lsave_MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) output
+lsave_MputInstFldInst(m:M0,b:V0,f:F0,r:V1) output
+lsave_MgetStatFldInst(m:M0,l:V0,f:F0) output
+lsave_MputStatFldInst(m:M0,f:F0,r:V) output
+lsave_MIinvkArg0(m:M,i:I0,v:V1) output
+lsave_MIinvkArg(m:M,i:I0,n:Z0,v:V1) output
+lsave_MmethRet(m:M,n:Z0,v:V1) output
+
+F_MIinvkArg0(m:M,i:I0,v:V1) output
+F_MIinvkArg(m:M,i:I0,n:Z0,v:V1) output
+F_MIinvkRet(m:M,i:I0,n:Z0,v:V0) output
+
+
+no_deletion(m,i) :- F_MI(m,i), MIM1(m,i,m1), M_app(m1).
+no_deletion(m,i) :- F_MI(m,i), MIM1(m,i,m1), F_MputInstFldInst(m1,_,_,_).
+no_deletion(m,i) :- F_MI(m,i), MIM1(m,i,m1), F_MputStatFldInst(m1,_,_).
+M_opt(m) :- !M_rest(m), reachableM(m).
+M_no_opt(m) :- !M_opt(m), M_full(m).
+
+#lsave_MI(m,i) :- F_MI(m,i), !no_deletion(m,i), M_opt(m).
+lsave_MI(m,i) :- F_MI(m,i), M_opt(m).
+lsave_MobjValAsgnInst(m,l,h) :- F_MobjValAsgnInst(m,l,h), M_opt(m).
+lsave_MobjVarAsgnInst(m,l,r) :- F_MobjVarAsgnInst(m,l,r), M_opt(m).
+lsave_MgetInstFldInst(m,l,b,f) :- F_MgetInstFldInst(m,l,b,f), M_opt(m).
+lsave_MputInstFldInst(m,b,f,r) :- F_MputInstFldInst(m,b,f,r), M_opt(m).
+lsave_MgetStatFldInst(m,l,f) :- F_MgetStatFldInst(m,l,f), M_opt(m).
+lsave_MputStatFldInst(m,f,r) :- F_MputStatFldInst(m,f,r), M_opt(m).
+lsave_MIinvkArg0(m,i,v) :- F_MIinvkArg0(m,i,v), M_opt(m).
+lsave_MIinvkArg(m,i,n,v) :- F_MIinvkArg(m,i,n,v), M_opt(m).
+lsave_MmethRet(m,n,v) :- F_MmethRet(m,n,v), M_opt(m).
+
+asave_MI(m,i) :- F_MI(m,i), M_no_opt(m).
+#asave_MI(m,i) :- F_MI(m,i), M_opt(m), no_deletion(m,i).
+asave_MobjValAsgnInst(m,l,h) :- F_MobjValAsgnInst(m,l,h), M_no_opt(m).
+asave_MobjVarAsgnInst(m,l,r) :- F_MobjVarAsgnInst(m,l,r), M_no_opt(m).
+asave_MgetInstFldInst(m,l,b,f) :- F_MgetInstFldInst(m,l,b,f), M_no_opt(m).
+asave_MputInstFldInst(m,b,f,r) :- F_MputInstFldInst(m,b,f,r), M_no_opt(m).
+asave_MgetStatFldInst(m,l,f) :- F_MgetStatFldInst(m,l,f), M_no_opt(m).
+asave_MputStatFldInst(m,f,r) :- F_MputStatFldInst(m,f,r), M_no_opt(m).
+asave_MIinvkArg0(m,i,v) :- F_MIinvkArg0(m,i,v), M_no_opt(m).
+asave_MIinvkArg(m,i,n,v) :- F_MIinvkArg(m,i,n,v), M_no_opt(m).
+asave_MmethRet(m,n,v) :- F_MmethRet(m,n,v), M_no_opt(m).
+
+F_MIinvkArg0(m,i,v) :- F_IinvkArg0(i,v), F_MI(m,i).
+F_MIinvkRet(m,i,n,v) :- F_IinvkRet(i,n,v), F_MI(m,i).
+F_MIinvkArg(m,i,n,v) :- F_IinvkArg(i,n,v), F_MI(m,i).

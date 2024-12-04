@@ -1,0 +1,54 @@
+# name=datarace-cs-noneg-dlog_XZ89_
+.include "AS.dom"
+.include "F.dom"
+.include "E.dom"
+.include "H.dom"
+.include "M.dom"
+.include "L.dom"
+.include "K.dom"
+.include "C.dom"
+.include "I.dom"
+.bddvarorder L0_F0_E0_E1_M0_AS0xAS1_H0_K0_C0xC1xC2_I0
+
+
+#Input relations
+unlockedRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) input
+EF(e:E0,f:F0) input
+statF(f:F0) input
+CEC(c:C0,e:E0,o:C1) input
+mhe_cs(c:C0,e:E0,t1:AS0,t2:AS1) input
+excludeSameThread(k:K0) input
+
+#Output relations
+statE(e:E0) output
+escapingRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+parallelRaceHext(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+datarace(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+racePairs_cs(e1:E0,e2:E1) output
+
+#Instrumented relations
+datarace_XZ89_4_96(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+parallelRaceHext_XZ89_3_96(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+racePairs_cs_XZ89_6_96(e1:E0,e2:E1,v_XZ89_0:AS0,v_XZ89_1:C0,v_XZ89_2:AS1,v_XZ89_3:C1) output
+datarace_XZ89_5_96(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+statE_XZ89_0_96(e:E0,f:F0) output
+escapingRaceHext_XZ89_1_96(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1,o:C2) output
+escapingRaceHext_XZ89_2_96(t1:AS0,c1:C0,e1:E0,t2:AS1,c2:C1,e2:E1) output
+
+#Original rules
+statE(e) :- EF(e,f), statF(f).
+escapingRaceHext(t1,c1,e1,t2,c2,e2) :- unlockedRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o).
+escapingRaceHext(t1,c1,e1,t2,c2,e2) :- unlockedRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2).
+parallelRaceHext(t1,c1,e1,t2,c2,e2) :- escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1).
+datarace(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1!=t2.
+datarace(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(0).
+racePairs_cs(e1,e2) :- datarace(_,_,e1,_,_,e2).
+
+#Instrumented rules
+statE_XZ89_0_96(e,f) :- EF(e,f), statF(f).
+escapingRaceHext_XZ89_1_96(t1,c1,e1,t2,c2,e2,o) :- unlockedRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o).
+escapingRaceHext_XZ89_2_96(t1,c1,e1,t2,c2,e2) :- unlockedRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2).
+parallelRaceHext_XZ89_3_96(t1,c1,e1,t2,c2,e2) :- escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1).
+datarace_XZ89_4_96(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1!=t2.
+datarace_XZ89_5_96(t1,c1,e1,t2,c2,e2) :- parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(0).
+racePairs_cs_XZ89_6_96(e1,e2,v_XZ89_0,v_XZ89_1,v_XZ89_2,v_XZ89_3) :- datarace(v_XZ89_0,v_XZ89_1,e1,v_XZ89_2,v_XZ89_3,e2).

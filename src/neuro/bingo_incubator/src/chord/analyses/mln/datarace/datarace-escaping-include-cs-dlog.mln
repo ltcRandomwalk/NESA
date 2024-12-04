@@ -1,0 +1,15 @@
+// domains
+*dom_E(e_dom)
+*dom_V(v_dom)
+*dom_P(p_dom)
+*dom_C(c_dom)
+// input predicates
+*EV(e_dom, v_dom)
+*PE(p_dom, e_dom)
+*escCPVO(c_dom, p_dom, v_dom, c_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+CEC(c_dom, e_dom, c_dom)
+
+// hard rules converted from dlog into soft rules
+1 PE(p,e), EV(e,v1), escCPVO(c,p,v1,o) => CEC(c,e,o)

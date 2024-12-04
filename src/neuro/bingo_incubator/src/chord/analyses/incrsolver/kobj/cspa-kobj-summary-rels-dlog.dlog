@@ -1,0 +1,121 @@
+# name=cspa-kobj-summary-rels-dlog
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+.include "K.dom"
+.bddvarorder F0_I0xM0xM1_T0_V0xV1_T1_H0_C0xC1xC2_Z0_K0xK1xK2
+
+
+#Output relations
+DIH_s(k:K0,c:C0,i:I0,h:H0) output
+DI_s(k:K0,c:C0,i:I0) output
+reachableT_s(k:K0,t:T0) output
+RobjValAsgnInst_s(k:K0,c:C0,l:V0,h:H0) output
+DIC_s(k:K0,c:C0,i:I0,c:C1) output
+rootCM_s(k:K0,c:C0,m:M0) output
+RgetInstFldInst_s(k:K0,c:C0,l:V0,b:V1,f:F0) output
+RobjVarAsgnInst_s(k:K0,c:C0,l:V0,r:V1) output
+reachableCM_s(k:K0,c:C0,m:M0) output
+RgetStatFldInst_s(k:K0,c:C0,l:V0,f:F0) output
+reachableCI_s(k:K0,c:C0,i:I0) output
+RputInstFldInst_s(k:K0,c:C0,b:V0,f:F0,r:V1) output
+DVDV_s(k:K0,c:C0,u:V0,d:C1,v:V1) output
+CVC_s(k:K0,c1:C0,v:V0,c2:C1) output
+DVC_s(k:K0,c1:C0,v:V0,c2:C1) output
+RputStatFldInst_s(k:K0,c:C0,f:F0,r:V0) output
+CMCM_s(k:K0,c:C0,m:M0,d:C1,n:M1) output
+CICM_s(k:K0,c:C0,i:I0,d:C1,m:M0) output
+CFC_s(k:K0,c1:C0,f:F0,c2:C1) output
+FC_s(k:K0,f:F0,c:C0) output
+pred(k:K0) output
+
+DI_f(k0:K0,k1:K1,k2:K2,c:C0,i:I0) output
+reachableT_f(k0:K0,k1:K1,k2:K2,t:T0) output
+reachableCM_f(k0:K0,k1:K1,k2:K2,c:C0,m:M0) output
+DVC_f(k0:K0,k1:K1,k2:K2,c1:C0,v:V0,c2:C1) output
+CICM_f(k0:K0,k1:K1,k2:K2,c:C0,i:I0,d:C1,m:M0) output
+CFC_f(k0:K0,k1:K1,k2:K2,c1:C0,f:F0,c2:C1) output
+FC_f(k0:K0,k1:K1,k2:K2,f:F0,c:C0) output
+matched(k0:K0,k1:K1,k2:K2) output
+fpath(k0:K0,k1:K1,k2:K2) output
+
+DIH_l(c:C0,i:I0,h:H0) output
+DI_l(c:C0,i:I0) output
+reachableT_l(t:T0) output
+RobjValAsgnInst_l(c:C0,l:V0,h:H0) output
+DIC_l(c:C0,i:I0,c:C1) output
+rootCM_l(c:C0,m:M0) output
+RgetInstFldInst_l(c:C0,l:V0,b:V1,f:F0) output
+RobjVarAsgnInst_l(c:C0,l:V0,r:V1) output
+reachableCM_l(c:C0,m:M0) output
+RgetStatFldInst_l(c:C0,l:V0,f:F0) output
+reachableCI_l(c:C0,i:I0) output
+RputInstFldInst_l(c:C0,b:V0,f:F0,r:V1) output
+DVDV_l(c:C0,u:V0,d:C1,v:V1) output
+CVC_l(c1:C0,v:V0,c2:C1) output
+DVC_l(c1:C0,v:V0,c2:C1) output
+RputStatFldInst_l(c:C0,f:F0,r:V0) output
+CMCM_l(c:C0,m:M0,d:C1,n:M1) output
+CICM_l(c:C0,i:I0,d:C1,m:M0) output
+CFC_l(c1:C0,f:F0,c2:C1) output
+FC_l(f:F0,c:C0) output
+
+#Constraints
+
+DIH_s(0,0,0,0).
+DI_s(0,0,0).
+reachableT_s(0,0).
+RobjValAsgnInst_s(0,0,0,0).
+DIC_s(0,0,0,0).
+rootCM_s(0,0,0).
+RgetInstFldInst_s(0,0,0,0,0).
+RobjVarAsgnInst_s(0,0,0,0).
+reachableCM_s(0,0,0).
+RgetStatFldInst_s(0,0,0,0).
+reachableCI_s(0,0,0).
+RputInstFldInst_s(0,0,0,0,0).
+DVDV_s(0,0,0,0,0).
+CVC_s(0,0,0,0).
+DVC_s(0,0,0,0).
+RputStatFldInst_s(0,0,0,0).
+CMCM_s(0,0,0,0,0).
+CICM_s(0,0,0,0,0).
+CFC_s(0,0,0,0).
+FC_s(0,0,0).
+pred(0).
+
+DI_f(0,0,0,0,0).
+reachableT_f(0,0,0,0).
+reachableCM_f(0,0,0,0,0).
+DVC_f(0,0,0,0,0,0).
+CICM_f(0,0,0,0,0,0,0).
+CFC_f(0,0,0,0,0,0).
+FC_f(0,0,0,0,0).
+matched(0,0,0).
+fpath(0,0,0).
+
+DIH_l(0,0,0).
+DI_l(0,0).
+reachableT_l(0).
+RobjValAsgnInst_l(0,0,0).
+DIC_l(0,0,0).
+rootCM_l(0,0).
+RgetInstFldInst_l(0,0,0,0).
+RobjVarAsgnInst_l(0,0,0).
+reachableCM_l(0,0).
+RgetStatFldInst_l(0,0,0).
+reachableCI_l(0,0).
+RputInstFldInst_l(0,0,0,0).
+DVDV_l(0,0,0,0).
+CVC_l(0,0,0).
+DVC_l(0,0,0).
+RputStatFldInst_l(0,0,0).
+CMCM_l(0,0,0,0).
+CICM_l(0,0,0,0).
+CFC_l(0,0,0).
+FC_l(0,0).

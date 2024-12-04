@@ -1,0 +1,22 @@
+// domains
+*dom_H(h_dom)
+*dom_T(t_dom)
+*dom_M(m_dom)
+*dom_V(v_dom)
+// input predicates
+*VH(v_dom, h_dom)
+*checkExcludedM(m_dom)
+*HT(h_dom, t_dom)
+*sub(t_dom, t_dom)
+*reachableM(m_dom)
+*McheckCastInst(m_dom, v_dom, t_dom, v_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+reachableCast(t_dom, v_dom)
+ptsVT(v_dom, t_dom)
+unsafeDowncast(v_dom, t_dom)
+
+// hard rules converted from dlog into soft rules
+1 McheckCastInst(m,_,t,v2), reachableM(m), !checkExcludedM(m) => reachableCast(t,v2)
+1 VH(v,h), HT(h,t) => ptsVT(v,t)
+1 reachableCast(t1,v), ptsVT(v,t2), !sub(t2,t1) => unsafeDowncast(v,t1)

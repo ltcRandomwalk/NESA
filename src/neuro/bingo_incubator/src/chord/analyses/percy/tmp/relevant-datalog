@@ -1,0 +1,283 @@
+#!/usr/bin/ruby
+
+require 'myutils'
+
+# Input:
+#   inPaths: set of Datalog files (in the order that they would be run in the analysis).
+#   The last file is assumed to be the main file.
+#   An effect relation we want to investigate.
+#   A set of causes relations that we want to identify.
+# Output:
+#   A Datalog file with new relations that computes what relations are relevant.
+# Note: assume in the Datalog file, each term has no spaces inside.
+# Optimizations: prune stuff from the RHS
+inPaths, relevantOutPath, transOutPath, causeRels, effectRel, splitRules = extractArgs(:spec => [
+  ['inPaths', [String], nil, true],
+  ['relevantOutPath', String, nil, true],
+  ['transOutPath', String, nil, true],
+  ['causeRels', [String], ['VH', 'CI']],
+  ['effectRel', String, nil, true],
+  ['splitRules', TrueClass, true],
+nil])
+
+class Term # e.g., CICM(ci,i,cm,m)
+  attr :rel # can be special '='
+  attr :negate
+  attr :args # Variable name, _, or an integer
+  attr :types
+  def initialize(rel, args, types, negate=false)
+    @rel = rel
+    @args = args
+    @types = types
+    @negate = negate
+  end
+  def self.parse(s)
+    s = s.trim
+    if s =~ /^(!?)(\w+)\((.+)\)$/
+      negate = $1 != ""
+      rel = $2
+      argTypes = $3.split(/,/)
+    elsif s =~ /^(\w+)(=|<|>|<=|>=|!=)(\w+)$/
+      negate = false
+      rel = $2
+      argTypes = [$1, $3]
+    else
+      raise "Bad term: #{s}"
+    end
+    args = []
+    types = []
+    argTypes.each { |at|
+      a, t = at.split(/:/)
+      a = newVar if a == '_'
+      t = $1 if t =~ /^(\w+)\d+$/
+      args << a
+      types << t # Could be nil
+    }
+    Term.new(rel, args, types, negate)
+  end
+
+  def relevant
+    Term.new("r_"+@rel, @args, @types, @negate)
+  end
+
+  def replace(subst)
+    Term.new(@rel, @args.map { |x| subst[x] || x }, @types, @negate)
+  end
+
+  def to_s
+    if ['=','<','>','<=','>=','!='].index(@rel)
+      @args[0] + (@negate ? "!" : "") + @rel + @args[1]
+    else
+      (@negate ? "!" : "") + @rel + "(" + @args.map_with_index { |a,i| a + (@types[i] ? ":"+@types[i] : "") }.join(',') + ")"
+    end
+  end
+end
+
+class Rule
+  attr_accessor :target, :sources
+  def initialize(target, sources)
+    @target = target
+    @sources = sources
+  end
+  def to_s
+    # Replace variables that only occur once with _
+    counts = {}
+    (@target.args + @sources.map{|source| source.args}.flatten).each { |a|
+      next if a =~ /^\d+$/
+      counts.incr(a)
+    }
+    subst = {}
+    counts.keys.each { |a|
+      next if counts[a] != 1
+      subst[a] = "_"
+    }
+    target = @target.replace(subst)
+    sources = @sources.map{|source| source.replace(subst)}
+    "#{target} :- #{sources.join(', ')}."
+  end
+end
+
+$transRels = {} # Transition relations that we generate
+
+def getTransRel(rel)
+  i = 0
+  while true
+    rel2 = i == 0 ? rel : "#{rel}#{i}"
+    return rel2 if not $transRels[rel2]
+    i += 1
+  end
+end
+
+$varId = 0
+def newVar; $varId += 1; "x#{$varId}" end
+
+mainName = nil
+includes = {}
+bddvarorder = nil
+
+relevantOut = []
+transOut = []
+outs = [relevantOut, transOut]
+
+seenRels = {} # If a relation occurs multiple times in inPaths, assume it will appear first as output, then input.
+relList = [] # List of relations that we encountered in order
+$trackRels = {} # The relations that we want to track (cause relations and all output relations) -> definition
+forwEdges = {}
+backEdges = {}
+rules = [] # List of [name, rule]
+
+inPaths.each_with_index { |inPath,fi| # Go through the Datalog files in this list...
+  #isMain = inPath == mainInPath
+  isMain = fi == inPaths.size-1
+  puts "Processing: #{inPath}"+(isMain ? " [main]" : "")
+
+  IO.foreach(inPath) { |line|
+    if line =~ /^# name=(.+)-dlog$/
+      mainName = $1 if isMain
+      next
+    end
+
+    name = line =~ /NAME=(\w+)/ ? $1 : "-" # The name of a relation (if it exists)
+    line = line.sub(/#.*$/, "").trim
+    line.gsub!(/\s+split$/, "")
+    next if line == ""
+
+    if line =~ /^\.bddvarorder/
+      bddvarorder = line if isMain
+    elsif line =~ /.include/
+      includes[line] = true
+    elsif line =~ /^(.+) (input|output)$/ # Relation that we need to keep track of
+      t = Term.parse($1)
+      next if seenRels[t.rel]
+      seenRels[t.rel] = $1
+      $trackRels[t.rel] = t if causeRels.index(t.rel) || $2 == 'output' # These are ones we operate on
+      relList << t.rel
+    elsif line =~ /^(.+):-(.+)\.$/ # A rule
+      target = Term.parse($1)
+      sources = $2.split(/, /).map { |x| Term.parse(x) }
+      rule = Rule.new(target, sources)
+      sources.each { |source|
+        forwEdges.push(source.rel, target.rel)
+        backEdges.push(target.rel, source.rel)
+      }
+      rules << [name, rule]
+    elsif line =~ /^(.+)\.$/ # Relation which is just true: no effect on relevance computation.
+    else
+      raise "Expected 'A :- B.', got: #{line}"
+    end
+  }
+}
+
+# Remove relations which don't lie on a path from cause to effect
+visitRel = lambda { |rel,edges,visited|
+  if not visited[rel]
+    visited[rel] = true
+    (edges[rel] || []).each { |rel2|
+      visitRel.call(rel2, edges, visited)
+    }
+  end
+}
+forwReachableRel = {}
+backReachableRel = {}
+visitRel.call(effectRel, backEdges, backReachableRel)
+causeRels.each { |causeRel| visitRel.call(causeRel, forwEdges, forwReachableRel) }
+notUsed = []
+
+reachableRel = {}
+defRel = {} # Include definitions of everything that's reachable
+relList.each { |rel|
+  if forwReachableRel[rel] && backReachableRel[rel]
+    reachableRel[rel] = true
+    defRel[rel] = true
+    (backEdges[rel] || []).each { |rel2| defRel[rel2] = true }
+  else
+    notUsed << rel
+  end
+}
+#puts "Removing #{notUsed.size} unused relations: #{notUsed.join(' ')}" if notUsed.size > 0
+
+# Print out everything
+relList.each { |rel|
+  next unless defRel[rel]
+  outs.each { |out| out << "#{seenRels[rel]} input" }
+}
+relList.each { |rel|
+  next unless reachableRel[rel]
+  t = $trackRels[rel] or raise "Reachable relation not output: #{rel}"
+  relevantOut << "#{t.relevant} output # track"
+  transOut << "#{t.relevant} input # track"
+}
+
+rules.each { |name,rule|
+  target, sources = rule.target, rule.sources
+  next unless reachableRel[target.rel]
+  outs.each { |out|
+    out << ''
+    out << "### #{rule}"
+  }
+  sources.each { |source|
+    next unless reachableRel[source.rel]
+    t = $trackRels[source.rel] or raise "Reachable relation not output: #{source.rel}"
+
+    rstr = Rule.new(source.relevant, [target.relevant]+sources).to_s
+    rstr += " split" if splitRules && sources.size > 2
+    relevantOut << rstr # Relevant rule
+
+    # Create transition between two relations
+    #puts [source.rel, target.rel].inspect
+    full_args = source.args + target.args
+    raise "Relation not defined: #{source.rel} [#{line}]" unless $trackRels[source.rel]
+    raise "Relation not defined: #{target.rel} [#{line}]" unless $trackRels[target.rel]
+    full_types = $trackRels[source.rel].types + $trackRels[target.rel].types
+    #puts full_types.inspect
+    indices_s = []
+    indices_t = []
+    args = []
+    types = []
+    full_args.each_with_index { |a,i| t = full_types[i]
+      j = args.index(a) # Already present
+      if not j
+        j = args.size
+        args << a
+        types << t
+      else
+        raise "Types don't match: #{types[j]} and #{t} [#{line}]" if types[j] != t
+      end
+      (i < source.args.size ? indices_s : indices_t) << j
+    }
+    rel = getTransRel("t_"+source.rel+"_"+target.rel)
+    def_t = Term.new(rel, args, types) # Definition
+    $transRels[rel] = def_t
+    transOut << "# TRANS #{name} #{rel} #{source.rel} #{target.rel} #{indices_s.join(',')} #{indices_t.join(',')}"
+    transOut << "#{def_t} output"
+    transOut << Rule.new(Term.new(rel, args, []), [target.relevant]+sources)
+  }
+}
+
+t = $trackRels[effectRel]
+relevantOut << ''
+relevantOut << '### Base case'
+relevantOut << Rule.new(t.relevant, [t])
+
+relevantHeader = []
+transHeader = []
+headers = [relevantHeader,transHeader]
+
+def getName(path); File.basename(path).gsub(/[_\.]/, '-') end
+
+headers.each { |out|
+  out << "### WARNING: do not edit this file directly since it is automatically generated and can be overwritten at any point."
+}
+relevantHeader << "# name=#{getName(relevantOutPath)}"
+transHeader << "# name=#{getName(transOutPath)}"
+headers.each { |out|
+  out << ''
+  includes.keys.sort.each { |line| out << line }
+  out << bddvarorder
+  out << ''
+}
+
+#puts "Writing: #{relevantOutPath}"
+#puts "Writing: #{transOutPath}"
+IO.writelines(relevantOutPath, relevantHeader + relevantOut)
+IO.writelines(transOutPath, transHeader + transOut)

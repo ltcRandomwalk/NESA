@@ -1,0 +1,33 @@
+# name=all-polysite-dlog_XZ89_
+.include "M.dom"
+.include "I.dom"
+.include "C.dom"
+.bddvarorder M0xI0xM1_C0xC1
+
+
+#Input relations
+CICM(c:C0,i:I0,d:C1,m:M0) input
+virtIM(i:I0,m:M0) input
+reachableCI(c:C0,i:I0) input
+checkExcludedI(i:I0) input
+
+#Output relations
+virtI(i:I0) output
+polySite(i:I0) output
+insvIM(i:I0,m:M0) output
+allQueries(i:I0) output
+
+#Instrumented relations
+insvIM_XZ89_0_51(i:I0,m:M0,v_XZ89_0:C0,v_XZ89_1:C1) output
+virtI_XZ89_1_51(i:I0,v_XZ89_0:M0) output
+polySite_XZ89_2_51(i:I0,m1:M0,m2:M1) output
+
+#Original rules
+insvIM(i,m) :- CICM(_,i,_,m).
+virtI(i) :- virtIM(i,_).
+polySite(i) :- virtI(i), insvIM(i,m1), insvIM(i,m2), !checkExcludedI(i), m1!=m2.
+
+#Instrumented rules
+insvIM_XZ89_0_51(i,m,v_XZ89_0,v_XZ89_1) :- CICM(v_XZ89_0,i,v_XZ89_1,m).
+virtI_XZ89_1_51(i,v_XZ89_0) :- virtIM(i,v_XZ89_0).
+polySite_XZ89_2_51(i,m1,m2) :- virtI(i), insvIM(i,m1), insvIM(i,m2), !checkExcludedI(i), m1!=m2.

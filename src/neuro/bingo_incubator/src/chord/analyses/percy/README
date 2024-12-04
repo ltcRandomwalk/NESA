@@ -1,0 +1,5 @@
+Run
+oopsla @<tag> [-n]
+-n prints out the command
+In the script, sel(<i>, ...) selects between various commands.  i =
+nil chooses everything.

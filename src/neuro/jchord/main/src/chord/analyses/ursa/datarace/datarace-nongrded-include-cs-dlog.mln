@@ -1,0 +1,32 @@
+// domains
+*dom_AS(as_dom)
+*dom_I(i_dom)
+*dom_L(l_dom)
+*dom_E(e_dom)
+*dom_M(m_dom)
+*dom_C(c_dom)
+// input predicates
+*syncCLC(c_dom, l_dom, c_dom)
+*syncC(c_dom)
+*thrSenCICM(c_dom, i_dom, c_dom, m_dom)
+*MI(m_dom, i_dom)
+*threadStartI(i_dom)
+*transLI(l_dom, i_dom)
+*threadACM(as_dom, c_dom, m_dom)
+*transLE(l_dom, e_dom)
+*ME(m_dom, e_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+unlockedM(as_dom, c_dom, m_dom, c_dom)
+elemLock(c_dom, e_dom, c_dom)
+unlockedI(as_dom, c_dom, i_dom, c_dom)
+unlockedE_cs(as_dom, c_dom, e_dom, c_dom)
+invkLock(c_dom, i_dom, c_dom)
+
+// hard rules converted from dlog into soft rules
+1 transLI(l,i), syncCLC(c,l,o) => invkLock(c,i,o)
+1 transLE(l,e), syncCLC(c,l,o) => elemLock(c,e,o)
+1 syncC(o), threadACM(t,c,m) => unlockedM(t,c,m,o)
+1 unlockedM(t,d,m,o), MI(m,i), !invkLock(d,i,o), !threadStartI(i) => unlockedI(t,d,i,o)
+1 unlockedI(t,c,i,o), thrSenCICM(c,i,d,n) => unlockedM(t,d,n,o)
+1 unlockedM(t,c,m,o), ME(m,e), !elemLock(c,e,o) => unlockedE_cs(t,c,e,o)

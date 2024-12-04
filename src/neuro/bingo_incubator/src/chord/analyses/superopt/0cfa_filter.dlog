@@ -1,0 +1,129 @@
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# Context-insensitive may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=0cfa-filter-dlog
+
+.include "T.dom"
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "Z.dom"
+
+.bddvarorder I0xM0xM1_T0_V0xV1_T1_H0_F0_H1_Z0
+
+###
+# Relations
+###
+
+MV(m:M0,v:V0) input
+VT(v:V0,t:T0) input 
+HT(h:H0,t:T1) input 
+cha(n:M1,t:T1,m:M0) input 
+sub(t1:T1,t2:T0) input 
+MmethArg(m:M0,n:Z0,v:V0) input
+MmethRet(m:M0,n:Z0,v:V1) input
+IinvkArg0(i:I0,v:V1) input
+IinvkArg(i:I0,n:Z0,v:V1) input
+IinvkRet(i:I0,n:Z0,v:V0) input
+MI(m:M,i:I) input
+statIM(i:I,m:M) input
+specIM(i:I,m:M) input
+virtIM(i:I,m:M) input 
+
+MobjValAsgnInst(m:M0,l:V0,h:H0) input
+MobjVarAsgnInst(m:M0,l:V0,r:V1) input
+MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) input
+MputInstFldInst(m:M0,b:V0,f:F0,r:V1) input
+MgetStatFldInst(m:M0,l:V0,f:F0) input
+MputStatFldInst(m:M0,f:F0,r:V) input
+
+clsForNameIT(i:I0,t:T0) input
+objNewInstIH(i:I0,h:H0) input
+objNewInstIM(i:I0,m:M0) input
+conNewInstIH(i:I0,h:H0) input
+conNewInstIM(i:I0,m:M0) input
+aryNewInstIH(i:I0,h:H0) input
+
+classT(t:T) input
+staticTM(t:T,m:M) input
+staticTF(t:T,f:F) input
+clinitTM(t:T,m:M) input
+
+reachableT(t:T) input
+reachableM(m:M) input 
+
+
+F_MV(m:M0,v:V0) output
+F_VT(v:V0,t:T0) output 
+F_HT(h:H0,t:T1) output 
+F_cha(n:M1,t:T1,m:M0) output 
+F_sub(t1:T1,t2:T0) output 
+F_MmethArg(m:M0,n:Z0,v:V0) output
+F_MmethRet(m:M0,n:Z0,v:V0) output
+F_IinvkArg0(i:I0,v:V1) output
+F_IinvkArg(i:I0,n:Z0,v:V1) output
+F_IinvkRet(i:I0,n:Z0,v:V0) output
+F_MI(m:M,i:I) output
+F_statIM(i:I,m:M) output
+F_specIM(i:I,m:M) output
+F_virtIM(i:I,m:M) output 
+
+F_MobjValAsgnInst(m:M0,l:V0,h:H0) output
+F_MobjVarAsgnInst(m:M0,l:V0,r:V1) output
+F_MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) output
+F_MputInstFldInst(m:M0,b:V0,f:F0,r:V1) output
+F_MgetStatFldInst(m:M0,l:V0,f:F0) output
+F_MputStatFldInst(m:M0,f:F0,r:V) output
+
+F_clsForNameIT(i:I0,t:T0) output
+F_objNewInstIH(i:I0,h:H0) output
+F_objNewInstIM(i:I0,m:M0) output
+F_conNewInstIH(i:I0,h:H0) output
+F_conNewInstIM(i:I0,m:M0) output
+F_aryNewInstIH(i:I0,h:H0) output
+
+F_classT(t:T) output
+F_staticTM(t:T,m:M) output
+F_staticTF(t:T,f:F) output
+F_clinitTM(t:T,m:M) output
+
+
+F_MV(m,v) :- MV(m,v), reachableM(m).
+F_VT(v,t) :- VT(v,t), reachableT(t).
+F_HT(h,t)  :- HT(h,t), reachableT(t).
+F_cha(n,t,m)  :- cha(n,t,m), reachableT(t), reachableM(m), reachableM(n).
+F_sub(t1,t2)  :- sub(t1,t2), reachableT(t1), reachableT(t2).
+F_MmethArg(m,n,v)  :- MmethArg(m,n,v), reachableM(m).
+F_MmethRet(m,n,v)  :- MmethRet(m,n,v), reachableM(m).
+F_IinvkArg0(i,v)  :- IinvkArg0(i,v), MI(m,i), reachableM(m).
+F_IinvkArg(i,n,v)  :- IinvkArg(i,n,v), MI(m,i), reachableM(m).
+F_IinvkRet(i,n,v)  :- IinvkRet(i,n,v), MI(m,i), reachableM(m).
+F_MI(m,i)  :- MI(m,i), reachableM(m).
+F_statIM(i,m)  :- statIM(i,m), reachableM(m).
+F_specIM(i,m)  :- specIM(i,m), reachableM(m).
+F_virtIM(i,m)  :- virtIM(i,m), reachableM(m).
+
+F_MobjValAsgnInst(m,l,h)  :- MobjValAsgnInst(m,l,h), reachableM(m).
+F_MobjVarAsgnInst(m,l,r)  :- MobjVarAsgnInst(m,l,r), reachableM(m).
+F_MgetInstFldInst(m,l,b,f)  :- MgetInstFldInst(m,l,b,f), reachableM(m).
+F_MputInstFldInst(m,b,f,r)  :- MputInstFldInst(m,b,f,r), reachableM(m).
+F_MgetStatFldInst(m,l,f)  :- MgetStatFldInst(m,l,f), reachableM(m).
+F_MputStatFldInst(m,f,r)  :- MputStatFldInst(m,f,r), reachableM(m).
+
+F_clsForNameIT(i,t)  :- clsForNameIT(i,t), reachableT(t). 
+F_objNewInstIH(i,h)  :- objNewInstIH(i,h).
+F_objNewInstIM(i,m)  :- objNewInstIM(i,m), reachableM(m). 
+F_conNewInstIH(i,h)  :- conNewInstIH(i,h).
+F_conNewInstIM(i,m)  :- conNewInstIM(i,m), reachableM(m). 
+F_aryNewInstIH(i,h)  :- aryNewInstIH(i,h).
+
+F_classT(t)  :- classT(t), reachableT(t). 
+F_staticTM(t,m) :- staticTM(t,m),  reachableT(t), reachableM(m).
+F_staticTF(t,f) :- staticTF(t,f),  reachableT(t).
+F_clinitTM(t,m)  :- clinitTM(t,m),  reachableT(t), reachableM(m).

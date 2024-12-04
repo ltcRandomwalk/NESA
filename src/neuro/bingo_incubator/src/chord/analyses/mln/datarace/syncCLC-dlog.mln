@@ -1,0 +1,19 @@
+// domains
+*dom_L(l_dom)
+*dom_M(m_dom)
+*dom_V(v_dom)
+*dom_C(c_dom)
+// input predicates
+*CVC(c_dom, v_dom, c_dom)
+*thisMV(m_dom, v_dom)
+*syncLM(l_dom, m_dom)
+*syncLV(l_dom, v_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+syncCLC(c_dom, l_dom, c_dom)
+syncC(c_dom)
+
+// hard rules converted from dlog into soft rules
+1 syncLM(l,m), thisMV(m,v1), CVC(c,v1,o) => syncCLC(c,l,o)
+1 syncLV(l,v1), CVC(c,v1,o) => syncCLC(c,l,o)
+1 syncCLC(c,l,o) => syncC(o)

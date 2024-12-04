@@ -1,0 +1,18 @@
+// domains
+*dom_I(i_dom)
+*dom_M(m_dom)
+*dom_C(c_dom)
+// input predicates
+CICM(c_dom, i_dom, c_dom, m_dom)
+*checkExcludedI(i_dom)
+*virtIM(i_dom, m_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+virtI(i_dom)
+insvIM(i_dom, m_dom)
+polySite(i_dom)
+
+// rules converted from dlog, which are all hard
+CICM(a,i,b,m) => insvIM(i,m).
+virtIM(i,a) => virtI(i).
+virtI(i), insvIM(i,m1), insvIM(i,m2), !checkExcludedI(i), m1!=m2 => polySite(i).

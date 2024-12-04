@@ -1,0 +1,30 @@
+# name=infoflow-dlog
+
+.include "H.dom"
+.include "M.dom"
+.include "V.dom"
+.include "C.dom"
+
+.bddvarorder M0_V0xV1_C0xH0xC1
+
+###
+# Relations
+###
+
+reachableCM(c:C,m:M) input
+sourceH(h:H) input
+sinkV(v:V) input
+CVC(c:C,v:V,o:C) input
+CH(c:C,h:H) input
+MV(m:M, v:V) input
+MH(m:M, h:H) input
+
+reachableV(v:V)
+reachableH(h:H)
+
+flowHV(h:H,v:V) output
+
+reachableV(v) :- MV(m,v),reachableCM(_,m), sinkV(v).
+reachableH(h) :- MH(m,h),reachableCM(_,m), sourceH(h).
+
+flowHV(h,v) :- CVC(_,v,o), CH(o,h), reachableV(v), reachableH(h).

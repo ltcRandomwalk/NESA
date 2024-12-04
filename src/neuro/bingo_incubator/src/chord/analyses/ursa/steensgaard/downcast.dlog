@@ -1,0 +1,31 @@
+# Author: Xin Zhang
+# name=steensgaard-downcast-dlog
+
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+
+.bddvarorder M0_T0_V0xV1_T1_H0
+
+###
+# Relations
+###
+
+MobjVarAsgnInst(m:M,l:V,r:V) input
+reachableM(m:M) input
+reachableCast(t:T,v:V)
+sVH(v:V,h:H) input
+sub(s:T1,t:T0) input
+HT(h:H0,t:T1) input
+McheckCastInst(m:M, v1:V, t:T, v2:V) input
+checkExcludedM(m:M) input
+
+ptsVT(v:V,t:T)
+unsafeDowncast(v:V,t:T) output
+
+reachableCast(t,v2) :- McheckCastInst(m,_,t,v2), reachableM(m), !checkExcludedM(m).
+
+ptsVT(v,t) :- sVH(v,h), HT(h,t).
+
+unsafeDowncast(v,t1) :- reachableCast(t1,v), ptsVT(v,t2), !sub(t2,t1).

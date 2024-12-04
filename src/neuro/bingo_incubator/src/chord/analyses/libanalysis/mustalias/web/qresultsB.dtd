@@ -1,0 +1,12 @@
+<!ENTITY % Mlist SYSTEM "Mlist.dtd">
+<!ENTITY % Ilist SYSTEM "Ilist.dtd">
+<!ENTITY % Hlist SYSTEM "Hlist.dtd">
+<!ELEMENT qresults (queries, Mlist, Ilist, Hlist)>
+<!ELEMENT queries (query)*>
+<!ELEMENT query EMPTY>
+<!ATTLIST query
+	Iid		IDREF	#REQUIRED
+	Hid		IDREF	#REQUIRED>
+%Mlist;
+%Ilist;
+%Hlist;

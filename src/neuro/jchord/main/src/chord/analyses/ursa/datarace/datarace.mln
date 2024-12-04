@@ -1,0 +1,129 @@
+// mhp-cs-dlog.mln
+// domains
+*dom_AS(as_dom)
+*dom_I(i_dom)
+*dom_M(m_dom)
+*dom_P(p_dom)
+*dom_C(c_dom)
+// input predicates
+*PI(p_dom, i_dom)
+*CICM(c_dom, i_dom, c_dom, m_dom)
+*threadStartI(i_dom)
+*MPhead(m_dom, p_dom)
+*threadACM(as_dom, c_dom, m_dom)
+*PP(p_dom, p_dom)
+*threadCICM(c_dom, i_dom, c_dom, m_dom)
+*MPtail(m_dom, p_dom)
+
+// flowins-thresc-cs-dlog.mln
+// domains
+*dom_E(e_dom)
+// *dom_M(m_dom)
+*dom_V(v_dom)
+*dom_Z(z_dom)
+// *dom_C(c_dom)
+*dom_F(f_dom)
+// input predicates
+*EV(e_dom, v_dom)
+*FC(f_dom, c_dom)
+*MmethArg(m_dom, z_dom, v_dom)
+*CFC(c_dom, f_dom, c_dom)
+*CVC(c_dom, v_dom, c_dom)
+*escE(e_dom)
+
+// datarace-parallel-include-cs-dlog.mln
+// domains
+// *dom_AS(as_dom)
+// *dom_E(e_dom)
+// *dom_P(p_dom)
+// *dom_C(c_dom)
+// input predicates
+*PE(p_dom, e_dom)
+// *mhp_cs(c_dom, p_dom, as_dom, as_dom)
+
+// datarace-cs-noneg-dlog.mln
+// domains
+// *dom_AS(as_dom)
+// *dom_E(e_dom)
+*dom_K(k_dom)
+// *dom_C(c_dom)
+// *dom_F(f_dom)
+// input predicates
+*excludeSameThread(k_dom)
+*EF(e_dom, f_dom)
+// *mhe_cs(c_dom, e_dom, as_dom, as_dom)
+*unlockedRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+*statF(f_dom)
+// *CEC(c_dom, e_dom, c_dom)
+
+// mhp-cs-dlog.mln
+// non-input predicates, which can appear on the lhs of each rule
+SummEdge_cs(c_dom, p_dom, as_dom, as_dom, as_dom)
+simplePT_cs(c_dom, p_dom, c_dom, p_dom)
+PathEdge_cs(c_dom, p_dom, as_dom, as_dom, as_dom)
+simplePM_cs(c_dom, p_dom, c_dom, m_dom)
+threadAC(as_dom, c_dom)
+simplePH_cs(c_dom, p_dom, c_dom, p_dom)
+threadPH_cs(c_dom, p_dom, c_dom, p_dom)
+mhp_cs(c_dom, p_dom, as_dom, as_dom)
+threadACH(as_dom, c_dom, p_dom)
+threadPM_cs(c_dom, p_dom, c_dom)
+
+// flowins-thresc-cs-dlog.mln
+// non-input predicates, which can appear on the lhs of each rule
+escO(c_dom)
+CEC(c_dom, e_dom, c_dom)
+
+// datarace-parallel-include-cs-dlog.mln
+// non-input predicates, which can appear on the lhs of each rule
+mhe_cs(c_dom, e_dom, as_dom, as_dom)
+
+// datarace-cs-noneg-dlog.mln
+// non-input predicates, which can appear on the lhs of each rule
+escapingRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+racePairs_cs(e_dom, e_dom)
+parallelRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+statE(e_dom)
+datarace(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+
+
+// mhp-cs-dlog.mln
+// hard rules converted from dlog into soft rules
+1 CICM(c,i,d,m), PI(p,i), !threadStartI(i) => simplePM_cs(c,p,d,m)
+1 simplePM_cs(c,p,d,m), MPhead(m,h) => simplePH_cs(c,p,d,h)
+1 simplePM_cs(c,p,d,m), MPtail(m,t) => simplePT_cs(c,p,d,t)
+1 threadCICM(c,i,d,m), PI(p,i) => threadPM_cs(c,p,d)
+1 threadCICM(c,i,d,m), PI(p,i), MPhead(m,h) => threadPH_cs(c,p,d,h)
+1 threadACM(t,c,m), m!=0 => threadAC(t,c)
+1 threadACM(t,c,m), MPhead(m,h), m!=0 => threadACH(t,c,h)
+PathEdge_cs(0,0,1,0,0).
+1 PathEdge_cs(c,p,t,t1,t2), PP(p,q) => PathEdge_cs(c,q,t,t1,t2)
+1 simplePH_cs(c,p,d,q), PathEdge_cs(c,p,t,t3,t2), t1=t2 => PathEdge_cs(d,q,t,t1,t2)
+1 simplePT_cs(c,p,d,q), PathEdge_cs(d,q,t,t1,t2) => SummEdge_cs(c,p,t,t1,t2)
+1 SummEdge_cs(c,p,t,t2,t3), PathEdge_cs(c,p,t,t1,t2), PP(p,r) => PathEdge_cs(c,r,t,t1,t3)
+1 threadPM_cs(c,p,d), PathEdge_cs(c,p,t,t1,t3), PP(p,r), threadAC(t2,d) => PathEdge_cs(c,r,t,t1,t2)
+1 threadPH_cs(c,p,d,h), PathEdge_cs(c,p,y,t1,t2), threadAC(x,d), z=y => PathEdge_cs(d,h,x,y,z)
+1 threadPH_cs(c,p,d,h), PathEdge_cs(c,p,t1,t2,y), threadAC(x,d), z=y => PathEdge_cs(d,h,x,y,z)
+1 threadPM_cs(c,p,d), PathEdge_cs(c,p,t1,t2,x), threadACH(x,e,h1), threadAC(y,d), z=y => PathEdge_cs(e,h1,x,y,z)
+1 PathEdge_cs(c,p,t1,t3,t2), t1!=0, t2!=0 => mhp_cs(c,p,t1,t2)
+
+// flowins-thresc-cs-dlog.mln
+// hard rules converted from dlog into soft rules
+1 FC(f,o) => escO(o)
+1 MmethArg(1,0,v1), CVC(c,v1,o) => escO(o)
+1 CFC(o1,f,o2), escO(o1) => escO(o2)
+1 CVC(c,v1,o), EV(e,v1), escO(o), escE(e) => CEC(c,e,o)
+
+// datarace-parallel-include-cs-dlog.mln
+// hard rules converted from dlog into soft rules
+1 mhp_cs(c,p,t1,t2), PE(p,e) => mhe_cs(c,e,t1,t2)
+
+// datarace-cs-noneg-dlog.mln
+// hard rules converted from dlog into soft rules
+1 EF(e,f), statF(f) => statE(e)
+1 unlockedRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o) => escapingRaceHext(t1,c1,e1,t2,c2,e2)
+1 unlockedRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2) => escapingRaceHext(t1,c1,e1,t2,c2,e2)
+1 escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1) => parallelRaceHext(t1,c1,e1,t2,c2,e2)
+1 parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1!=t2 => datarace(t1,c1,e1,t2,c2,e2)
+1 parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(0) => datarace(t1,c1,e1,t2,c2,e2)
+1 datarace(t1,c1,e1,t2,c2,e2) => racePairs_cs(e1,e2)

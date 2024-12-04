@@ -1,0 +1,13 @@
+# name=reachedFromMM-dlog
+
+.include "M.dom"
+
+.bddvarorder M0xM1
+
+appM(m:M) input
+MM(m1:M0,m2:M1) input
+
+reachedFromMM(m1:M0,m2:M1) output
+
+reachedFromMM(m0,m1) :- appM(m0), m1=m0.
+reachedFromMM(m0,m2) :- reachedFromMM(m0,m1), MM(m2,m1), appM(m2).

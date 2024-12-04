@@ -1,0 +1,26 @@
+.include "I.dom"
+.include "M.dom"
+.include "C.dom"
+.include "CXM.dom"
+
+# name=reach-dlog
+
+.bddvarorder I0xM0xM1_C0xC1_CXM0_CXM1_CXM2
+
+###
+# Relations
+###
+
+CXMCM(cxm:CXM,c:C,m:M) input
+CICM(c:C,i:I,d:C,m:M) input
+MI(m:M,i:I) input
+
+reachCMCM(cxm:CXM,dxm:CXM) 
+reachMM(m1:M,m2:M) output
+edgeMM(m1:M,m2:M) output
+
+edgeMM(m1,m2) :- MI(m1,i), CICM(_,i,_,m2).
+reachCMCM(cxm,dxm) :- MI(m1,i), CICM(c,i,d,m2), CXMCM(cxm,c,m1), CXMCM(dxm,d,m2).
+#reachCMCM(cxm,exm) :- reachCMCM(cxm,dxm), reachCMCM(dxm,exm). 
+reachCMCM(cxm,exm) :-  MI(m1,i), CICM(c,i,d,m2), CXMCM(cxm,c,m1), CXMCM(dxm,d,m2), reachCMCM(dxm,exm).
+reachMM(m1,m2) :- reachCMCM(cxm,dxm), CXMCM(cxm,_,m1),CXMCM(dxm,_,m2).

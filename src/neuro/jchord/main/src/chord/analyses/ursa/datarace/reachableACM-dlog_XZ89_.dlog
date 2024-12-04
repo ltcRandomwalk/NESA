@@ -1,0 +1,32 @@
+# name=ursa-reachableACM-dlog_XZ89_
+.include "M.dom"
+.include "I.dom"
+.include "AS.dom"
+.include "C.dom"
+.bddvarorder AS0_I0xI1xM0xM1_C0xC1xC2
+
+
+#Input relations
+thrSenCICM(c:C0,i:I0,d:C1,m:M0) input
+threadACM(t:AS0,o:C0,m:M0) input
+MI(m:M0,i:I0) input
+threadStartI(i:I0) input
+
+#Output relations
+reachableACM(t:AS0,c:C0,m:M0) output
+threadReachableM_cs(m:M0) output
+
+#Instrumented relations
+reachableACM_XZ89_0_91(t:AS0,c:C0,m:M0) output
+reachableACM_XZ89_1_91(t:AS0,d:C0,n:M0,c:C1,m:M1,i:I0) output
+threadReachableM_cs_XZ89_2_91(m:M0,v_XZ89_0:AS0,v_XZ89_1:C0) output
+
+#Original rules
+reachableACM(t,c,m) :- threadACM(t,c,m).
+reachableACM(t,d,n) :- reachableACM(t,c,m), MI(m,i), thrSenCICM(c,i,d,n).
+threadReachableM_cs(m) :- reachableACM(_,_,m).
+
+#Instrumented rules
+reachableACM_XZ89_0_91(t,c,m) :- threadACM(t,c,m).
+reachableACM_XZ89_1_91(t,d,n,c,m,i) :- reachableACM(t,c,m), MI(m,i), thrSenCICM(c,i,d,n).
+threadReachableM_cs_XZ89_2_91(m,v_XZ89_0,v_XZ89_1) :- reachableACM(v_XZ89_0,v_XZ89_1,m).

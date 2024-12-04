@@ -1,0 +1,54 @@
+# name=datarace-nongrded-include-cs-dlog_XZ89_
+.include "AS.dom"
+.include "C.dom"
+.include "I.dom"
+.include "M.dom"
+.include "V.dom"
+.include "E.dom"
+.include "L.dom"
+.include "F.dom"
+.include "T.dom"
+.bddvarorder L0_E0_F0_AS0_I0xM0_T0_V0_C0xC1_C2
+
+
+#Input relations
+MI(m:M0,i:I0) input
+ME(m:M0,e:E0) input
+thrSenCICM(c:C0,i:I0,d:C1,m:M0) input
+threadACM(t:AS0,c:C0,m:M0) input
+transLI(l:L0,i:I0) input
+transLE(l:L0,e:E0) input
+threadStartI(i:I0) input
+syncC(c:C1) input
+syncCLC(c:C0,l:L0,o:C1) input
+
+#Output relations
+invkLock(c:C0,i:I0,o:C1) output
+elemLock(c:C0,e:E0,o:C1) output
+unlockedM(t:AS0,c1:C1,m:M0,c2:C2) output
+unlockedI(t:AS0,c1:C0,i:I0,c2:C2) output
+unlockedE_cs(t:AS0,c1:C0,e:E0,c2:C1) output
+
+#Instrumented relations
+invkLock_XZ89_0_95(c:C0,i:I0,o:C1,l:L0) output
+unlockedM_XZ89_2_95(t:AS0,c:C0,m:M0,o:C1) output
+elemLock_XZ89_1_95(c:C0,e:E0,o:C1,l:L0) output
+unlockedM_XZ89_4_95(t:AS0,d:C0,n:M0,o:C1,c:C2,i:I0) output
+unlockedI_XZ89_3_95(t:AS0,d:C0,i:I0,o:C1,m:M0) output
+unlockedE_cs_XZ89_5_95(t:AS0,c:C0,e:E0,o:C1,m:M0) output
+
+#Original rules
+invkLock(c,i,o) :- transLI(l,i), syncCLC(c,l,o).
+elemLock(c,e,o) :- transLE(l,e), syncCLC(c,l,o).
+unlockedM(t,c,m,o) :- syncC(o), threadACM(t,c,m).
+unlockedI(t,d,i,o) :- unlockedM(t,d,m,o), MI(m,i), !invkLock(d,i,o), !threadStartI(i).
+unlockedM(t,d,n,o) :- unlockedI(t,c,i,o), thrSenCICM(c,i,d,n).
+unlockedE_cs(t,c,e,o) :- unlockedM(t,c,m,o), ME(m,e), !elemLock(c,e,o).
+
+#Instrumented rules
+invkLock_XZ89_0_95(c,i,o,l) :- transLI(l,i), syncCLC(c,l,o).
+elemLock_XZ89_1_95(c,e,o,l) :- transLE(l,e), syncCLC(c,l,o).
+unlockedM_XZ89_2_95(t,c,m,o) :- syncC(o), threadACM(t,c,m).
+unlockedI_XZ89_3_95(t,d,i,o,m) :- unlockedM(t,d,m,o), MI(m,i), !invkLock(d,i,o), !threadStartI(i).
+unlockedM_XZ89_4_95(t,d,n,o,c,i) :- unlockedI(t,c,i,o), thrSenCICM(c,i,d,n).
+unlockedE_cs_XZ89_5_95(t,c,e,o,m) :- unlockedM(t,c,m,o), ME(m,e), !elemLock(c,e,o).

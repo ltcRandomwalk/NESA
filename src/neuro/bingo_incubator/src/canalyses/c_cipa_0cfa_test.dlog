@@ -1,0 +1,53 @@
+
+# name=c-cipa-0cfa-test-dlog
+
+.include "ZV.dom"   
+.include "ZI.dom"
+.include "ZC.dom"
+.include "ZF.dom"
+
+
+.bddvarorder ZV0xZV1_ZC0xZC1xZI0xZF0
+
+# v1 = v2
+copy(v1:ZV0,v2:ZV1) input
+
+# *v1 = v2
+store(v1:ZV0,v2:ZV1) input
+
+# v2 = *v1
+load(v1:ZV0,v2:ZV1) input
+
+# v1 = &v2
+pt(v1:ZV0,v2:ZV1) input 
+
+pass(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+
+ret(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+
+ie(c1:ZC0,i:ZI0,c2:ZC1,f:ZF0) input
+
+ncopy0(v1:ZV0, v2:ZV1) input
+
+copy0(v1:ZV0,v2:ZV1)
+
+pt0(v1:ZV0,v2:ZV1) output
+
+
+# Rules 
+
+copy0(x,z) :- copy0(x,_), x = z.
+
+copy0(x,y) :- copy0(y,x), !ncopy0(x,y).
+
+copy0(x,y) :- copy(x,y).
+
+copy0(y, z) :- pt0(x, z), load(x, y).
+
+copy0(z, y) :- pt0(x, z), store(x, y).
+
+pt0(x,y) :- pt(x,y).
+
+pt0(x, y) :- copy0(x, z), pt0(z, y).
+copy0(x,y) :- ie(_,i,_,f), pass(i,f,x,y).
+copy0(x,y) :- ie(_,i,_,f), ret(i,f,x,y).

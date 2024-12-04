@@ -1,0 +1,29 @@
+# name=ursa-cipa-pts-dlog
+
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+
+.bddvarorder M0_H0_V0
+
+###
+# Relations
+###
+
+reachableM(m:M) input
+checkExcludedH(h:H) input
+checkExcludedV(v:V) input
+VH(v:V,h:H) input
+MV(m:M, v:V) input
+MH(m:M, h:H) input
+
+reachableV(v:V)
+reachableH(h:H)
+
+ptsVH(v:V,h:H) output
+
+reachableV(v) :- MV(m,v),reachableM(m).
+reachableH(h) :- MH(m,h),reachableM(m).
+
+ptsVH(v,h) :- VH(v,h), !checkExcludedV(v), !checkExcludedH(h), reachableV(v), reachableH(h).

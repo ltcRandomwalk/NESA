@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Automatically generate all relevant Datalog files for all sliver-based analyses.
+
+b=`dirname $0` # scripts directory
+s=$b/../chord/extra/src/dlog/sliver
+a=$b/../chord/main/src/dlog/alias # Classic
+
+# Monosite
+$b/relevant-datalog -effectRel outQueryI -inPaths $s/cspa_sliver.dlog $s/monosite_sliver.dlog -relevantOutPath $s/monosite_sliver-relevant.dlog -transOutPath $s/monosite_sliver-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryI -inPaths $a/cspa_kobj.dlog $s/monosite_classic.dlog -relevantOutPath $s/monosite_classic_kobj-relevant.dlog -transOutPath $s/monosite_classic_kobj-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryI -inPaths $a/cspa_kcfa.dlog $s/monosite_classic.dlog -relevantOutPath $s/monosite_classic_kcfa-relevant.dlog -transOutPath $s/monosite_classic_kcfa-trans.dlog || exit 1
+
+# Downcast
+$b/relevant-datalog -effectRel outQueryP -inPaths $s/cspa_sliver.dlog $s/downcast_sliver.dlog -relevantOutPath $s/downcast_sliver-relevant.dlog -transOutPath $s/downcast_sliver-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryP -inPaths $a/cspa_kobj.dlog $s/downcast_classic.dlog -relevantOutPath $s/downcast_classic_kobj-relevant.dlog -transOutPath $s/downcast_classic_kobj-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryP -inPaths $a/cspa_kcfa.dlog $s/downcast_classic.dlog -relevantOutPath $s/downcast_classic_kcfa-relevant.dlog -transOutPath $s/downcast_classic_kcfa-trans.dlog || exit 1
+
+# Thread escape
+$b/relevant-datalog -effectRel outQueryE -inPaths $s/cspa_sliver.dlog $s/thresc_sliver.dlog -relevantOutPath $s/thresc_sliver-relevant.dlog -transOutPath $s/thresc_sliver-trans.dlog || exit 1
+
+# Race detection
+$b/relevant-datalog -effectRel outQueryEE -inPaths $s/cspa_sliver.dlog $s/race_sliver.dlog -relevantOutPath $s/race_sliver-relevant.dlog -transOutPath $s/race_sliver-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryEE -inPaths $a/cspa_kobj.dlog $s/race_classic.dlog -relevantOutPath $s/race_classic_kobj-relevant.dlog -transOutPath $s/race_classic_kobj-trans.dlog || exit 1
+$b/relevant-datalog -effectRel outQueryEE -inPaths $a/cspa_kcfa.dlog $s/race_classic.dlog -relevantOutPath $s/race_classic_kcfa-relevant.dlog -transOutPath $s/race_classic_kcfa-trans.dlog || exit 1

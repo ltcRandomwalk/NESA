@@ -1,0 +1,127 @@
+# Author: Ravi Mangal
+# name=nullDeref-dlog
+
+.include "M.dom"
+.include "P.dom"
+.include "V.dom"
+.include "F.dom"
+.include "Z.dom"
+.include "H.dom"
+
+
+.bddvarorder P0xP1_M0_V0xV1xV2_F0_Z0_H0
+
+###
+# Relations
+###
+
+PP(p:P,q:P) input
+#IM(i:I,m:M) input
+MPhead(m:M,p:P) input
+MPtail(m:M,p:P) input
+#rootM(m:M) input
+#statF(f:F) input
+
+rPInvkInst(p:P,m:M,v:V,u:V,z:Z) input
+rPInvkRetInst(p:P,m:M,v:V,u:V) input
+rPInvkRetNullInst(p:P,m:M,v:V) input
+rPInvkRetNotNullInst(p:P,m:M,v:V,u:V) input
+rPInvkRetInstNotFilter(p:P) input
+nonRelevantP(p:P) input
+rPInvkSkip(p:P) input
+rPInvkSkipV(p:P,v:V) input
+
+rPobjValAsgnInst(p:P,v:V,h:H) input
+rPobjVarAsgnInst(p:P,v:V,u:V) input
+#rPobjNullAsgnInst(p:P,v:V) input
+rPobjOnlyNullAsgnInst(p:P,v:V) input
+rPobjConstAsgnInst(p:P,v:V) input
+rPgetInstFldInst(p:P,v:V,u:V,f:F) input
+rPgetStatFldInst(p:P,v:V,f:F) input
+#rPputStatFldInst(p:P,f:F,v:V) input
+#rPputInstFldInst(p:P,v:V,f:F,u:V) input
+#rPI(p:P,i:I) input
+errorCandidates(p:P,v:V) input
+
+localNull(p:P,v:V) output
+#statNull(p:P,f:F) output
+nullDeref(p:P,v:V) output
+
+
+###
+# Constraints
+###
+###Reflection not handled correctly. Confirm!!#######
+###Also, unsound when a method has only one return statement#######
+###and a throw statement, and the return value is not null.#######
+
+#statNull(p,f) :- rootM(m), MPhead(m,p), statF(f).
+
+### v = new h
+localNull(q,u) :- rPobjValAsgnInst(p,v,_), PP(p,q), localNull(p,u), v!=u.
+#statNull(p,f) :- rPobjValAsgnInst(p,_,_), PP(q,p), statNull(q,f).
+
+### v = u
+localNull(q,v) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,u).
+localNull(q,w) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,w), w!=u, w!=v.
+#statNull(p,f) :- rPobjVarAsgnInst(p,_,_), PP(q,p), statNull(q,f).
+
+### v = null
+localNull(q,v) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q).
+localNull(q,u) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+#statNull(p,f) :- rPobjOnlyNullAsgnInst(p,_), PP(q,p), statNull(q,f).
+
+### v = const
+localNull(q,u) :- rPobjConstAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+#statNull(p,f) :- rPobjConstAsgnInst(p,_), PP(q,p), statNull(q,f).
+
+### v = f
+localNull(q,u) :- rPgetStatFldInst(p,v,_), PP(p,q), localNull(p,u), v!=u.
+localNull(q,v) :- rPgetStatFldInst(p,v,_), PP(p,q).
+#localNull(p,v) :- rPgetStatFldInst(p,v,f), PP(q,p), statNull(q,f).
+#statNull(p,f) :- rPgetStatFldInst(p,_,_), PP(q,p), statNull(q,f).
+
+### f = v
+#localNull(p,u) :- rPputStatFldInst(p,_,_), PP(q,p), localNull(q,u).
+#statNull(p,f) :- rPputStatFldInst(p,f,v), PP(q,p), localNull(q,v).
+#statNull(p,f1) :- rPputStatFldInst(p,f,_), PP(q,p), statNull(q,f1), f1!=f.
+
+### v = u.f
+localNull(q,u) :- rPgetInstFldInst(p,v,_,_), PP(p,q), localNull(p,u), v!=u.
+localNull(q,v) :- rPgetInstFldInst(p,v,_,_), PP(p,q).
+#statNull(p,f1) :- rPgetInstFldInst(p,_,_,_), PP(q,p), statNull(q,f1).
+ 
+### Method Call
+localNull(p2,v) :- rPInvkInst(p1,m,v,u,_), localNull(p1,u), MPhead(m,p2).
+#localNull(p2,w) :- rPInvkInst(p1,m,v,u,_), PP(q,p1), localNull(q,w), MPhead(m,p2), w!=u, w!=v.
+
+# To handle corner case of static method with no reference parameters
+#statNull(p2,f) :- rPI(p1,i), IM(i,m), PP(q,p1), statNull(q,f), MPhead(m,p2).
+
+# To handle corner case of invoke instruction with no target method
+localNull(p,v) :- rPInvkSkip(p), PP(q,p), localNull(q,v).
+localNull(p,v) :- rPInvkSkipV(p,v).
+
+#statNull(p,f) :- rPInvkSkip(p), PP(q,p), statNull(q,f).
+
+### Method Return
+#statNull(p,f) :- rPI(p,i), IM(i,m), statNull(q,f), MPtail(m,q).
+
+##Method can return null if it can return an object. So we conservatively assume that it always returns null.
+#localNull(q,v) :- rPInvkRetInst(p,_,v,_), PP(p,q).
+localNull(p2,v) :- rPInvkRetNotNullInst(p1,m,v,u), PP(p1,p2), MPtail(m,q), localNull(q,u).
+localNull(q,v) :- rPInvkRetNullInst(p,_,v), PP(p,q).
+
+#localNull(p,w) :- rPInvkRetInst(p,m,v,u), MPtail(m,q), localNull(q,w), w!=u, w!=v.
+localNull(q,w) :- rPInvkRetInst(p,_,v,_), PP(p,q), localNull(p,w), w!=v.
+							 
+# To handle corner case of invoke instruction with no return value or with no var capturing the returned value;
+# such instructions are not captured by PInvkRetInst
+localNull(q,v) :- rPInvkRetInstNotFilter(p), PP(p,q), localNull(p,v).
+
+localNull(q,v) :- nonRelevantP(p), PP(p,q), localNull(p,v).
+#statNull(p,f) :- nonRelevantP(p), PP(q,p), statNull(q,f).
+
+
+### Query
+nullDeref(p,v) :- errorCandidates(p,v), localNull(p,v).

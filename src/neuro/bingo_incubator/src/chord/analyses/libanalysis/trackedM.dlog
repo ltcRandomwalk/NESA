@@ -1,0 +1,17 @@
+# name=trackedM-dlog
+
+# Computes relation trackedM as the set of methods at the boundary between app and lib code
+# (i.e. methods in relations appM and libM respectively).
+# The libanalysis coarsening framework tries different best/worst assumptions on methods in this relation.
+# This relation is computed in a separate dlog analysis from trackedBaseIM.dlog so that coarsening-based
+# Java analyses can reset this dlog analysis task and re-populate relation trackedM repeatedly, to try
+# different best/worst assumptions on these methods.
+
+.include "M.dom"
+
+.bddvarorder M0
+
+externalLibM(m:M) input
+trackedM(m:M) output
+
+trackedM(m) :- externalLibM(m).

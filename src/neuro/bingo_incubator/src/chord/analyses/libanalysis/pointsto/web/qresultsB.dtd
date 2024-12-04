@@ -1,0 +1,12 @@
+<!ENTITY % Mlist SYSTEM "Mlist.dtd">
+<!ENTITY % Vlist SYSTEM "Vlist.dtd">
+<!ENTITY % Hlist SYSTEM "Hlist.dtd">
+<!ELEMENT qresults (queries, Mlist, Vlist, Hlist)>
+<!ELEMENT queries (query)*>
+<!ELEMENT query EMPTY>
+<!ATTLIST query
+	Vid		IDREF	#REQUIRED
+	Hid		IDREF	#REQUIRED>
+%Mlist;
+%Vlist;
+%Hlist;

@@ -1,0 +1,17 @@
+# name=overriddenM-dlog
+
+#Relation of all application methods that override library methods
+
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+
+.bddvarorder I0_M0xM1_T1
+
+libM(m:M) input
+appM(m:M) input
+cha(m:M1,t:T1,m:M0) input
+
+overriddenM(m:M) output
+
+overriddenM(m2) :- cha(m1,_,m2), libM(m1), appM(m2).

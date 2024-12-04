@@ -1,0 +1,29 @@
+// domains
+*dom_AS(as_dom)
+*dom_E(e_dom)
+*dom_K(k_dom)
+*dom_C(c_dom)
+*dom_F(f_dom)
+// input predicates
+*excludeSameThread(k_dom)
+*EF(e_dom, f_dom)
+*mhe_cs(c_dom, e_dom, as_dom, as_dom)
+*unlockedRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+*statF(f_dom)
+*CEC(c_dom, e_dom, c_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+escapingRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+racePairs_cs(e_dom, e_dom)
+parallelRaceHext(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+statE(e_dom)
+datarace(as_dom, c_dom, e_dom, as_dom, c_dom, e_dom)
+
+// hard rules converted from dlog into soft rules
+1 EF(e,f), statF(f) => statE(e)
+1 unlockedRaceHext(t1,c1,e1,t2,c2,e2), CEC(c1,e1,o), CEC(c2,e2,o) => escapingRaceHext(t1,c1,e1,t2,c2,e2)
+1 unlockedRaceHext(t1,c1,e1,t2,c2,e2), statE(e1), statE(e2) => escapingRaceHext(t1,c1,e1,t2,c2,e2)
+1 escapingRaceHext(t1,c1,e1,t2,c2,e2), mhe_cs(c1,e1,t1,t2), mhe_cs(c2,e2,t2,t1) => parallelRaceHext(t1,c1,e1,t2,c2,e2)
+1 parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(1), t1!=t2 => datarace(t1,c1,e1,t2,c2,e2)
+1 parallelRaceHext(t1,c1,e1,t2,c2,e2), excludeSameThread(0) => datarace(t1,c1,e1,t2,c2,e2)
+1 datarace(t1,c1,e1,t2,c2,e2) => racePairs_cs(e1,e2)

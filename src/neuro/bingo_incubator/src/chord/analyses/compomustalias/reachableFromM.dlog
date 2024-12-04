@@ -1,0 +1,20 @@
+# name=compo-reachableFromM-dlog
+
+.include "M.dom"
+.include "I.dom"
+
+.bddvarorder M0xM1_I0
+
+MM(m1:M0,m2:M1) input
+MI(m:M0,i:I0) input
+IM(i:I0,m:M0) input
+
+
+reachableFromM(m1:M0,m2:M1) output
+MIM(m1:M0,i:I,m2:M1) output
+
+reachableFromM(m0,m1) :- MM(m0,m1).
+reachableFromM(m0,m2) :- reachableFromM(m0,m1), MM(m1,m2).
+
+MIM(m0,i,m1) :- MI(m0,i), IM(i,m1).
+MIM(m0,i2,m2) :- MIM(m0,_,m1), MI(m1,i2), IM(i2, m2).

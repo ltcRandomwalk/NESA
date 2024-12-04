@@ -1,0 +1,14 @@
+// domains
+*dom_AS(as_dom)
+*dom_E(e_dom)
+*dom_P(p_dom)
+*dom_C(c_dom)
+// input predicates
+*PE(p_dom, e_dom)
+*mhp_cs(c_dom, p_dom, as_dom, as_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+mhe_cs(c_dom, e_dom, as_dom, as_dom)
+
+// hard rules converted from dlog into soft rules
+1 mhp_cs(c,p,t1,t2), PE(p,e) => mhe_cs(c,e,t1,t2)

@@ -1,0 +1,20 @@
+.include "I.dom"
+.include "M.dom"
+.include "C.dom"
+
+# name=CM-dlog
+
+.bddvarorder I0xM0xM1_C0xC1
+
+###
+# Relations
+###
+
+CICM(c:C0,i:I0,d:C1,m:M0) input
+MI(m:M0,i:I0) input
+edgeCMCM(c:C0,m1:M0,d:C1,m2:M1)
+CM(c:C,m:M) output
+
+edgeCMCM(c,m1,d,m2) :- MI(m1,i), CICM(c,i,d,m2).
+CM(c,m) :- edgeCMCM(c,m,_,_).
+CM(c,m) :- edgeCMCM(_,_,c,m).

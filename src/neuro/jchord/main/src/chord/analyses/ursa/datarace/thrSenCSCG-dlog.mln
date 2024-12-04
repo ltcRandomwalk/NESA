@@ -1,0 +1,24 @@
+// domains
+*dom_I(i_dom)
+*dom_M(m_dom)
+*dom_C(c_dom)
+// input predicates
+*CICM(c_dom, i_dom, c_dom, m_dom)
+*MI(m_dom, i_dom)
+*threadStartI(i_dom)
+*threadCICM(c_dom, i_dom, c_dom, m_dom)
+*rootCM(c_dom, m_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+thrSenRootCM(c_dom, m_dom)
+thrSenCICM(c_dom, i_dom, c_dom, m_dom)
+thrSenReachableCM(c_dom, m_dom)
+thrSenCMCM(c_dom, m_dom, c_dom, m_dom)
+
+// hard rules converted from dlog into soft rules
+1 rootCM(c,m) => thrSenRootCM(c,m)
+1 threadCICM(d,i,c,m) => thrSenRootCM(c,m)
+1 thrSenRootCM(c,m) => thrSenReachableCM(c,m)
+1 thrSenCICM(c,i,d,n) => thrSenReachableCM(d,n)
+1 thrSenReachableCM(c,m), MI(m,i), CICM(c,i,d,n), !threadStartI(i) => thrSenCICM(c,i,d,n)
+1 thrSenCICM(c,i,d,n), MI(m,i) => thrSenCMCM(c,m,d,n)

@@ -1,0 +1,29 @@
+# name=allVH-Fil-dlog
+
+.include "T.dom"
+.include "H.dom"
+.include "V.dom"
+
+#.bddvarorder T0_V0xT1_H0
+.bddvarorder V0_T0xH0_T1
+
+
+VT(v:V0,t:T0) input
+HT(h:H0,t:T1) input
+sub(t1:T1,t2:T0) input
+#allV(v:V) input
+allH(h:H) input
+allVH(v:V0,h:H0) input
+GHR(h:H) input
+
+allVHFil(v:V,h:H) output
+allVHFil2(v:V,h:H) output
+GHRFil(h:H) output
+
+allVHfilter(v,h) :- VT(v,t), HT(h,s), sub(s,t). 
+allVHfilter(_,0).
+
+allVHFil(v,h) :- allVH(v,h), allVHfilter(v,h).
+
+allVHFil2(v,h) :- allVH(v,h), GHR(h), allVHfilter(v,h).
+GHRFil(h) :- allH(h), GHR(h).

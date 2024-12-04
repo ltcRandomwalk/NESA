@@ -1,0 +1,52 @@
+package chord.analyses.type;
+
+import joeq.Class.jq_Type;
+import joeq.Class.jq_Class;
+import chord.program.Program;
+import chord.project.Chord;
+import chord.project.analyses.ProgramDom;
+import chord.util.IndexSet;
+
+/**
+ * Domain of classes.
+ * 
+ * @author Mayur Naik (mhn@cs.stanford.edu)
+ */
+@Chord(name = "T")
+public class DomT extends ProgramDom<jq_Type> {
+	private final String libraryPrefix = "(java\\.|javax\\.|sun\\.|sunw\\.|launcher\\.|com\\.sun\\.|com\\.ibm\\.|org\\.apache\\.harmony\\.|org\\.w3c\\.|org\\.xml\\.|org\\.ietf\\.|org\\.omg\\.|slib\\.).*";
+	private String fundamentalTypePrefix = "(boolean|byte|char|double|float|int|long|short|void).*";
+    @Override
+    public void fill() {
+        Program program = Program.g();
+        IndexSet<jq_Type> types = program.getTypes();
+        for (jq_Type t : types)
+            add(t);
+    }
+
+    @Override
+    public boolean isLib(String ustr) {
+    	boolean islib = false; 	
+    	if (ustr.matches(libraryPrefix)) islib = true;
+    	else if (ustr.matches(fundamentalTypePrefix)) islib = true;
+		return islib;
+    }
+    
+    @Override
+    public int getNumAnchors() {
+    	return 1;
+    }
+    
+    @Override
+    public String toXMLAttrsString(jq_Type t) {
+        String name = t.getName();
+        String file;
+        if (t instanceof jq_Class) {
+            jq_Class c = (jq_Class) t;
+            file = c.getSourceFileName();
+        } else
+            file = "";
+        int line = 0;  // TODO
+        return "name=\"" + name + "\" file=\"" + file + "\" line=\"" + line + "\"";
+    }
+}

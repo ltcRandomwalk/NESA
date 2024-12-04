@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE results SYSTEM "qresultsW.dtd" [
+  <!ENTITY queries SYSTEM "queriesW.xml">
+  <!ENTITY Mlist SYSTEM "Mlist.xml">
+  <!ENTITY Ilist SYSTEM "Ilist.xml">
+  <!ENTITY Hlist SYSTEM "Hlist.xml">
+]>
+<qresults>
+&queries;
+&Mlist;
+&Ilist;
+&Hlist;
+</qresults>

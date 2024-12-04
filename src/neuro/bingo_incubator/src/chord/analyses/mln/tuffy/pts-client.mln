@@ -1,0 +1,17 @@
+// input predicates
+*checkExcludedH(alloc)
+*reachableM(meth)
+*MH(meth, alloc)
+*MV(meth, var)
+*VH(var, alloc)
+*checkExcludedV(var)
+
+// non-input predicates, which can appear on the lhs of each rule
+reachableH(alloc)
+reachableV(var)
+ptsVH(var, alloc)
+
+// rules converted from dlog, which are all hard
+1 MV(m,v1), reachableM(m) => reachableV(v1)
+1 MH(m,h), reachableCM(m) => reachableH(h)
+1 VH(v1,h), !checkExcludedV(v1), !checkExcludedH(h), reachableV(v1), reachableH(h) => ptsVH(v1,h)

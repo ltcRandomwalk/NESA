@@ -1,0 +1,43 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# Context-insensitive may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=fil-cipa-0cfa-pre-dlog
+
+.include "T.dom"
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "Z.dom"
+
+.bddvarorder I0xM0xM1_T0_V0xV1_T1_H0_F0_H1_Z0
+
+###
+# Relations
+###
+
+VT(v:V0,t:T0) input 
+HT(h:H0,t:T1) input 
+cha(n:M1,t:T1,m:M0) input 
+sub(t1:T1,t2:T0) input 
+virtIM(i:I,m:M) input 
+
+
+F_IHM(i:I,h:H,m:M) output
+F_VHfilter(v:V,h:H) output
+
+
+###
+# Constraints
+###
+
+F_VHfilter(v,h) :- VT(v,t), HT(h,s), sub(s,t).
+F_VHfilter(_,0).
+F_IHM(i,h,m2) :- virtIM(i,m1), HT(h,t), cha(m1,t,m2).
+

@@ -1,0 +1,23 @@
+// domains
+*dom_H(h_dom)
+*dom_M(m_dom)
+*dom_V(v_dom)
+*dom_C(c_dom)
+// input predicates
+*sourceH(h_dom)
+*reachableCM(c_dom, m_dom)
+*CH(c_dom, h_dom)
+*MH(m_dom, h_dom)
+*sinkV(v_dom)
+*MV(m_dom, v_dom)
+*CVC(c_dom, v_dom, c_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+flowHV(h_dom, v_dom)
+reachableH(h_dom)
+reachableV(v_dom)
+
+// hard rules converted from dlog into soft rules
+1 MV(m,v1), reachableCM(a,m), sinkV(v1) => reachableV(v1)
+1 MH(m,h), reachableCM(a,m), sourceH(h) => reachableH(h)
+1 CVC(a,v1,o), CH(o,h), reachableV(v1), reachableH(h) => flowHV(h,v1)

@@ -1,0 +1,1 @@
+./relevant-datalog -effectRel VV -inPaths y.dlog -relevantOutPath y-relevant.dlog -transOutPath y-trans.dlog || exit 1

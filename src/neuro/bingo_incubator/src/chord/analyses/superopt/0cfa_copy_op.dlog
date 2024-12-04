@@ -1,0 +1,51 @@
+
+# name=0cfa-copy-op-dlog
+
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "T.dom"
+.include "Z.dom"
+
+.bddvarorder I0_M0xM1_V0xV1_H0_F0_H1_T0_Z0
+
+###
+# Relations
+###
+
+reachableT(t:T) input
+VH(v:V,h:H) input 
+FH(f:F,h:H) input
+HFH(h1:H,f:F,h2:H) input 
+rootM(m:M) input
+reachableI(i:I) input
+reachableM(m:M) input 
+IM(i:I,m:M) input
+MM(m:M,n:M) input
+
+H_app(h:H) input
+
+save_reachableT(t:T) output
+save_VH(v:V,h:H) output 
+save_FH(f:F,h:H) output
+save_reach_HFH(h1:H,f:F,h2:H) output 
+save_rootM(m:M) output
+save_reachableI(i:I) output
+save_reachableM(m:M) output 
+save_IM(i:I,m:M) output
+save_MM(m:M,n:M) output
+
+
+save_reachableT(t) :- reachableT(t).
+save_VH(v,h) :- VH(v,h).
+save_FH(f,h) :- FH(f,h).
+save_rootM(m) :- rootM(m).
+save_reachableI(i) :- reachableI(i).
+save_reachableM(m) :- reachableM(m).
+save_IM(i,m) :- IM(i,m).
+save_MM(m,n) :- MM(m,n).
+
+save_reach_HFH(h1,f,h2) :- HFH(h1,f,h2), H_app(h1).
+save_reach_HFH(h1,f,h2) :- save_reach_HFH(_,_,h1), HFH(h1,f,h2).

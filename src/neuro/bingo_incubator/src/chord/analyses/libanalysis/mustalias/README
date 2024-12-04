@@ -1,0 +1,60 @@
+The must-alias analysis is built atop the typestate analysis implemented in main/.
+
+It uses a type-state spec (MTypeStateSpec.java) that defines three fixed
+typestates START, ERROR, and BEST, and does not treat any methods as interesting
+(i.e. there are no asserts or updates to the type-state).
+
+TODO for Ravi:
+
+1) Use the new streamlined Edge.java
+2) Treat no methods as interesting in the type-state spec used by must-alias analysis.
+   (Currently it treats non-static methods as interesting.)
+3) Remove the reverting done in getInitPathEdge in MustAliasAnalysis.java
+
+=====
+
+// tracking h2
+
+w = new h2;
+<---- <h2, {w}>
+v = new h;
+<---- <h2, {w}>
+u = v;
+<---- <h2, {w}>
+v.foo(w);
+<---- <h2, {w,v.f}>
+u.bar();
+
+foo(w) {
+    this.f = w;
+}
+
+bar() {
+    <--- <h2, {}>
+    this.f?   query fails to be proven as may-alias(h2, this.f) but this.f notin incoming must set
+}
+
+=====
+how error state is used in type-state:
+
+if we have an app method foo() which internally calls a library method bar(),
+when we propagate an edge beyond bar(), we kill all the field
+accesspaths..similarly, we also need to kill all the field accesspaths while
+propagating beyond foo(), since bar() can kill those...i use error state to
+just designate that an edge is tainted and has been through a worst case method
+implying that all non-variables need to be killed when propagating beyond any
+method in the code
+
+=====
+at call site, of access paths in incoming must set, we only pass those which
+are globals or reachable from an arg
+
+=====
+in wild-card best-state, only things in must set are local variables
+
+=====
+why addFallThru in MustAliasAnalysis is no-op in case edge is wild-card best-state:
+
+in wildcard best-state, i dont keep any field access paths in the must set and
+the local variables are propagated by the next step in getInvkPathEdge
+

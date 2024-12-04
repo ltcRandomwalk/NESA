@@ -1,0 +1,54 @@
+# name=flowins-thresc-dlog_XZ89_
+.include "M.dom"
+.include "V.dom"
+.include "H.dom"
+.include "P.dom"
+.include "Z.dom"
+.include "F.dom"
+.include "E.dom"
+.bddvarorder E0_M0xP0_V0_H0_F0_H1_Z0
+
+
+#Input relations
+queryE(e:E0) input
+VH(v:V0,h:H0) input
+FH(f:F0,h:H0) input
+HFH(h1:H0,f:F0,h2:H1) input
+MmethArg(m:M0,z:Z0,v:V0) input
+MV(m:M0,v:V0) input
+MP(m:M0,p:P0) input
+EV(e:E0,v:V0) input
+
+#Output relations
+escH(o:H0) output
+escPVH(p:P0,v:V0,h:H0) output
+escE(e:E0) output
+escPVH_3_0(_v:V0,_h:H0,_m:M0) output
+escPVH_3_1(_v:V0,_h:H0,_p:P0) output
+
+#Instrumented relations
+escE_XZ89_4_19(e:E0,v:V0,h:H0) output
+escPVH_XZ89_3_19(p:P0,v:V0,h:H0) output
+escPVH_3_1_XZ89_6_19(v:V0,h:H0,p:P0,m:M0) output
+escPVH_3_0_XZ89_5_19(v:V0,h:H0,m:M0) output
+escH_XZ89_0_19(h:H0,v_XZ89_0:F0) output
+escH_XZ89_1_19(h:H0,v:V0) output
+escH_XZ89_2_19(h2:H0,h1:H1,v_XZ89_0:F0) output
+
+#Original rules
+escH(h) :- FH(_,h).
+escH(h) :- MmethArg(1,0,v), VH(v,h).
+escH(h2) :- HFH(h1,_,h2), escH(h1).
+escPVH(p,v,h) :- escPVH_3_1(v,h,p), escH(h).
+escE(e) :- queryE(e), EV(e,v), VH(v,h), escH(h).
+escPVH_3_0(v,h,m) :- VH(v,h), MV(m,v).
+escPVH_3_1(v,h,p) :- escPVH_3_0(v,h,m), MP(m,p).
+
+#Instrumented rules
+escH_XZ89_0_19(h,v_XZ89_0) :- FH(v_XZ89_0,h).
+escH_XZ89_1_19(h,v) :- MmethArg(1,0,v), VH(v,h).
+escH_XZ89_2_19(h2,h1,v_XZ89_0) :- HFH(h1,v_XZ89_0,h2), escH(h1).
+escPVH_XZ89_3_19(p,v,h) :- escPVH_3_1(v,h,p), escH(h).
+escE_XZ89_4_19(e,v,h) :- queryE(e), EV(e,v), VH(v,h), escH(h).
+escPVH_3_0_XZ89_5_19(v,h,m) :- VH(v,h), MV(m,v).
+escPVH_3_1_XZ89_6_19(v,h,p,m) :- escPVH_3_0(v,h,m), MP(m,p).

@@ -1,0 +1,18 @@
+# ignore temp files
+*~
+.*.sw*
+
+# ignore eclipse configs
+.project
+.classpath
+
+# ignore incubator directory
+incubator/
+nichrome_incubator/
+
+# ignore build files
+nichrome.jar
+nichrome_incubator.jar
+bin/
+classes/
+main/lib/bingo

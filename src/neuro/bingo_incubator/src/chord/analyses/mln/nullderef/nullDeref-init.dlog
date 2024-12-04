@@ -1,0 +1,152 @@
+# name=nullDeref-init-dlog
+
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "C.dom"
+.include "I.dom"
+.include "P.dom"
+.include "F.dom"
+.include "Z.dom"
+
+.bddvarorder M0xM1_V0xV1_C0xH0xH1xC1_I0_P0xP1_F0xZ0
+
+###
+# Relations
+###
+
+reachableCM(c:C,m:M) input
+CVC(c:C,v:V,o:C) input
+FC(f:F,c:C) input
+CFC(c1:C,f:F,c2:C) input
+rootCM(c:C,m:M) input
+CH(c:C,h:H) input
+CICM(c:C,i:I,o:C,m:M) input
+reachableCI(c:C,i:I) input
+objNewInstIM(i:I,m:M) input
+conNewInstIM(i:I,m:M) input
+CMCM(c:C,m:M,d:C,n:M) input
+
+PP(p:P,q:P) input
+PI(p:P,i:I) input
+MPhead(m:M,p:P) input
+PobjValAsgnInst(p:P,v:V,h:H) input
+PobjVarAsgnInst(p:P,v:V,u:V) input
+#PobjNullAsgnInst(p:P,v:V) input
+PobjOnlyNullAsgnInst(p:P,v:V) input
+PobjConstAsgnInst(p:P,v:V) input
+PgetInstFldInst(p:P,v:V,u:V,f:F) input
+PgetStatFldInst(p:P,v:V,f:F) input
+#PputStatFldInst(p:P,f:F,v:V) input
+PputInstFldInst(p:P,v:V,f:F,u:V) input
+#PobjRetInst(p:P,v:V) input
+MmethArg(m:M0,n:Z0,v:V0) input
+IinvkArg(i:I0,n:Z0,v:V1) input
+MPAll(m:M,p:P) input
+MPtail(m:M,p:P) input
+IinvkRet(i:I0,n:Z0,v:V0) input
+MmethRet(m:M0,n:Z0,v:V1) input
+MmethRetNull(m:M0,n:Z0) input
+virtIM(i:I,m:M) input
+#specIM(i:I,m:M) input
+checkExcludedM(m:M) input
+
+IM(i:I,m:M) output
+reachableM(m:M) output
+rootM(m:M) output
+MM(m:M,n:M) output
+reflectM(m:M)
+nonReflectM(m:M)
+reflectUniqM(m:M) output
+VH(v:V,h:H) output
+FH(f:F,h:H) output
+HFH(h1:H,f:F,h2:H) output
+
+rPInvkInst(p:P,m:M,v:V,u:V,z:Z) output
+rPInvkRetInst(p:P,m:M,v:V,u:V) output
+rPInvkRetNotNullInst(p:P,m:M,v:V,u:V) output
+rPInvkRetNullInst(p:P,m:M,v:V) output
+rPInvkRetInstFilter(p:P)
+rPInvkRetInstNotFilter(p:P) output
+nonRelevantP(p:P) output
+relevantP(p:P) output
+rPInvkSkip(p:P) output
+rPInvkSkipV(p:P,v:V) output
+IMFilter(i:I)
+checkExcludedP(p:P) output
+
+rPobjValAsgnInst(p:P,v:V,h:H) output
+rPobjVarAsgnInst(p:P,v:V,u:V) output
+#rPobjNullAsgnInst(p:P,v:V) output
+rPobjOnlyNullAsgnInst(p:P,v:V) output
+rPobjConstAsgnInst(p:P,v:V) output
+rPgetInstFldInst(p:P,v:V,u:V,f:F) output
+rPgetStatFldInst(p:P,v:V,f:F) output
+#rPputStatFldInst(p:P,f:F,v:V) output
+rPputInstFldInst(p:P,v:V,f:F,u:V) output
+rPI(p:P,i:I) output
+errorCandidates(p:P,v:V) output
+
+
+#######################################
+reachableM(m) :- reachableCM(_,m).
+rootM(m) :- rootCM(_,m).
+VH(v,h) :- CVC(_,v,o), CH(o,h).
+FH(f,h) :- FC(f,o), CH(o,h).
+HFH(h1,f,h2) :- CFC(c1,f,c2), CH(c1,h1), CH(c2,h2).
+IM(i,m) :- CICM(_,i,_,m).
+MM(m,n) :- CMCM(_,m,_,n).
+reachableP(p) :- reachableM(m), MPAll(m,p).
+checkExcludedP(p) :- checkExcludedM(m), MPAll(m,p).
+
+nonReflectM(m) :- IM(_,m).
+reflectM(m) :- reachableCI(_,i), objNewInstIM(i,m).
+reflectM(m) :- reachableCI(_,i), conNewInstIM(i,m).
+reflectUniqM(m) :- reflectM(m), !nonReflectM(m).
+
+
+rPI(p,i) :- PI(p,i), reachableP(p).
+rPobjValAsgnInst(p,v,h) :- PobjValAsgnInst(p,v,h), reachableP(p).
+rPobjVarAsgnInst(p,v,u) :- PobjVarAsgnInst(p,v,u), reachableP(p).
+#rPobjNullAsgnInst(p,v) :- PobjNullAsgnInst(p,v), reachableP(p).
+rPobjOnlyNullAsgnInst(p,v) :- PobjOnlyNullAsgnInst(p,v), reachableP(p).
+rPobjConstAsgnInst(p,v) :- PobjConstAsgnInst(p,v), reachableP(p).
+rPgetStatFldInst(p,v,f) :- PgetStatFldInst(p,v,f), reachableP(p).
+#rPputStatFldInst(p,f,v) :- PputStatFldInst(p,f,v), reachableP(p).
+rPgetInstFldInst(p,v,u,f) :- PgetInstFldInst(p,v,u,f), reachableP(p).
+rPputInstFldInst(p,v,f,u) :- PputInstFldInst(p,v,f,u), reachableP(p).
+
+rPInvkInst(p,m,v,u,z) :- rPI(p,i), IM(i,m), IinvkArg(i,z,u), MmethArg(m,z,v).
+rPInvkRetInst(p,m,v,u) :- rPI(p,i), IM(i,m), IinvkRet(i,z,v), MmethRet(m,z,u).
+rPInvkRetNullInst(p,m,v) :- rPI(p,i), IM(i,m), IinvkRet(i,z,v), MmethRetNull(m,z).
+rPInvkRetNotNullInst(p,m,v,u) :- rPInvkRetInst(p,m,v,u), !rPInvkRetNullInst(p,_,_).
+rPInvkRetInstFilter(p) :- rPInvkRetInst(p,_,_,_).
+rPInvkRetInstNotFilter(p) :- reachableP(p), !rPInvkRetInstFilter(p).
+IMFilter(i) :- IM(i,_).
+rPInvkSkip(p) :- rPI(p,i), !IMFilter(i).
+rPInvkSkipV(p,v) :- rPInvkSkip(p), rPI(p,i), IinvkRet(i,_,v).
+
+
+### All remaining instructions
+relevantP(p) :- PobjValAsgnInst(p,_,_).
+relevantP(p) :- PobjVarAsgnInst(p,_,_).
+#relevantP(p) :- PobjNullAsgnInst(p,_).
+relevantP(p) :- PobjOnlyNullAsgnInst(p,_).
+relevantP(p) :- PobjConstAsgnInst(p,_).
+relevantP(p) :- PgetInstFldInst(p,_,_,_).
+relevantP(p) :- PgetStatFldInst(p,_,_).
+#relevantP(p) :- PputInstFldInst(p,_,_,_).
+#relevantP(p) :- PputStatFldInst(p,_,_).
+relevantP(p) :- PI(p,_).
+#relevantP(p) :- PobjRetInst(p,_).
+#relevantP(p) :- MPhead(_,p).
+relevantP(p) :- MPtail(_,p).
+
+nonRelevantP(p) :- PP(_,p), reachableP(p), !relevantP(p).
+
+
+errorCandidates(p,v) :- rPI(p,i), virtIM(i,_), IinvkArg(i,0,v), !checkExcludedP(p).split
+#errorCandidates(p,v) :- rPI(p,i), specIM(i,_), IinvkArg(i,0,v), !checkExcludedP(p).split
+errorCandidates(p,v) :- rPgetInstFldInst(p,_,v,_), !checkExcludedP(p).split
+errorCandidates(p,v) :- rPputInstFldInst(p,v,_,_), !checkExcludedP(p).split

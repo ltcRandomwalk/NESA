@@ -1,0 +1,3 @@
+[submodule "main/libsrc/libdai"]
+	path = main/libsrc/libdai
+	url = https://github.com/difflog-project/libdai.git

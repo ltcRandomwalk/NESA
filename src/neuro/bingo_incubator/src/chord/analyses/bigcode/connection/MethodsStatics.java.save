@@ -1,0 +1,94 @@
+package chord.analyses.bigcode.connection;
+
+import java.util.Random;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.HashMap;
+
+import joeq.Class.jq_Field;
+import joeq.Class.jq_Method;
+import joeq.Compiler.Quad.Quad;
+import chord.analyses.alias.CICGAnalysis;
+import chord.analyses.alias.ICICG;
+import chord.analyses.field.DomF;
+import chord.analyses.method.DomM;
+import chord.analyses.point.DomP;
+import chord.bddbddb.Rel.IntTrioIterable;
+import chord.project.Chord;
+import chord.project.ClassicProject;
+import chord.project.analyses.JavaAnalysis;
+import chord.project.analyses.ProgramRel;
+import chord.util.tuple.integer.IntTrio;
+import chord.bddbddb.Rel.IntPairIterable;
+import chord.bddbddb.Rel.IntTrioIterable;
+
+
+@Chord(name = "undirected-methodsStatics",
+consumes = {"MputStatFldInst", "MgetStatFldInst"},
+produces = { "methodsStatics"} ,
+namesOfSigns = { "methodsStatics"},
+signs = { "M0,F0:M0xF0"}
+)
+public class MethodsStatics extends JavaAnalysis {
+
+	private DomM domM;
+	private DomF domF;
+	ProgramRel methodsStatics;
+	ICICG cicg;
+
+	@Override
+	public void run()
+	{
+		domM = (DomM) ClassicProject.g().getTrgt("M");
+		ClassicProject.g().runTask(domM);
+	
+		domF = (DomF) ClassicProject.g().getTrgt("F");
+		ClassicProject.g().runTask(domF);
+	
+		ProgramRel relMputStatFldInst = (ProgramRel) ClassicProject.g().getTrgt("MputStatFldInst");
+		relMputStatFldInst.load();
+		IntTrioIterable putStatTuples = relMputStatFldInst.getAry3IntTuples();
+		
+		ProgramRel relMgetStatFldInst = (ProgramRel) ClassicProject.g().getTrgt("MgetStatFldInst");
+		relMgetStatFldInst.load();
+		IntTrioIterable getStatTuples = relMgetStatFldInst.getAry3IntTuples();
+		
+		CICGAnalysis cicgAnalysis = (CICGAnalysis) ClassicProject.g()
+				.getTrgt("cicg-java");
+		ClassicProject.g().runTask(cicgAnalysis);
+		cicg = cicgAnalysis.getCallGraph();
+		
+		methodsStatics= (ProgramRel) ClassicProject.g().getTrgt("methodsStatics");
+		methodsStatics.zero();
+		
+		for (IntTrio t: putStatTuples)
+		{
+			jq_Method m = domM.get(t.idx0);
+			jq_Field statVar = domF.get(t.idx1);
+			Set<jq_Method> visitedMethods = new HashSet<jq_Method>();
+		    addToMethodsStatics(m, statVar, visitedMethods);
+		}
+		
+		for (IntTrio t: getStatTuples)
+		{
+			jq_Method m = domM.get(t.idx0);
+			jq_Field statVar = domF.get(t.idx2);
+			Set<jq_Method> visitedMethods = new HashSet<jq_Method>();
+			addToMethodsStatics(m, statVar, visitedMethods);
+		}
+		methodsStatics.save();
+	}
+	
+	private void addToMethodsStatics(jq_Method m, jq_Field statVar, Set<jq_Method> visited)
+	{
+		if (visited.add(m))
+	    {
+			methodsStatics.add(m, statVar);
+			Set<Quad> callers = cicg.getCallers(m);
+			for (Quad q: callers)
+			{
+				addToMethodsStatics(q.getMethod(), statVar, visited);
+			}	
+	    }
+	}
+}

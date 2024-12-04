@@ -1,0 +1,130 @@
+# name=steensgaard-dlog_XZ89_
+.include "T.dom"
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "Z.dom"
+.bddvarorder I0xM0xM1_T0_V0xV1_T1_H0_F0_H1_Z0
+
+
+#Input relations
+VT(v:V0,t:T0) input
+HT(h:H0,t:T1) input
+MmethArg(m:M0,n:Z0,v:V0) input
+MmethRet(m:M0,n:Z0,v:V1) input
+IinvkArg0(i:I0,v:V1) input
+IinvkArg(i:I0,n:Z0,v:V1) input
+IinvkRet(i:I0,n:Z0,v:V0) input
+MI(m:M0,i:I0) input
+IM(i:I0,m:M0) input
+HFH(h0:H0,f0:F0,h1:H1) input
+VH(v0:V0,h0:H0) input
+reachableM(m:M0) input
+reachableI(i:I0) input
+VHfilter(v:V0,h:H0) input
+MobjValAsgnInst(m:M0,l:V0,h:H0) input
+MobjVarAsgnInst(m:M0,l:V0,r:V1) input
+MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) input
+MputInstFldInst(m:M0,b:V0,f:F0,r:V1) input
+MgetStatFldInst(m:M0,l:V0,f:F0) input
+MputStatFldInst(m:M0,f:F0,r:V0) input
+clsForNameIT(i:I0,t:T0) input
+objNewInstIH(i:I0,h:H0) input
+objNewInstIM(i:I0,m:M0) input
+conNewInstIH(i:I0,h:H0) input
+conNewInstIM(i:I0,m:M0) input
+aryNewInstIH(i:I0,h:H0) input
+
+#Output relations
+sFH(f0:F0,h0:H0) output
+sHH(h0:H0,h1:H1) output
+sVH(v:V0,h:H0) output
+move(l:V0,r:V1) output
+alloc(l:V0,h:H0) output
+sstore(b:V0,r:V1) output
+sload(l:V0,b:V1) output
+storeGlobal(f:F0,r:V0) output
+loadGlobal(l:V0,f:F0) output
+
+#Instrumented relations
+alloc_XZ89_0_93(l:V0,h:H0,m:M0) output
+alloc_XZ89_3_93(v:V0,h2:H0,i:I0,m:M0,u:V1,h:H1) output
+alloc_XZ89_4_93(v:V0,h:H0,i:I0,m:M0) output
+alloc_XZ89_1_93(v:V0,h:H0,i:I0,m:M0) output
+alloc_XZ89_2_93(v:V0,h:H0,i:I0) output
+move_XZ89_7_93(l:V0,r:V1,m:M0) output
+move_XZ89_8_93(v:V0,u:V1,i:I0,z:Z0,m:M0) output
+alloc_XZ89_5_93(v:V0,h:H0,i:I0) output
+alloc_XZ89_6_93(v:V0,h:H0,i:I0) output
+sstore_XZ89_11_93(b:V0,r:V1,m:M0,v_XZ89_0:F0) output
+loadGlobal_XZ89_12_93(l:V0,f:F0,m:M0) output
+move_XZ89_9_93(u:V0,v:V1,i:I0,z:Z0,m:M0) output
+sload_XZ89_10_93(l:V0,b:V1,m:M0,v_XZ89_0:F0) output
+sVH_XZ89_16_93(r:V0,h:H0,l:V1) output
+sVH_XZ89_15_93(l:V0,h:H0,r:V1) output
+sVH_XZ89_14_93(v:V0,h:H0) output
+storeGlobal_XZ89_13_93(f:F0,r:V0,m:M0) output
+sFH_XZ89_20_93(f:F0,h:H0,v:V0) output
+sVH_XZ89_19_93(v:V0,h:H0,f:F0) output
+sFH_XZ89_18_93(f:F0,h:H0,v:V0) output
+sVH_XZ89_17_93(v:V0,h:H0,f:F0) output
+sHH_XZ89_24_93(h1:H0,h2:H1,b:V0,r:V1) output
+sVH_XZ89_23_93(r:V0,h:H0,b:V1,h1:H1) output
+sHH_XZ89_22_93(h1:H0,h2:H1,l:V0,b:V1) output
+sVH_XZ89_21_93(l:V0,h:H0,b:V1,h1:H1) output
+
+#Original rules
+alloc(l,h) :- reachableM(m), MobjValAsgnInst(m,l,h).
+alloc(v,h) :- reachableI(i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), VHfilter(v,h).
+alloc(v,h) :- reachableI(i), objNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+alloc(v,h2) :- reachableI(i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), VH(u,h), HFH(h,0,h2), VHfilter(v,h2).
+alloc(v,h) :- reachableI(i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), VHfilter(v,h).
+alloc(v,h) :- reachableI(i), conNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+alloc(v,h) :- reachableI(i), aryNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+move(l,r) :- reachableM(m), MobjVarAsgnInst(m,l,r).
+move(v,u) :- reachableI(i), IinvkArg(i,z,u), IM(i,m), MmethArg(m,z,v).
+move(u,v) :- reachableI(i), IinvkRet(i,z,u), IM(i,m), MmethRet(m,z,v).
+sload(l,b) :- reachableM(m), MgetInstFldInst(m,l,b,_).
+sstore(b,r) :- reachableM(m), MputInstFldInst(m,b,_,r).
+loadGlobal(l,f) :- reachableM(m), MgetStatFldInst(m,l,f).
+storeGlobal(f,r) :- reachableM(m), MputStatFldInst(m,f,r).
+sVH(v,h) :- alloc(v,h).
+sVH(l,h) :- move(l,r), sVH(r,h).
+sVH(r,h) :- move(l,r), sVH(l,h).
+sVH(v,h) :- loadGlobal(v,f), sFH(f,h).
+sFH(f,h) :- loadGlobal(v,f), sVH(v,h).
+sVH(v,h) :- storeGlobal(f,v), sFH(f,h).
+sFH(f,h) :- storeGlobal(f,v), sVH(v,h).
+sVH(l,h) :- sload(l,b), sVH(b,h1), sHH(h1,h).
+sHH(h1,h2) :- sload(l,b), sVH(l,h2), sVH(b,h1).
+sVH(r,h) :- sstore(b,r), sVH(b,h1), sHH(h1,h).
+sHH(h1,h2) :- sstore(b,r), sVH(r,h2), sVH(b,h1).
+
+#Instrumented rules
+alloc_XZ89_0_93(l,h,m) :- reachableM(m), MobjValAsgnInst(m,l,h).
+alloc_XZ89_1_93(v,h,i,m) :- reachableI(i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), VHfilter(v,h).
+alloc_XZ89_2_93(v,h,i) :- reachableI(i), objNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+alloc_XZ89_3_93(v,h2,i,m,u,h) :- reachableI(i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), VH(u,h), HFH(h,0,h2), VHfilter(v,h2).
+alloc_XZ89_4_93(v,h,i,m) :- reachableI(i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), VHfilter(v,h).
+alloc_XZ89_5_93(v,h,i) :- reachableI(i), conNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+alloc_XZ89_6_93(v,h,i) :- reachableI(i), aryNewInstIH(i,h), IinvkRet(i,0,v), VHfilter(v,h).
+move_XZ89_7_93(l,r,m) :- reachableM(m), MobjVarAsgnInst(m,l,r).
+move_XZ89_8_93(v,u,i,z,m) :- reachableI(i), IinvkArg(i,z,u), IM(i,m), MmethArg(m,z,v).
+move_XZ89_9_93(u,v,i,z,m) :- reachableI(i), IinvkRet(i,z,u), IM(i,m), MmethRet(m,z,v).
+sload_XZ89_10_93(l,b,m,v_XZ89_0) :- reachableM(m), MgetInstFldInst(m,l,b,v_XZ89_0).
+sstore_XZ89_11_93(b,r,m,v_XZ89_0) :- reachableM(m), MputInstFldInst(m,b,v_XZ89_0,r).
+loadGlobal_XZ89_12_93(l,f,m) :- reachableM(m), MgetStatFldInst(m,l,f).
+storeGlobal_XZ89_13_93(f,r,m) :- reachableM(m), MputStatFldInst(m,f,r).
+sVH_XZ89_14_93(v,h) :- alloc(v,h).
+sVH_XZ89_15_93(l,h,r) :- move(l,r), sVH(r,h).
+sVH_XZ89_16_93(r,h,l) :- move(l,r), sVH(l,h).
+sVH_XZ89_17_93(v,h,f) :- loadGlobal(v,f), sFH(f,h).
+sFH_XZ89_18_93(f,h,v) :- loadGlobal(v,f), sVH(v,h).
+sVH_XZ89_19_93(v,h,f) :- storeGlobal(f,v), sFH(f,h).
+sFH_XZ89_20_93(f,h,v) :- storeGlobal(f,v), sVH(v,h).
+sVH_XZ89_21_93(l,h,b,h1) :- sload(l,b), sVH(b,h1), sHH(h1,h).
+sHH_XZ89_22_93(h1,h2,l,b) :- sload(l,b), sVH(l,h2), sVH(b,h1).
+sVH_XZ89_23_93(r,h,b,h1) :- sstore(b,r), sVH(b,h1), sHH(h1,h).
+sHH_XZ89_24_93(h1,h2,b,r) :- sstore(b,r), sVH(r,h2), sVH(b,h1).

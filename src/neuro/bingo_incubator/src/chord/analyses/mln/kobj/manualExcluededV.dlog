@@ -1,0 +1,14 @@
+# name=manualExcludedV-dlog
+
+.include "T.dom"
+.include "V.dom"
+.bddvarorder V0_T0
+
+#Input relations
+manualExcludedT(t:T0) input
+VT(v: V0, t:T0) input
+
+#Output relations
+manualExcludedV(v:V0) output
+
+manualExcludedV(v) :- manualExcludedT(t), VT(v, t).

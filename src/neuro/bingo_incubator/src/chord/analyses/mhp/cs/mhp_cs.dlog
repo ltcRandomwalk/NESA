@@ -1,0 +1,95 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=mhp-cs-dlog
+
+.include "AS.dom"
+.include "C.dom"
+.include "I.dom"
+.include "M.dom"
+.include "P.dom"
+.include "V.dom"
+.include "Z.dom"
+
+.bddvarorder AS0xAS1xAS2_I0xM0xM1xP0xP1xP2_C0xC1
+
+###
+# Relations
+###
+
+PP(p:P,q:P) input
+MPhead(m:M,p:P) input
+MPtail(m:M,p:P) input
+PI(p:P,i:I) input
+CICM(c1:C,i:I,c2:C,m:M) input
+threadACM(t:AS,c:C,m:M) input
+threadStartI(i:I) input
+threadCICM(c:C,i:I,c:C,m:M) input
+threadAC(t:AS,c:C) 
+threadACH(t:AS,c:C,h:P)
+
+threadPM_cs   (caller:C,p1:P,callee:C) output
+threadPH_cs   (caller:C,p1:P,callee:C,p2:P) output
+simplePM_cs(caller:C,p1:P,callee:C,m2:M) output
+simplePH_cs(caller:C,p1:P,callee:C,p2:P) output
+simplePT_cs(caller:C,p1:P,callee:C,p2:P) output
+
+PathEdge_cs(c:C,p:P,this:AS,sThat:AS,tThat:AS) output
+# defined only for ordinary calls p (not thread start calls)
+SummEdge_cs(c:C,p:P,this:AS,sThat:AS,tThat:AS) output
+
+mhp_cs(c:C,p:P,t1:AS,t2:AS) output
+
+###
+# Constraints
+###
+
+simplePM_cs(c,p,d,m) :- CICM(c,i,d,m), PI(p,i), !threadStartI(i).
+simplePH_cs(c,p,d,h) :- simplePM_cs(c,p,d,m), MPhead(m,h).
+simplePT_cs(c,p,d,t) :- simplePM_cs(c,p,d,m), MPtail(m,t).
+threadPM_cs(c,p,d) :- threadCICM(c,i,d,_), PI(p,i).
+threadPH_cs(c,p,d,h) :- threadCICM(c,i,d,m), PI(p,i), MPhead(m,h).
+threadAC(t,c) :- threadACM(t,c,m), m!=0.
+threadACH(t,c,h) :- threadACM(t,c,m), m!=0, MPhead(m,h).
+
+# PathEdge(c,p,this,sThat,tThat) 
+# There exists a unique method m such that:
+# 1. it is invoked in a context c and
+# 2. it contains node p
+# Above predicate denotes a path edge for [c,m]:
+# from dataflow fact (this,sThat) at head node of m
+# to   dataflow fact (this,tThat) at node p
+
+PathEdge_cs(0,0,1,0,0).
+
+# assumptions about relation PP:
+# it does not contain edges from call nodes to head nodes
+# it does not contain edges from tail nodes to call nodes
+PathEdge_cs(c,q,t,t1,t2) :- PathEdge_cs(c,p,t,t1,t2), PP(p,q).
+
+# ordinary calls
+
+PathEdge_cs(d,q,t,t1,t2) :- simplePH_cs(c,p,d,q) , PathEdge_cs(c,p,t,_ ,t2), t1=t2.
+SummEdge_cs(c,p,t,t1,t2) :- simplePT_cs(c,p,d,q) , PathEdge_cs(d,q,t,t1,t2).
+PathEdge_cs(c,r,t,t1,t3) :- SummEdge_cs(c,p,t,t2,t3), PathEdge_cs(c,p,t,t1,t2), PP(p,r).
+
+# thread fork calls
+
+PathEdge_cs(c,r,t,t1,t2) :- threadPM_cs(c,p,d), PathEdge_cs(c,p,t,t1,_), PP(p,r), threadAC(t2,d).
+#PathEdge_cs(c,r,t,t1,t3) :- threadPM_cs(c,p,d), PathEdge_cs(c,p,t,t1,_), \
+#	PP(p,r), threadAC(t2,d), PathEdge_cs(d,q,t2,0,t3), MPtail(1,q). 
+
+# Avoid split versions of rules for MLNs
+#PathEdge_cs(d,h,x,y,z) :- threadPH_cs(c,p,d,h), PathEdge_cs(c,p,y,_,_), threadAC(x,d), z=y. split
+#PathEdge_cs(d,h,x,y,z) :- threadPH_cs(c,p,d,h), PathEdge_cs(c,p,_,_,y), threadAC(x,d), z=y. split
+#PathEdge_cs(e,h1,x,y,z) :- threadPM_cs(c,p,d), PathEdge_cs(c,p,_,_,x), threadACH(x,e,h1), threadAC(y,d), z=y. split
+
+PathEdge_cs(d,h,x,y,z) :- threadPH_cs(c,p,d,h), PathEdge_cs(c,p,y,_,_), threadAC(x,d), z=y.
+PathEdge_cs(d,h,x,y,z) :- threadPH_cs(c,p,d,h), PathEdge_cs(c,p,_,_,y), threadAC(x,d), z=y.
+PathEdge_cs(e,h1,x,y,z) :- threadPM_cs(c,p,d), PathEdge_cs(c,p,_,_,x), threadACH(x,e,h1), threadAC(y,d), z=y.
+
+mhp_cs(c,p,t1,t2) :- PathEdge_cs(c,p,t1,_,t2), t1!=0, t2!=0.
+

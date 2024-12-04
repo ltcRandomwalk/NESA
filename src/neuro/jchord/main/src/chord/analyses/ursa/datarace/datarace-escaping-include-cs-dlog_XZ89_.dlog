@@ -1,0 +1,24 @@
+# name=ursa-datarace-escaping-include-cs-dlog_XZ89_
+.include "C.dom"
+.include "E.dom"
+.include "V.dom"
+.include "P.dom"
+.bddvarorder E0_P0_V0_C0_C1
+
+
+#Input relations
+escCPVO(c:C0,p:P0,v:V0,o:C1) input
+PE(p:P0,e:E0) input
+EV(e:E0,v:V0) input
+
+#Output relations
+CEC(c:C0,e:E0,o:C1) output
+
+#Instrumented relations
+CEC_XZ89_0_94(c:C0,e:E0,o:C1,p:P0,v:V0) output
+
+#Original rules
+CEC(c,e,o) :- PE(p,e), EV(e,v), escCPVO(c,p,v,o).
+
+#Instrumented rules
+CEC_XZ89_0_94(c,e,o,p,v) :- PE(p,e), EV(e,v), escCPVO(c,p,v,o).

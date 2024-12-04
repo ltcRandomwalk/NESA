@@ -1,0 +1,4 @@
+INFO: Command line system properties: 
+INFO: Running command: nohup java -cp /home/tcli/neuro/jchord/main/chord.jar -Dchord.out.dir=./chord_output_bytecode-count-app -Dchord.work.dir=/data/tcli/neuro/pjbench/weblech-0.0.3 -Dchord.ext.java.analysis.path=/home/tcli/neuro/jchord/main/../extra/classes/ -Dchord.ext.dlog.analysis.path=/home/tcli/neuro/jchord/main/../extra/src/ -Dchord.max.heap=8192m -Dchord.bddbddb.max.heap=4096m -Dchord.run.analyses=cipa-0cfa-dlog,src-files-java -Dchord.check.exclude=java.,com.,sun.,sunw.,javax.,launcher. -Dchord.scope.reuse=false -Dchord.reflect.kind=dynamic chord.project.Boot &
+Redirecting stdout to file: /data/tcli/neuro/pjbench/weblech-0.0.3/./chord_output_bytecode-count-app/log.txt
+Redirecting stderr to file: /data/tcli/neuro/pjbench/weblech-0.0.3/./chord_output_bytecode-count-app/log.txt

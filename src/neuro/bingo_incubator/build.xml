@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="incubator" default="compile">
+	<property environment="env"/>
+	<property name="chord.home.dir" location="${env.CHORD_MAIN}"/>
+	<property name="chord.incubator.dir" location="${env.CHORD_INCUBATOR}"/>
+
+	<target name="compile">
+		<ant dir="${chord.home.dir}" target="compile"/>
+
+		<mkdir dir="classes"/>
+		<javac debug="true" debuglevel="source,lines,vars" includeAntRuntime="false"
+			source="1.5" target="1.5" srcdir="src" destdir="classes">
+			<classpath>
+                                <pathelement location="lib/weka.jar"/>
+                                <pathelement location="lib/guava-17.0.jar"/>
+				<pathelement location="${chord.home.dir}/chord.jar"/>
+				<pathelement location="lib/gurobi.jar"/>
+                        </classpath>
+			<exclude name="chord/project/analyses/refine/"/>
+			<exclude name="chord/analyses/provrefine/"/>
+			<exclude name="chord/analyses/sliver/"/>
+			<exclude name="chord/analyses/incrsolver/"/>
+            <exclude name="chord/analyses/escape/cs/"/>
+			<!--
+			     In the progress of moving following packages to the trunk of chord,
+			     they will be deleted from incubator eventually.
+			     -->
+		</javac>		
+	</target>
+
+	<target name="run">
+		<property name="chord.ext.java.analysis.path" location="${chord.incubator.dir}/classes:${chord.incubator.dir}/lib/guava-17.0.jar"/>
+		<property name="chord.ext.dlog.analysis.path" location="${chord.incubator.dir}/src"/>
+		<ant dir="${chord.home.dir}" target="run"/>
+	</target>
+
+	<target name="runw">
+	 <property name="chord.ext.java.analysis.path" location="classes"/>
+	 <property name="chord.ext.dlog.analysis.path" location="src"/>
+	<java classname="chord.project.Boot" failonerror="true" classpath="${chord.home.dir}/chord.jar:./generatedSource">
+	<syspropertyset>
+		<propertyref builtin="all"/>
+		</syspropertyset>
+	</java>
+
+	</target>
+
+	<target name="clean">
+		<delete dir="classes"/>
+	</target>
+</project>

@@ -1,0 +1,66 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# k-object-sensitive may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=cspa-kobj-incrinit-dlog
+
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+
+.bddvarorder F0_I0xM0xM1_T0_V0xV1_T1_H0_C0xC1xC2_Z0
+
+###
+# Relations
+###
+
+statIM(i:I,m:M) input
+specIM(i:I,m:M) input
+HT(h:H0,t:T1) input
+cha(n:M1,t:T1,m:M0) input
+virtIM(i:I,m:M) input
+CC(c:C,d:C) input
+CH(c:C,h:H) input
+CI(c:C,i:I) input
+epsilonM(m:M) input
+kobjSenM(m:M) input
+ctxtCpyM(m:M) input
+
+
+CIC(c:C,i:I,d:C) output
+CHC(c:C,h:H,d:C) output
+IHM(i:I,h:H,m:M) output
+
+ctxtInsIHM(i:I,h:H,m:M) output
+kobjSenIHM(i:I,h:H,m:M) output
+kobjSenICM(i:I,c:C,m:M) output
+
+ctxtInsSpecIM(i:I,m:M) output
+kobjSenSpecIM(i:I,m:M) output
+ctxtInsStatIM(i:I,m:M) output
+ctxtCpyStatIM(i:I,m:M) output
+
+
+###
+# Constraints
+###
+
+CIC(c,i,d) :- CC(c,d), CI(d,i).
+CHC(c,h,d) :- CC(c,d), CH(d,h).
+IHM(i,h,m2) :- virtIM(i,m1), HT(h,t), cha(m1,t,m2).
+ctxtInsIHM(i,h,m) :- IHM(i,h,m), epsilonM(m).
+kobjSenIHM(i,h,m) :- IHM(i,h,m), kobjSenM(m).
+kobjSenICM(i,o,m) :- kobjSenIHM(i,h,m), CH(o,h).
+ctxtInsSpecIM(i,m) :- specIM(i,m), epsilonM(m).
+kobjSenSpecIM(i,m) :- specIM(i,m), kobjSenM(m).
+ctxtInsStatIM(i,m) :- statIM(i,m), epsilonM(m).
+ctxtCpyStatIM(i,m) :- statIM(i,m), ctxtCpyM(m).

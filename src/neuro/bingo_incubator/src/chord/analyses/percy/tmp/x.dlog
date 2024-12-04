@@ -1,0 +1,12 @@
+.include "V.dom"
+.include "H.dom"
+
+.bddvarorder V0xV1_H0
+
+VH(v:V0,h:H0) input
+VV(u:V0,v:V1) output
+notVV(u:V0,v:V1) output
+
+VV(u,v) :- VH(u,h), VH(v,h).
+notVV(u,v) :- !VV(u,v).
+

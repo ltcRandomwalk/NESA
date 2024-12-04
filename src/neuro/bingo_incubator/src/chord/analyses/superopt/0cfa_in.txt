@@ -1,0 +1,10 @@
+MI
+MobjValAsgnInst
+MobjVarAsgnInst
+MgetInstFldInst
+MputInstFldInst
+MgetStatFldInst
+MputStatFldInst
+MIinvkArg0
+MIinvkArg
+MmethRet

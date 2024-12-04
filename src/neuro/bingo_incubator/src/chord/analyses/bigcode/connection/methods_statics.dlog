@@ -1,0 +1,41 @@
+# name=methods-statics-dlog
+
+.include "M.dom"
+.include "I.dom"
+.include "V.dom"
+.include "F.dom"
+
+.bddvarorder M0xM1_M2_I0_V0_F0
+
+MI(m:M0,i:I0) input
+IM(i:I0,m:M0) input
+#filterM(m:M0) input
+objNewInstIM(i:I0,m:M0) input
+conNewInstIM(i:I0,m:M0) input
+reachableI(i:I) input
+MgetStatFldInst(m:M0,l:V0,f:F0) input
+MputStatFldInst(m:M0,f:F0,r:V0) input
+
+relevantIM(i:I0,m:M0)
+relevantMI(m:M0,i:I0)
+reachMM(m1:M0,m2:M1)
+
+methodsStatics(m1:M0,f:F0) output
+
+#relevantIM(i,m) :- IM(i,m), !filterM(m).
+#relevantIM(i,m) :- reachableI(i), objNewInstIM(i,m), !filterM(m).
+#relevantIM(i,m) :- reachableI(i), conNewInstIM(i,m), !filterM(m).
+relevantIM(i,m) :- IM(i,m).
+relevantIM(i,m) :- reachableI(i), objNewInstIM(i,m).
+relevantIM(i,m) :- reachableI(i), conNewInstIM(i,m).
+
+#relevantMI(m,i) :- MI(m,i), !filterM(m).
+relevantMI(m,i) :- MI(m,i).
+
+#reachMM(m1,m2) :- !filterM(m1), m1=m2.
+reachMM(m1,m2) :- m1=m2.
+reachMM(m1,m2) :- relevantMI(m1,i), relevantIM(i,m2).
+reachMM(m1,m3) :- reachMM(m1,m2), reachMM(m2,m3).
+
+methodsStatics(m,f) :- reachMM(m,m1), MgetStatFldInst(m1,_,f). 
+methodsStatics(m,f) :- reachMM(m,m1), MputStatFldInst(m1,f,_). 

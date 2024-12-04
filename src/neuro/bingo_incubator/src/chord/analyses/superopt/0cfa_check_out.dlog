@@ -1,0 +1,118 @@
+
+# name=0cfa-check-out-dlog
+
+.include "F.dom"
+.include "M.dom"
+.include "I.dom"
+.include "H.dom"
+.include "V.dom"
+.include "T.dom"
+.include "Z.dom"
+
+.bddvarorder I0_M0xM1_V0xV1_H0_F0_H1_T0_Z0
+
+###
+# Relations
+###
+
+reachableT(t:T) input
+VH(v:V,h:H) input 
+FH(f:F,h:H) input
+HFH(h1:H,f:F,h2:H) input 
+rootM(m:M) input
+reachableI(i:I) input
+reachableM(m:M) input 
+IM(i:I,m:M) input
+MM(m:M,n:M) input
+
+save_reachableT(t:T) input
+save_VH(v:V,h:H) input 
+save_FH(f:F,h:H) input
+save_reach_HFH(h1:H,f:F,h2:H) input 
+save_rootM(m:M) input
+save_reachableI(i:I) input
+save_reachableM(m:M) input 
+save_IM(i:I,m:M) input
+save_MM(m:M,n:M) input
+
+M_app(m:M) input
+I_app(i:I) input
+V_app(v:V) input
+T_app(t:T) input
+F_app(f:F) input
+H_app(h:H) input
+
+unequal_reachT(t:T) output
+unequal_VH(v:V,h:H) output 
+unequal_FH(f:F,h:H) output
+unequal_HFH(h1:H,f:F,h2:H) output 
+unequal_rootM(m:M) output
+unequal_reachI(i:I) output
+unequal_reachM(m:M) output 
+unequal_IM(i:I,m:M) output
+unequal_MM(m:M,n:M) output
+
+unequal_reachT1(t:T) output
+unequal_VH1(v:V,h:H) output 
+unequal_FH1(f:F,h:H) output
+unequal_HFH1(h1:H,f:F,h2:H) output 
+unequal_rootM1(m:M) output
+unequal_reachI1(i:I) output
+unequal_reachM1(m:M) output 
+unequal_IM1(i:I,m:M) output
+unequal_MM1(m:M,n:M) output
+
+unequal_any(z:Z) output
+reach_HFH(h1:H,f:F,h2:H)
+
+
+reach_HFH(h1,f,h2) :- HFH(h1,f,h2), H_app(h1).
+reach_HFH(h1,f,h2) :- reach_HFH(_,_,h1), HFH(h1,f,h2).   
+
+unequal_reachT(t) :- save_reachableT(t), !reachableT(t), T_app(t).
+unequal_reachT1(t) :- !save_reachableT(t), reachableT(t), T_app(t).
+
+unequal_VH(v,h) :- save_VH(v,h), !VH(v,h), V_app(v).
+unequal_VH1(v,h) :- !save_VH(v,h), VH(v,h), V_app(v).
+
+unequal_FH(f,h) :- save_FH(f,h), !FH(f,h), F_app(f).
+unequal_FH1(f,h) :- !save_FH(f,h), FH(f,h), F_app(f).
+
+unequal_HFH(h1,f,h2) :- save_reach_HFH(h1,f,h2), !reach_HFH(h1,f,h2).
+unequal_HFH1(h1,f,h2) :- !save_reach_HFH(h1,f,h2), reach_HFH(h1,f,h2).
+
+unequal_rootM(m) :- save_rootM(m), !rootM(m), M_app(m).
+unequal_rootM1(m) :- !save_rootM(m), rootM(m), M_app(m).
+
+unequal_reachI(i) :- save_reachableI(i), !reachableI(i), I_app(i).
+unequal_reachI1(i) :- !save_reachableI(i), reachableI(i), I_app(i).
+
+unequal_reachM(m) :- save_reachableM(m), !reachableM(m), M_app(m).
+unequal_reachM1(m) :- !save_reachableM(m), reachableM(m), M_app(m).
+
+unequal_IM(i,m) :- save_IM(i,m), !IM(i,m), I_app(i).
+unequal_IM1(i,m) :- !save_IM(i,m), IM(i,m), I_app(i).
+
+unequal_MM(m,n) :- save_MM(m,n), !MM(m,n), M_app(m).
+unequal_MM1(m,n) :- !save_MM(m,n), MM(m,n), M_app(m).
+
+
+unequal_any(0) :- unequal_reachT(_).
+unequal_any(0) :- unequal_VH(_,_).
+unequal_any(0) :- unequal_FH(_,_).
+unequal_any(0) :- unequal_HFH(_,_,_).
+unequal_any(0) :- unequal_rootM(_).
+unequal_any(0) :- unequal_reachI(_).
+unequal_any(0) :- unequal_reachM(_).
+unequal_any(0) :- unequal_IM(_,_).
+unequal_any(0) :- unequal_MM(_,_).
+
+unequal_any(0) :- unequal_reachT1(_).
+unequal_any(0) :- unequal_VH1(_,_).
+unequal_any(0) :- unequal_FH1(_,_).
+unequal_any(0) :- unequal_HFH1(_,_,_).
+unequal_any(0) :- unequal_rootM1(_).
+unequal_any(0) :- unequal_reachI1(_).
+unequal_any(0) :- unequal_reachM1(_).
+unequal_any(0) :- unequal_IM1(_,_).
+unequal_any(0) :- unequal_MM1(_,_).

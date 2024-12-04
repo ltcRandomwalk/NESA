@@ -1,0 +1,12 @@
+# name=checkExcludedP-dlog
+
+.include "P.dom"
+.include "M.dom"
+
+.bddvarorder P0_M0
+
+MPAll(m:M0,p:P0) input
+checkExcludedM(m:M0) input
+checkExcludedP(p:P0) output
+
+checkExcludedP(p) :- MPAll(m,p), checkExcludedM(m).

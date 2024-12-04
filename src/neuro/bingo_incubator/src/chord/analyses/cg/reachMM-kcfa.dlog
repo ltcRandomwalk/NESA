@@ -1,0 +1,23 @@
+.include "I.dom"
+.include "M.dom"
+.include "C.dom"
+
+# name=reachMM-kcfa-dlog
+
+#.bddvarorder I0xM0xM1xC0xC1
+.bddvarorder F0_I0xI1xI2xM0xM1xM2_T0_V0xV1_T1_H0xH1_C0xC1xC2xC3_Z0_E0xE1
+
+###
+# Relations
+###
+
+CICM(c:C,i:I,d:C,n:M) input
+MI(m:M,i:I) input
+inCsreachMM(m1:M,m2:M) input
+
+outCsreachMM(m1:M,m2:M) output
+csreachCMCM(c:C,m:M,d:C,n:M) output
+
+csreachCMCM(c,m1,d,m2) :- CICM(c,i,d,m2), MI(m1,i).
+csreachCMCM(c,m1,e,m3) :- CICM(c,i,d,m2), MI(m1,i), csreachCMCM(d,m2,e,m3).
+outCsreachMM(m1,m2) :- inCsreachMM(m1,m2), csreachCMCM(_,m1,_,m2). 

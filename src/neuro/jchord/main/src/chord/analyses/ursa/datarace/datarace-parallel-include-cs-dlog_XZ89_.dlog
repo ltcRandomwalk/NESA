@@ -1,0 +1,23 @@
+# name=ursa-datarace-parallel-include-cs-dlog_XZ89_
+.include "AS.dom"
+.include "C.dom"
+.include "E.dom"
+.include "P.dom"
+.bddvarorder E0_AS0xAS1_P0_C0
+
+
+#Input relations
+PE(p:P0,e:E0) input
+mhp_cs(c:C0,p:P0,t1:AS0,t2:AS1) input
+
+#Output relations
+mhe_cs(c:C0,e:E0,t1:AS0,t2:AS1) output
+
+#Instrumented relations
+mhe_cs_XZ89_0_36(c:C0,e:E0,t1:AS0,t2:AS1,p:P0) output
+
+#Original rules
+mhe_cs(c,e,t1,t2) :- mhp_cs(c,p,t1,t2), PE(p,e).
+
+#Instrumented rules
+mhe_cs_XZ89_0_36(c,e,t1,t2,p) :- mhp_cs(c,p,t1,t2), PE(p,e).

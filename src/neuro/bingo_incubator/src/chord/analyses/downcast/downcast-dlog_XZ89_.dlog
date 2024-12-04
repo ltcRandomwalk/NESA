@@ -1,0 +1,50 @@
+# name=downcast-dlog_XZ89_
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "C.dom"
+.bddvarorder M0_T0_V0xV1_T1_C0xH0xC1
+
+
+#Input relations
+MobjVarAsgnInst(m:M0,l:V0,r:V1) input
+reachableCM(c:C0,m:M0) input
+CVC(c:C0,v:V0,o:C1) input
+CH(c:C0,h:H0) input
+sub(s:T1,t:T0) input
+VT(v:V0,t:T0) input
+HT(h:H0,t:T1) input
+checkExcludedM(m:M0) input
+
+#Output relations
+reachableLR(l:V0,r:V1) output
+ptsVH(v:V0,h:H0) output
+ptsVT(v:V0,t:T0) output
+downcast(v:V0,t:T0) output
+unsafeDowncast(v:V0,t:T0) output
+safeDowncast(v:V0,t:T0) output
+
+#Instrumented relations
+ptsVT_XZ89_2(v:V0,t:T0,h:H0) output
+ptsVH_XZ89_1(v:V0,h:H0,v_XZ89_0:C0,o:C1) output
+unsafeDowncast_XZ89_4(v:V0,t:T0,t2:T1) output
+downcast_XZ89_3(r:V0,t:T0,l:V1,t2:T1) output
+safeDowncast_XZ89_5(v:V0,t:T0) output
+reachableLR_XZ89_0(l:V0,r:V1,m:M0,v_XZ89_0:C0) output
+
+#Original rules
+reachableLR(l,r) :- MobjVarAsgnInst(m,l,r), reachableCM(_,m), !checkExcludedM(m).
+ptsVH(v,h) :- CVC(_,v,o), CH(o,h).
+ptsVT(v,t) :- ptsVH(v,h), HT(h,t).
+downcast(r,t) :- reachableLR(l,r), VT(l,t), VT(r,t2), !sub(t2,t).
+unsafeDowncast(v,t) :- downcast(v,t), ptsVT(v,t2), !sub(t2,t).
+safeDowncast(v,t) :- downcast(v,t), !unsafeDowncast(v,t).
+
+#Instrumented rules
+reachableLR_XZ89_0(l,r,m,v_XZ89_0) :- MobjVarAsgnInst(m,l,r), reachableCM(v_XZ89_0,m), !checkExcludedM(m).
+ptsVH_XZ89_1(v,h,v_XZ89_0,o) :- CVC(v_XZ89_0,v,o), CH(o,h).
+ptsVT_XZ89_2(v,t,h) :- ptsVH(v,h), HT(h,t).
+downcast_XZ89_3(r,t,l,t2) :- reachableLR(l,r), VT(l,t), VT(r,t2), !sub(t2,t).
+unsafeDowncast_XZ89_4(v,t,t2) :- downcast(v,t), ptsVT(v,t2), !sub(t2,t).
+safeDowncast_XZ89_5(v,t) :- downcast(v,t), !unsafeDowncast(v,t).

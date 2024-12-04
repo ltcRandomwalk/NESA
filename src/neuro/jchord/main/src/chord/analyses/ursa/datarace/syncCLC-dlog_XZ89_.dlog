@@ -1,0 +1,34 @@
+# name=ursa-syncCLC-dlog_XZ89_
+.include "C.dom"
+.include "M.dom"
+.include "V.dom"
+.include "L.dom"
+.include "F.dom"
+.include "T.dom"
+.bddvarorder L0_F0_M0_T0_V0_C0xC1_C2
+
+
+#Input relations
+CVC(c:C0,v:V0,o:C1) input
+thisMV(m:M0,v:V0) input
+syncLM(l:L0,m:M0) input
+syncLV(l:L0,v:V0) input
+
+#Output relations
+syncCLC(c:C0,l:L0,o:C1) output
+syncC(c:C1) output
+
+#Instrumented relations
+syncCLC_XZ89_0_25(c:C0,l:L0,o:C1,m:M0,v:V0) output
+syncCLC_XZ89_1_25(c:C0,l:L0,o:C1,v:V0) output
+syncC_XZ89_2_25(o:C0,v_XZ89_0:C1,v_XZ89_1:L0) output
+
+#Original rules
+syncCLC(c,l,o) :- syncLM(l,m), thisMV(m,v), CVC(c,v,o).
+syncCLC(c,l,o) :- syncLV(l,v), CVC(c,v,o).
+syncC(o) :- syncCLC(_,_,o).
+
+#Instrumented rules
+syncCLC_XZ89_0_25(c,l,o,m,v) :- syncLM(l,m), thisMV(m,v), CVC(c,v,o).
+syncCLC_XZ89_1_25(c,l,o,v) :- syncLV(l,v), CVC(c,v,o).
+syncC_XZ89_2_25(o,v_XZ89_0,v_XZ89_1) :- syncCLC(v_XZ89_0,v_XZ89_1,o).

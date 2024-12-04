@@ -1,0 +1,13 @@
+# name=reachableFromOverriddenM-dlog
+
+.include "M.dom"
+
+.bddvarorder M0xM1
+
+overriddenM(m:M) input
+MM(m1:M0,m2:M1) input
+
+reachableFromOverriddenM(m1:M0,m2:M1) output
+
+reachableFromOverriddenM(m,m2) :- overriddenM(m), m2=m.
+reachableFromOverriddenM(m0,m2) :- reachableFromOverriddenM(m0,m1), MM(m1,m2).

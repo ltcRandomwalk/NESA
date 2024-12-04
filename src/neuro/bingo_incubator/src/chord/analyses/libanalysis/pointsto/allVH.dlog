@@ -1,0 +1,17 @@
+# name=allVH-dlog
+
+.include "H.dom"
+.include "V.dom"
+
+.bddvarorder V0_H0
+
+
+
+allV(v:V) input
+allH(h:H) input
+
+
+allVH(v:V,h:H) output
+
+
+allVH(v,h) :- allV(v), allH(h).

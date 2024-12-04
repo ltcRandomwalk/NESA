@@ -1,0 +1,30 @@
+# name=alias-dlog
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "C.dom"
+.bddvarorder M0_V0xV1_C0xH0xC1_T0
+
+#Input relations
+reachableCM(c:C0,m:M0) input
+checkExcludedH(h:H0) input
+checkExcludedV(v:V0) input
+CVC(c:C0,v:V0,o:C1) input
+CH(c:C0,h:H0) input
+MV(m:M0,v:V0) input
+MH(m:M0,h:H0) input
+manualExcludedV(v:V0) input
+
+#Intermediate relations
+reachableH(h:H0)
+reachableV(v:V0)
+
+#Output relations
+VV(v:V0,v:V1) output
+
+#Rules
+reachableV(v) :- MV(m,v), reachableCM(_,m).
+reachableH(h) :- MH(m,h), reachableCM(_,m).
+VV(v,u) :- CVC(_,v,o), CVC(_,u,o), reachableV(v), reachableV(u), CH(o,h), reachableH(h), v!=u, !checkExcludedV(v), !checkExcludedV(u), !manualExcludedV(v), !manualExcludedV(u).
+#VV(v,u) :- CVC(_,v,o), CVC(_,u,o), reachableV(v), reachableV(u), CH(o,h), reachableH(h), v!=u, !manualExcludedV(v), !manualExcludedV(u).

@@ -1,0 +1,35 @@
+# name=nullDerefCauses-dlog
+
+.include "V.dom"
+.include "P.dom"
+.include "F.dom"
+.include "M.dom"
+
+.bddvarorder M0_V0xV1_P0xP1_F0
+
+###
+# Relations
+###
+
+localNull(p:P,v:V) input
+checkExcludedP(p:P) input
+rPgetInstFldInst(p:P,v:V,u:V,f:F) input
+rPgetStatFldInst(p:P,v:V,f:F) input
+rPInvkRetInst(p:P,m:M,v:V,u:V) input
+PP(p0:P,p1:P) input
+
+localNullApp(p:P,v:V) output
+localNullAppHeap(p:P,v:V) output
+localNullAppInvk(p:P,v:V) output
+localNullAppHeapQ(p:P,v:V) output
+localNullAppInvkQ(p:P,v:V) output
+
+localNullApp(p,v) :- localNull(p,v), !checkExcludedP(p).
+localNullAppHeap(q,v) :- localNullApp(q,v), PP(p,q), rPgetInstFldInst(p,v,_,_).
+localNullAppHeap(q,v) :- localNullApp(q,v), PP(p,q), rPgetStatFldInst(p,v,_).
+localNullAppInvk(q,v) :- localNullApp(q,v), PP(p,q), rPInvkRetInst(p,_,v,_).
+
+localNullAppHeapQ(p,v) :- localNullApp(q,v), PP(p,q), rPgetInstFldInst(p,v,_,_).
+localNullAppHeapQ(p,v) :- localNullApp(q,v), PP(p,q), rPgetStatFldInst(p,v,_).
+localNullAppInvkQ(p,v) :- localNullApp(q,v), PP(p,q), rPInvkRetInst(p,_,v,_).
+

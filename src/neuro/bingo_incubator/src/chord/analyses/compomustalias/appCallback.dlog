@@ -1,0 +1,35 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# k-CFA may-alias/call-graph analysis.
+ 
+# name=appCallback-dlog
+
+.include "M.dom"
+.include "I.dom"
+
+.bddvarorder M0_I0
+
+###
+# Relations
+###
+
+M_app(m:M0) input
+MI(m:M0,i:I0) input
+IM(i:I0,m:M0) input
+
+#AppCallbkPres(m:M0) output
+AppCallbkPresMI(m:M0,i:I0) output
+
+###
+# Constraints
+###
+
+#AppCallbkPres(m) :- MI(m,i), IM(i,n), M_app(n).
+#AppCallbkPres(m) :- MI(m,i), IM(i,n), AppCallbkPres(n). 
+
+AppCallbkPresMI(m,i) :- MI(m,i), IM(i,n), M_app(n).
+AppCallbkPresMI(m,i) :- MI(m,i), IM(i,n), AppCallbkPresMI(n,_). 
+

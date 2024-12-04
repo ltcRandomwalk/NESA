@@ -1,0 +1,59 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# k-CFA may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=cspa-kcfa-incrinit-dlog
+
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+
+.bddvarorder I0xM0xM1_T0_T1_H0_C0xC1xC2
+
+###
+# Relations
+###
+
+HT(h:H0,t:T1) input
+statIM(i:I,m:M) input
+specIM(i:I,m:M) input
+virtIM(i:I,m:M) input
+cha(n:M1,t:T1,m:M0) input
+CC(c:C,d:C) input # d = [* c]
+CI(c:C,i:I) input # c = [i ...]
+CH(c:C,h:H) input # c = [h ...]
+epsilonM(m:M) input # treat method m context insensitively
+kcfaSenM(m:M) input # treat method m context sensitively
+
+CIC(c:C,i:I,d:C) output # d = [i, c]
+CHC(c:C,h:H,d:C) output # d = [h, c]
+IHM(i:I,h:H,m:M) output # at call site i, if h is the allocation site of "this" argument, can get to method m
+ctxtInsIHM(i:I,h:H,m:M) output
+kcfaSenIHM(i:I,h:H,m:M) output
+kcfaSenSpecIM(i:I,m:M) output
+ctxtInsSpecIM(i:I,m:M) output
+kcfaSenStatIM(i:I,m:M) output
+ctxtInsStatIM(i:I,m:M) output
+
+###
+# Constraints
+###
+
+CIC(c,i,d) :- CC(c,d), CI(d,i).
+CHC(c,h,d) :- CC(c,d), CH(d,h).
+IHM(i,h,m2) :- virtIM(i,m1), HT(h,t), cha(m1,t,m2).
+ctxtInsIHM(i,h,m) :- IHM(i,h,m), epsilonM(m).
+kcfaSenIHM(i,h,m) :- IHM(i,h,m), kcfaSenM(m).
+kcfaSenSpecIM(i,m) :- specIM(i,m), kcfaSenM(m).
+ctxtInsSpecIM(i,m) :- specIM(i,m), epsilonM(m).
+kcfaSenStatIM(i,m) :- statIM(i,m), kcfaSenM(m).
+ctxtInsStatIM(i,m) :- statIM(i,m), epsilonM(m).

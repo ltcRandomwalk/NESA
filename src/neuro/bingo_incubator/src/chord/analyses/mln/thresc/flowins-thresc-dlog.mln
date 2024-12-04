@@ -1,0 +1,33 @@
+// domains
+*dom_H(h_dom)
+*dom_E(e_dom)
+*dom_M(m_dom)
+*dom_V(v_dom)
+*dom_P(p_dom)
+*dom_Z(z_dom)
+*dom_F(f_dom)
+// input predicates
+*MP(m_dom, p_dom)
+*EV(e_dom, v_dom)
+*VH(v_dom, h_dom)
+*MV(m_dom, v_dom)
+*MmethArg(m_dom, z_dom, v_dom)
+*HFH(h_dom, f_dom, h_dom)
+*FH(f_dom, h_dom)
+*queryE(e_dom)
+
+// non-input predicates, which can appear on the lhs of each rule
+escPVH_3_0(v_dom, h_dom, m_dom)
+escE(e_dom)
+escPVH_3_1(v_dom, h_dom, p_dom)
+escH(h_dom)
+escPVH(p_dom, v_dom, h_dom)
+
+// hard rules converted from dlog into soft rules
+1 FH(f,h) => escH(h)
+1 MmethArg(1,0,v1), VH(v1,h) => escH(h)
+1 HFH(h1,f,h2), escH(h1) => escH(h2)
+1 escPVH_3_1(v1,h,p), escH(h) => escPVH(p,v1,h)
+1 queryE(e), EV(e,v1), VH(v1,h), escH(h) => escE(e)
+1 VH(v1,h), MV(m,v1) => escPVH_3_0(v1,h,m)
+1 escPVH_3_0(v1,h,m), MP(m,p) => escPVH_3_1(v1,h,p)

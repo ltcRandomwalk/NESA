@@ -1,0 +1,19 @@
+# name=nullDerefErrors-dlog
+
+.include "V.dom"
+.include "P.dom"
+
+.bddvarorder V0xP0
+
+###
+# Relations
+###
+
+localNotNull(p:P,v:V) input
+errorCandidates(p:P,v:V) input
+
+nullDeref(p:P,v:V) output
+
+##Different from datalog version since datalog the state associated with a program point is the
+## state after the program point while its the state before in RHS.
+nullDeref(p,v) :- errorCandidates(p,v), !localNotNull(p,v).

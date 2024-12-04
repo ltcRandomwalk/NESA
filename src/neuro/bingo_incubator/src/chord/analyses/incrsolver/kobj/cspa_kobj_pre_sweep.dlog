@@ -1,0 +1,76 @@
+# name=cspa-kobj-pre-sweep-dlog
+
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+
+.bddvarorder F0_I0xM0xM1_T0_V0xV1_T1_H0_C0xC1xC2_Z0
+
+RobjValAsgnInst_l(c:C,l:V,h:H) preload input
+RobjVarAsgnInst_l(c:C,l:V,r:V) preload input
+RgetInstFldInst_l(c:C,l:V,b:V,f:F) preload input
+RputInstFldInst_l(c:C,b:V,f:F,r:V) preload input
+RgetStatFldInst_l(c:C,l:V,f:F) preload input
+RputStatFldInst_l(c:C,f:F,r:V) preload input
+reachableT_l(t:T) preload input
+DIC_l(c:C,i:I,c:C) preload input
+DIH_l(c:C,i:I,h:H) preload input
+DI_l(c:C,i:I) preload input
+DVDV_l(c:C0,u:V0,d:C1,v:V1) preload input
+reachableCI_l(c:C,i:I) preload input
+reachableCM_l(c:C,m:M) preload input
+rootCM_l(c:C,m:M) preload input
+CICM_l(c:C,i:I,d:C,m:M) preload input
+CMCM_l(c:C,m:M,d:C,n:M) preload input
+DVC_l(c1:C,v:V,c2:C) preload input
+CVC_l(c1:C,v:V,c2:C) preload input
+FC_l(f:F,c:C) preload input
+CFC_l(c1:C,f:F,c2:C) preload input
+
+RobjValAsgnInst(c:C,l:V,h:H) preloadOutput 
+RobjVarAsgnInst(c:C,l:V,r:V) preloadOutput 
+RgetInstFldInst(c:C,l:V,b:V,f:F) preloadOutput 
+RputInstFldInst(c:C,b:V,f:F,r:V) preloadOutput
+RgetStatFldInst(c:C,l:V,f:F) preloadOutput 
+RputStatFldInst(c:C,f:F,r:V) preloadOutput 
+reachableT(t:T) preloadOutput
+DIC(c:C,i:I,c:C) preloadOutput
+DIH(c:C,i:I,h:H) preloadOutput
+DI(c:C,i:I) preloadOutput
+DVDV(c:C0,u:V0,d:C1,v:V1) preloadOutput
+reachableCI(c:C,i:I) preloadOutput
+reachableCM(c:C,m:M) preloadOutput
+rootCM(c:C,m:M) preloadOutput
+CICM(c:C,i:I,d:C,m:M) preloadOutput
+CMCM(c:C,m:M,d:C,n:M) preloadOutput
+DVC(c1:C,v:V,c2:C) preloadOutput
+CVC(c1:C,v:V,c2:C) preloadOutput
+FC(f:F,c:C) preloadOutput
+CFC(c1:C,f:F,c2:C) preloadOutput
+
+
+RputInstFldInst(x1,x2,x3,x4) :- RputInstFldInst_l(x1,x2,x3,x4).
+DI(x1,x2) :- DI_l(x1,x2).
+RgetStatFldInst(x1,x2,x3) :- RgetStatFldInst_l(x1,x2,x3).
+reachableT(x1) :- reachableT_l(x1).
+DVC(x1,x2,x3) :- DVC_l(x1,x2,x3).
+CICM(x1,x2,x3,x4) :- CICM_l(x1,x2,x3,x4).
+DIH(x1,x2,x3) :- DIH_l(x1,x2,x3).
+rootCM(x1,x2) :- rootCM_l(x1,x2).
+RobjValAsgnInst(x1,x2,x3) :- RobjValAsgnInst_l(x1,x2,x3).
+reachableCI(x1,x2) :- reachableCI_l(x1,x2).
+DIC(x1,x2,x3) :- DIC_l(x1,x2,x3).
+reachableCM(x1,x2) :- reachableCM_l(x1,x2).
+CFC(x1,x2,x3) :- CFC_l(x1,x2,x3).
+CVC(x1,x2,x3) :- CVC_l(x1,x2,x3).
+CMCM(x1,x2,x3,x4) :- CMCM_l(x1,x2,x3,x4).
+DVDV(x1,x2,x3,x4) :- DVDV_l(x1,x2,x3,x4).
+RobjVarAsgnInst(x1,x2,x3) :- RobjVarAsgnInst_l(x1,x2,x3).
+RputStatFldInst(x1,x2,x3) :- RputStatFldInst_l(x1,x2,x3).
+RgetInstFldInst(x1,x2,x3,x4) :- RgetInstFldInst_l(x1,x2,x3,x4).
+FC(x1,x2) :- FC_l(x1,x2).

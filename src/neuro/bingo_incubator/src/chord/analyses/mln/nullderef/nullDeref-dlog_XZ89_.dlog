@@ -1,0 +1,96 @@
+# name=nullDeref-dlog_XZ89_
+.include "M.dom"
+.include "P.dom"
+.include "V.dom"
+.include "F.dom"
+.include "Z.dom"
+.include "H.dom"
+.bddvarorder P0xP1xP2_M0_V0xV1xV2_F0_Z0_H0
+
+
+#Input relations
+PP(p:P0,q:P1) input
+MPhead(m:M0,p:P0) input
+MPtail(m:M0,p:P0) input
+rPInvkInst(p:P0,m:M0,v:V0,u:V1,z:Z0) input
+rPInvkRetInst(p:P0,m:M0,v:V0,u:V1) input
+rPInvkRetNullInst(p:P0,m:M0,v:V0) input
+rPInvkRetNotNullInst(p:P0,m:M0,v:V0,u:V1) input
+rPInvkRetInstNotFilter(p:P0) input
+nonRelevantP(p:P0) input
+rPInvkSkip(p:P0) input
+rPInvkSkipV(p:P0,v:V0) input
+rPobjValAsgnInst(p:P0,v:V0,h:H0) input
+rPobjVarAsgnInst(p:P0,v:V0,u:V1) input
+rPobjOnlyNullAsgnInst(p:P0,v:V0) input
+rPobjConstAsgnInst(p:P0,v:V0) input
+rPgetInstFldInst(p:P0,v:V0,u:V1,f:F0) input
+rPgetStatFldInst(p:P0,v:V0,f:F0) input
+errorCandidates(p:P0,v:V0) input
+
+#Output relations
+nullDeref(p:P0,v:V0) output
+localNull(p:P0,v:V0) output
+
+#Instrumented relations
+localNull_XZ89_12_69(p:P0,v:V0) output
+localNull_XZ89_13_69(p2:P0,v:V0,p1:P1,m:M0,u:V1,q:P2) output
+localNull_XZ89_10_69(p2:P0,v:V0,p1:P1,m:M0,u:V1,v_XZ89_0:Z0) output
+localNull_XZ89_11_69(p:P0,v:V0,q:P1) output
+localNull_XZ89_16_69(q:P0,v:V0,p:P1) output
+localNull_XZ89_17_69(q:P0,v:V0,p:P1) output
+localNull_XZ89_14_69(q:P0,v:V0,p:P1,v_XZ89_0:M0) output
+localNull_XZ89_15_69(q:P0,w:V0,p:P1,v_XZ89_0:M0,v:V1,v_XZ89_1:V2) output
+nullDeref_XZ89_18_69(p:P0,v:V0) output
+localNull_XZ89_1_69(q:P0,v:V0,p:P1,u:V1) output
+localNull_XZ89_0_69(q:P0,u:V0,p:P1,v:V1,v_XZ89_0:H0) output
+localNull_XZ89_3_69(q:P0,v:V0,p:P1) output
+localNull_XZ89_2_69(q:P0,w:V0,p:P1,v:V1,u:V2) output
+localNull_XZ89_5_69(q:P0,u:V0,p:P1,v:V1) output
+localNull_XZ89_4_69(q:P0,u:V0,p:P1,v:V1) output
+localNull_XZ89_7_69(q:P0,v:V0,p:P1,v_XZ89_0:F0) output
+localNull_XZ89_6_69(q:P0,u:V0,p:P1,v:V1,v_XZ89_0:F0) output
+localNull_XZ89_9_69(q:P0,v:V0,p:P1,v_XZ89_0:V1,v_XZ89_1:F0) output
+localNull_XZ89_8_69(q:P0,u:V0,p:P1,v:V1,v_XZ89_0:V2,v_XZ89_1:F0) output
+
+#Original rules
+localNull(q,u) :- rPobjValAsgnInst(p,v,_), PP(p,q), localNull(p,u), v!=u.
+localNull(q,v) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,u).
+localNull(q,w) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,w), w!=u, w!=v.
+localNull(q,v) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q).
+localNull(q,u) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+localNull(q,u) :- rPobjConstAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+localNull(q,u) :- rPgetStatFldInst(p,v,_), PP(p,q), localNull(p,u), v!=u.
+localNull(q,v) :- rPgetStatFldInst(p,v,_), PP(p,q).
+localNull(q,u) :- rPgetInstFldInst(p,v,_,_), PP(p,q), localNull(p,u), v!=u.
+localNull(q,v) :- rPgetInstFldInst(p,v,_,_), PP(p,q).
+localNull(p2,v) :- rPInvkInst(p1,m,v,u,_), localNull(p1,u), MPhead(m,p2).
+localNull(p,v) :- rPInvkSkip(p), PP(q,p), localNull(q,v).
+localNull(p,v) :- rPInvkSkipV(p,v).
+localNull(p2,v) :- rPInvkRetNotNullInst(p1,m,v,u), PP(p1,p2), MPtail(m,q), localNull(q,u).
+localNull(q,v) :- rPInvkRetNullInst(p,_,v), PP(p,q).
+localNull(q,w) :- rPInvkRetInst(p,_,v,_), PP(p,q), localNull(p,w), w!=v.
+localNull(q,v) :- rPInvkRetInstNotFilter(p), PP(p,q), localNull(p,v).
+localNull(q,v) :- nonRelevantP(p), PP(p,q), localNull(p,v).
+nullDeref(p,v) :- errorCandidates(p,v), localNull(p,v).
+
+#Instrumented rules
+localNull_XZ89_0_69(q,u,p,v,v_XZ89_0) :- rPobjValAsgnInst(p,v,v_XZ89_0), PP(p,q), localNull(p,u), v!=u.
+localNull_XZ89_1_69(q,v,p,u) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,u).
+localNull_XZ89_2_69(q,w,p,v,u) :- rPobjVarAsgnInst(p,v,u), PP(p,q), localNull(p,w), w!=u, w!=v.
+localNull_XZ89_3_69(q,v,p) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q).
+localNull_XZ89_4_69(q,u,p,v) :- rPobjOnlyNullAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+localNull_XZ89_5_69(q,u,p,v) :- rPobjConstAsgnInst(p,v), PP(p,q), localNull(p,u), v!=u.
+localNull_XZ89_6_69(q,u,p,v,v_XZ89_0) :- rPgetStatFldInst(p,v,v_XZ89_0), PP(p,q), localNull(p,u), v!=u.
+localNull_XZ89_7_69(q,v,p,v_XZ89_0) :- rPgetStatFldInst(p,v,v_XZ89_0), PP(p,q).
+localNull_XZ89_8_69(q,u,p,v,v_XZ89_0,v_XZ89_1) :- rPgetInstFldInst(p,v,v_XZ89_0,v_XZ89_1), PP(p,q), localNull(p,u), v!=u.
+localNull_XZ89_9_69(q,v,p,v_XZ89_0,v_XZ89_1) :- rPgetInstFldInst(p,v,v_XZ89_0,v_XZ89_1), PP(p,q).
+localNull_XZ89_10_69(p2,v,p1,m,u,v_XZ89_0) :- rPInvkInst(p1,m,v,u,v_XZ89_0), localNull(p1,u), MPhead(m,p2).
+localNull_XZ89_11_69(p,v,q) :- rPInvkSkip(p), PP(q,p), localNull(q,v).
+localNull_XZ89_12_69(p,v) :- rPInvkSkipV(p,v).
+localNull_XZ89_13_69(p2,v,p1,m,u,q) :- rPInvkRetNotNullInst(p1,m,v,u), PP(p1,p2), MPtail(m,q), localNull(q,u).
+localNull_XZ89_14_69(q,v,p,v_XZ89_0) :- rPInvkRetNullInst(p,v_XZ89_0,v), PP(p,q).
+localNull_XZ89_15_69(q,w,p,v_XZ89_0,v,v_XZ89_1) :- rPInvkRetInst(p,v_XZ89_0,v,v_XZ89_1), PP(p,q), localNull(p,w), w!=v.
+localNull_XZ89_16_69(q,v,p) :- rPInvkRetInstNotFilter(p), PP(p,q), localNull(p,v).
+localNull_XZ89_17_69(q,v,p) :- nonRelevantP(p), PP(p,q), localNull(p,v).
+nullDeref_XZ89_18_69(p,v) :- errorCandidates(p,v), localNull(p,v).

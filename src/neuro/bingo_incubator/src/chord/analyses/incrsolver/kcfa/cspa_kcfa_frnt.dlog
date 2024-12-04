@@ -1,0 +1,436 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# k-CFA may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=cspa-kcfa-frnt-dlog
+
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+
+.bddvarorder F0_I0xM0xM1_T0_V0xV1_T1_H0_C0xC1xC2_Z0
+
+###
+# Relations
+###
+
+I_app(i:I) input
+H_app(h:H) input
+M_app(m:M) input
+C_app(c:C) input
+V_app(v:V) input
+F_app(f:F) input
+T_app(t:T) input
+
+HT(h:H0,t:T1) input
+sub(t1:T1,t2:T0) input
+MI(m:M,i:I) input
+
+MobjValAsgnInst(m:M,l:V,h:H) input
+MobjVarAsgnInst(m:M,l:V,r:V) input
+MgetInstFldInst(m:M,l:V,b:V,f:F) input
+MputInstFldInst(m:M,b:V,f:F,r:V) input
+MgetStatFldInst(m:M,l:V,f:F) input
+MputStatFldInst(m:M,f:F,r:V) input
+
+clsForNameIT(i:I0,t:T0) input
+objNewInstIH(i:I0,h:H0) input
+objNewInstIM(i:I0,m:M0) input
+conNewInstIH(i:I0,h:H0) input
+conNewInstIM(i:I0,m:M0) input
+aryNewInstIH(i:I0,h:H0) input
+
+classT(t:T) input
+staticTM(t:T,m:M) input
+staticTF(t:T,f:F) input
+clinitTM(t:T,m:M) input
+MmethArg(m:M0,n:Z0,v:V0) input
+IinvkArg(i:I0,n:Z0,v:V1) input
+IinvkArg0(i:I0,v:V1) input
+IinvkRet(i:I0,n:Z0,v:V0) input
+argCopy(i:I0,u:V1,m:M0,v:V0) input
+retCopy(i:I0,u:V0,m:M0,v:V1) input
+VCfilter(v:V,c:C) input
+
+CIC(c:C,i:I,d:C) input # d = [i, c]
+CHC(c:C,h:H,d:C) input # d = [h, c]
+IHM(i:I,h:H,m:M) input # at call site i, if h is the allocation site of "this" argument, can get to method m
+ctxtInsIHM(i:I,h:H,m:M) input
+kcfaSenIHM(i:I,h:H,m:M) input
+kcfaSenSpecIM(i:I,m:M) input
+ctxtInsSpecIM(i:I,m:M) input
+kcfaSenStatIM(i:I,m:M) input
+ctxtInsStatIM(i:I,m:M) input
+
+
+CH(c:C,h:H) input # c = [h ...]
+epsilonM(m:M) input # treat method m context insensitively
+kcfaSenM(m:M) input # treat method m context sensitively
+
+RobjValAsgnInst(c:C,l:V,h:H) output
+RobjVarAsgnInst(c:C,l:V,r:V) output
+RgetInstFldInst(c:C,l:V,b:V,f:F) output
+RputInstFldInst(c:C,b:V,f:F,r:V) output
+RgetStatFldInst(c:C,l:V,f:F) output
+RputStatFldInst(c:C,f:F,r:V) output
+
+reachableT(t:T) output
+
+kcfaDIC(c:C,i:I,c:C) output
+DIC(c:C,i:I,c:C) output # in context c, at call site i, c can be the "this" argument
+DIH(c:C,i:I,h:H) output
+DI(c:C,i:I) output
+
+DVDV(c:C0,u:V0,d:C1,v:V1) output # u in context c can point to same stuff as v in context d
+
+reachableCI(c:C,i:I) output
+reachableCM(c:C,m:M) output
+
+rootCM(c:C,m:M) output
+CICM(c:C,i:I,d:C,m:M) output # in context c, call site i can call method m in context d
+CMCM(c:C,m:M,d:C,n:M) output # true if exists some i in m
+
+DVC(c1:C,v:V,c2:C) output # in context c1, variable v can point to abstract object c2
+CVC(c1:C,v:V,c2:C) output # filtered version
+
+FC(f:F,c:C) output # static field can point to abstract object c2
+CFC(c1:C,f:F,c2:C) output # abstract object c1 can point to abstract object c2 via field f
+
+
+###
+# Constraints
+###
+
+reachableCM(0,0).
+
+#ORIG: reachableCM(0,m) :- clinitTM(t,m), reachableT(t).
+reachableCM(0,m) :- clinitTM(t,m), reachableT(t), M_app(m).
+reachableCM(0,m) :- clinitTM(t,m), reachableT(t), T_app(t).
+
+#ORIG: reachableCM(c,m) :- CICM(_,_,c,m).
+reachableCM(c,m) :- CICM(c1,_,c,m), C_app(c1).
+reachableCM(c,m) :- CICM(_,i,c,m), I_app(i).
+reachableCM(c,m) :- CICM(_,_,c,m), C_app(c).
+reachableCM(c,m) :- CICM(_,_,c,m), M_app(m).
+
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m).
+#ORIG: reachableCI(c,i) :- MI(m,i), reachableCM(c,m).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), I_app(i).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), C_app(c).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), M_app(m).
+
+
+###
+
+#ORIG: DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), I_app(i).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), C_app(c).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), V_app(v).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), C_app(o).
+
+#ORIG: DIH(c,i,h) :- DIC(c,i,o), CH(o,h).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), H_app(h).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), C_app(c).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), I_app(i).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), C_app(o).
+
+#ORIG: DI(c,i) :- DIH(c,i,_).
+DI(c,i) :- DIH(c,i,h), H_app(h).
+DI(c,i) :- DIH(c,i,_), I_app(i).
+DI(c,i) :- DIH(c,i,_), C_app(c).
+
+
+kcfaDIC(0,i,d) :- CIC(0,i,d), MI(m,i), epsilonM(m).
+kcfaDIC(c,i,d) :- CIC(c,i,d), MI(m,i), kcfaSenM(m).
+
+###
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), C_app(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), I_app(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), H_app(h).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), M_app(m).
+
+#ORIG: CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenIHM(i,h,m), DIH(c,i,h), kcfaDIC(c,i,d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenIHM(i,h,m), DIH(c,i,h), kcfaDIC(c,i,d), C_app(c).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenIHM(i,h,m), DIH(c,i,h), kcfaDIC(c,i,d), I_app(i).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenIHM(i,h,m), DIH(c,i,h), kcfaDIC(c,i,d), C_app(d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenIHM(i,h,m), DIH(c,i,h), kcfaDIC(c,i,d), M_app(m).
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), C_app(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), I_app(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), M_app(m).
+
+#ORIG: CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenSpecIM(i,m), DI(c,i), kcfaDIC(c,i,d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenSpecIM(i,m), DI(c,i), kcfaDIC(c,i,d), C_app(c).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenSpecIM(i,m), DI(c,i), kcfaDIC(c,i,d), I_app(i).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenSpecIM(i,m), DI(c,i), kcfaDIC(c,i,d), C_app(d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenSpecIM(i,m), DI(c,i), kcfaDIC(c,i,d), M_app(m).
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), C_app(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), I_app(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), M_app(m).
+
+#ORIG: CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenStatIM(i,m), kcfaDIC(c,i,d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenStatIM(i,m), kcfaDIC(c,i,d), C_app(c).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenStatIM(i,m), kcfaDIC(c,i,d), I_app(i).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenStatIM(i,m), kcfaDIC(c,i,d), C_app(d).
+CICM(c,i,d,m) :- reachableCI(c,i), kcfaSenStatIM(i,m), kcfaDIC(c,i,d), M_app(m).
+
+
+### inter-procedural
+
+#ORIG: DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), V_app(u).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), V_app(v).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), C_app(c).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), I_app(i).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), C_app(d).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), M_app(m).
+
+#ORIG: DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), V_app(u).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), V_app(v).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), C_app(c).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), I_app(i).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), C_app(d).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), M_app(m).
+
+
+#ORIG: DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_app(c).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), V_app(u).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_app(d).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), V_app(v).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_app(o).
+
+
+### in context c, l = new h
+
+#ORIG: RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), C_app(c).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), M_app(m).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), V_app(l).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), H_app(h).
+
+#ORIG: DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), C_app(c).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), V_app(l).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), H_app(h).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), C_app(o).
+
+
+### in context c, l = r
+
+#ORIG: RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), C_app(c).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), M_app(m).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), V_app(l).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), V_app(r).
+
+#ORIG: DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), C_app(c).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), V_app(l).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), C_app(c1).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), V_app(r).
+
+
+### in context c, l = b.f
+
+#ORIG: RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), C_app(c).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), V_app(l).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), V_app(b).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), F_app(f).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), M_app(m).
+
+#ORIG: DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_app(c).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), V_app(l).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), V_app(b).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), F_app(f).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_app(c1).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_app(c2).
+
+
+### in context c, l = STATIC.f
+
+#ORIG: RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), C_app(c).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), V_app(l).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), F_app(f).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), M_app(m).
+
+#ORIG: DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), C_app(c).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), V_app(l).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), C_app(o).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), F_app(f).
+
+
+### in context c, b.f = r
+
+#ORIG: RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), C_app(c).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), V_app(b).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), F_app(f).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), V_app(r).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), M_app(m).
+
+#ORIG: CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_app(c).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), V_app(b).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), F_app(f).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), V_app(r).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_app(c1).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_app(c2).
+
+
+### in context c, STATIC.f = r
+
+#ORIG: RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), C_app(c).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), F_app(f).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), V_app(r).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), M_app(m).
+
+#ORIG: FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), C_app(c).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), F_app(f).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), V_app(r).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), C_app(o).
+
+
+### reflection handling rules
+
+#ORIG: reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), C_app(c).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), M_app(m).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), I_app(i).
+
+#ORIG: reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), C_app(c).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), M_app(m).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), I_app(i).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), C_app(c).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), I_app(i).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), M_app(m).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), V_app(v).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), H_app(h).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), C_app(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(c).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_app(i).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_app(h).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_app(v).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(o).
+
+#ORIG: DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_app(c).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), I_app(i).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), M_app(m).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), V_app(u).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), V_app(v).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_app(o).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_app(o2).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), C_app(c).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), I_app(i).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), M_app(m).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), V_app(v).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), H_app(h).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), C_app(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(c).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_app(i).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_app(h).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_app(v).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(c).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_app(i).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_app(h).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_app(v).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_app(o).
+
+
+### rules propagating reachableT
+
+#ORIG: reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t).
+reachableT(t) :- reachableCI(c,i), conNewInstIH(i,h), HT(h,t), C_app(c).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), I_app(i).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), H_app(h).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t).
+reachableT(t) :- reachableCI(c,i), objNewInstIH(i,h), HT(h,t), C_app(c).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), I_app(i).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), H_app(h).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t).
+reachableT(t) :- reachableCI(c,i), clsForNameIT(i,t), C_app(c).
+reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t), I_app(i).
+reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t).
+reachableT(t) :- reachableCM(c,m), MobjValAsgnInst(m,_,h), HT(h,t), C_app(c).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), M_app(m).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,v,h), HT(h,t), V_app(v).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), H_app(h).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), staticTM(t,m).
+reachableT(t) :- reachableCM(c,m), staticTM(t,m), C_app(c).
+reachableT(t) :- reachableCM(_,m), staticTM(t,m), M_app(m).
+reachableT(t) :- reachableCM(_,m), staticTM(t,m), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f).
+reachableT(t) :- reachableCM(c,m), MputStatFldInst(m,f,_), staticTF(t,f), C_app(c).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), M_app(m).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), F_app(f).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,v), staticTF(t,f), V_app(v).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), T_app(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f).
+reachableT(t) :- reachableCM(c,m), MgetStatFldInst(m,_,f), staticTF(t,f), C_app(c).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), M_app(m).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,v,f), staticTF(t,f), V_app(v).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), F_app(f).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), T_app(t).
+
+#ORIG: reachableT(t) :- classT(t), reachableT(s), sub(s,t).
+reachableT(t) :- classT(t), reachableT(s), sub(s,t), T_app(s).
+reachableT(t) :- classT(t), reachableT(s), sub(s,t), T_app(t).
+
+CVC(c,v,o) :- DVC(c,v,o).
+
+rootCM(0,0).
+
+#ORIG: rootCM(0,m) :- reachableT(t), clinitTM(t,m).
+rootCM(0,m) :- reachableT(t), clinitTM(t,m), M_app(m).
+rootCM(0,m) :- reachableT(t), clinitTM(t,m), T_app(t).
+
+#ORIG: CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), C_app(c).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), I_app(i).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), C_app(d).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), M_app(n).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), M_app(m).

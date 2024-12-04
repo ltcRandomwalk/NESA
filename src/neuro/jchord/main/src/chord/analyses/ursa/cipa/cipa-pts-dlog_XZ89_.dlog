@@ -1,0 +1,35 @@
+# name=ursa-cipa-pts-dlog_XZ89_
+.include "H.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.bddvarorder M0_H0_V0
+
+
+#Input relations
+reachableM(m:M0) input
+checkExcludedH(h:H0) input
+checkExcludedV(v:V0) input
+VH(v:V0,h:H0) input
+MV(m:M0,v:V0) input
+MH(m:M0,h:H0) input
+
+#Output relations
+reachableV(v:V0) output
+reachableH(h:H0) output
+ptsVH(v:V0,h:H0) output
+
+#Instrumented relations
+reachableV_XZ89_0_61(v:V0,m:M0) output
+reachableH_XZ89_1_61(h:H0,m:M0) output
+ptsVH_XZ89_2_61(v:V0,h:H0) output
+
+#Original rules
+reachableV(v) :- MV(m,v), reachableM(m).
+reachableH(h) :- MH(m,h), reachableM(m).
+ptsVH(v,h) :- VH(v,h), !checkExcludedV(v), !checkExcludedH(h), reachableV(v), reachableH(h).
+
+#Instrumented rules
+reachableV_XZ89_0_61(v,m) :- MV(m,v), reachableM(m).
+reachableH_XZ89_1_61(h,m) :- MH(m,h), reachableM(m).
+ptsVH_XZ89_2_61(v,h) :- VH(v,h), !checkExcludedV(v), !checkExcludedH(h), reachableV(v), reachableH(h).

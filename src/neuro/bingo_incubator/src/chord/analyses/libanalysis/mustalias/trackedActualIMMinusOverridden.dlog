@@ -1,0 +1,20 @@
+# name=trackedActual-IM-MinusOverriden-dlog
+
+#Includes all IM pairs such that I is a method invoke instruction in the
+#application code and M is the actual resolved method for I. Actual method
+#implies that the resolved M for I is computed, after the availability
+#of aliasing information. However, any library M, which is overridden by
+#some application M, is not included in the resolved set.
+
+.include "I.dom"
+.include "M.dom"
+
+.bddvarorder I0_M0
+
+trackedBaseIM(i:I,m:M) input
+overriddenM(m:M) input
+IM(i:I,m:M) input
+
+trackedActualIMMinusOverridden(i:I,m:M) output
+
+trackedActualIMMinusOverridden(i,m) :- trackedBaseIM(i,_), IM(i,m), !overriddenM(m).

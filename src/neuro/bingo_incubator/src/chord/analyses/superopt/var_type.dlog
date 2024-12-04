@@ -1,0 +1,27 @@
+# name=var-type-dlog
+
+.include "T.dom"
+.include "M.dom"
+.include "V.dom"
+
+.bddvarorder M0_V0xV1_T0xT1
+
+###
+# Relations
+###
+
+MV(m:M0,v:V0) input
+VT(v:V0,t:T0) input
+sub(t1:T1,t2:T0) input
+
+
+VTall(v:V0,t:T0)
+VVfilter(m:M0,v0:V0,v1:V1) output
+
+
+###
+# Constraints
+###
+VTall(v,s) :- VT(v,t), sub(s,t).
+VVfilter(m,v0,v1) :- VTall(v0,s), VTall(v1,s), MV(m,v0), MV(m,v1).
+

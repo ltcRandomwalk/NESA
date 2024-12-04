@@ -1,0 +1,21 @@
+# name=filV-dlog
+
+.include "V.dom"
+.include "M.dom"
+.include "F.dom"
+
+
+.bddvarorder F0_M0_V0xV1
+
+
+invkV(v:V0) input
+MgetInstFldInst(m:M0,l:V0,b:V1,f:F0) input
+MputInstFldInst(m:M0,b:V0,f:F0,r:V1) input
+
+
+filV(v:V) output
+
+
+filV(v) :- invkV(v).
+filV(v) :- MgetInstFldInst(_,_,v,_).
+filV(v) :- MputInstFldInst(_,v,_,_).

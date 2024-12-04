@@ -1,0 +1,427 @@
+# Copyright (c) 2008-2010, Intel Corporation.
+# Copyright (c) 2006-2007, The Trustees of Stanford University.
+# All rights reserved.
+# Licensed under the terms of the New BSD License.
+
+# k-object-sensitive may-alias/call-graph analysis.
+
+# Author: Mayur Naik (mhn@cs.stanford.edu)
+# name=cspa-kobj-sweep-dlog
+
+.include "F.dom"
+.include "H.dom"
+.include "I.dom"
+.include "M.dom"
+.include "T.dom"
+.include "V.dom"
+.include "Z.dom"
+.include "C.dom"
+
+.bddvarorder F0_I0xM0xM1_T0_V0xV1_T1_H0_C0xC1xC2_Z0
+
+###
+# Relations
+###
+
+I_full(i:I) input
+H_full(h:H) input
+M_full(m:M) input
+C_full(c:C) input
+V_full(v:V) input
+F_full(f:F) input
+T_full(t:T) input
+
+HT(h:H0,t:T1) input
+sub(t1:T1,t2:T0) input
+MI(m:M,i:I) input
+
+MobjValAsgnInst(m:M,l:V,h:H) input
+MobjVarAsgnInst(m:M,l:V,r:V) input
+MgetInstFldInst(m:M,l:V,b:V,f:F) input
+MputInstFldInst(m:M,b:V,f:F,r:V) input
+MgetStatFldInst(m:M,l:V,f:F) input
+MputStatFldInst(m:M,f:F,r:V) input
+
+clsForNameIT(i:I0,t:T0) input
+objNewInstIH(i:I0,h:H0) input
+objNewInstIM(i:I0,m:M0) input
+conNewInstIH(i:I0,h:H0) input
+conNewInstIM(i:I0,m:M0) input
+aryNewInstIH(i:I0,h:H0) input
+
+RobjValAsgnInst(c:C,l:V,h:H) preloadOutput 
+RobjVarAsgnInst(c:C,l:V,r:V) preloadOutput 
+RgetInstFldInst(c:C,l:V,b:V,f:F) preloadOutput 
+RputInstFldInst(c:C,b:V,f:F,r:V) preloadOutput
+RgetStatFldInst(c:C,l:V,f:F) preloadOutput 
+RputStatFldInst(c:C,f:F,r:V) preloadOutput 
+
+classT(t:T) input
+staticTM(t:T,m:M) input
+staticTF(t:T,f:F) input
+clinitTM(t:T,m:M) input
+MmethArg(m:M0,n:Z0,v:V0) input
+MspcMethArg(m:M0,v:V0) input
+IinvkArg(i:I0,n:Z0,v:V1) input
+IinvkArg0(i:I0,v:V1) input
+IinvkRet(i:I0,n:Z0,v:V0) input
+argCopy(i:I0,u:V1,m:M0,v:V0) input
+retCopy(i:I0,u:V0,m:M0,v:V1) input
+VCfilter(v:V,c:C) input
+
+CH(c:C,h:H) input
+
+CIC(c:C,i:I,d:C) input
+CHC(c:C,h:H,d:C) input
+IHM(i:I,h:H,m:M) input
+
+ctxtInsIHM(i:I,h:H,m:M) input
+kobjSenIHM(i:I,h:H,m:M) input
+kobjSenICM(i:I,c:C,m:M) input
+
+ctxtInsSpecIM(i:I,m:M) input
+kobjSenSpecIM(i:I,m:M) input
+ctxtInsStatIM(i:I,m:M) input
+ctxtCpyStatIM(i:I,m:M) input
+
+reachableT(t:T) preloadOutput
+
+DIC(c:C,i:I,c:C) preloadOutput
+DIH(c:C,i:I,h:H) preloadOutput
+DI(c:C,i:I) preloadOutput
+DVDV(c:C0,u:V0,d:C1,v:V1) preloadOutput
+
+reachableCI(c:C,i:I) preloadOutput
+reachableCM(c:C,m:M) preloadOutput
+
+rootCM(c:C,m:M) preloadOutput
+CICM(c:C,i:I,d:C,m:M) preloadOutput
+CMCM(c:C,m:M,d:C,n:M) preloadOutput
+
+DVC(c1:C,v:V,c2:C) preloadOutput
+CVC(c1:C,v:V,c2:C) preloadOutput
+
+FC(f:F,c:C) preloadOutput
+CFC(c1:C,f:F,c2:C) preloadOutput
+
+
+###
+# Constraints
+###
+
+reachableCM(0,0).
+
+#ORIG: reachableCM(0,m) :- clinitTM(t,m), reachableT(t).
+reachableCM(0,m) :- clinitTM(t,m), reachableT(t), M_full(m).
+reachableCM(0,m) :- clinitTM(t,m), reachableT(t), T_full(t).
+
+#ORIG: reachableCM(c,m) :- CICM(_,_,c,m).
+reachableCM(c,m) :- CICM(c1,_,c,m), C_full(c1).
+reachableCM(c,m) :- CICM(_,i,c,m), I_full(i).
+reachableCM(c,m) :- CICM(_,_,c,m), C_full(c).
+reachableCM(c,m) :- CICM(_,_,c,m), M_full(m).
+
+#ORIG: reachableCI(c,i) :- MI(m,i), reachableCM(c,m).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), I_full(i).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), C_full(c).
+reachableCI(c,i) :- MI(m,i), reachableCM(c,m), M_full(m).
+
+###
+
+#ORIG: DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), I_full(i).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), C_full(c).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), V_full(v).
+DIC(c,i,o) :- IinvkArg0(i,v), DVC(c,v,o), C_full(o).
+
+#ORIG: DIH(c,i,h) :- DIC(c,i,o), CH(o,h).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), H_full(h).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), C_full(c).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), I_full(i).
+DIH(c,i,h) :- DIC(c,i,o), CH(o,h), C_full(o).
+
+#ORIG: DI(c,i) :- DIH(c,i,_).
+DI(c,i) :- DIH(c,i,h), H_full(h).
+DI(c,i) :- DIH(c,i,_), I_full(i).
+DI(c,i) :- DIH(c,i,_), C_full(c).
+
+###
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), C_full(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), I_full(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), H_full(h).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsIHM(i,h,m), DIH(c,i,h), M_full(m).
+
+#ORIG: CICM(c,i,o,m) :- reachableCI(c,i), kobjSenICM(i,o,m), DIC(c,i,o).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenICM(i,o,m), DIC(c,i,o), C_full(c).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenICM(i,o,m), DIC(c,i,o), I_full(i).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenICM(i,o,m), DIC(c,i,o), C_full(o).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenICM(i,o,m), DIC(c,i,o), M_full(m).
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), C_full(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), I_full(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsSpecIM(i,m), DI(c,i), M_full(m).
+
+#ORIG: CICM(c,i,o,m) :- reachableCI(c,i), kobjSenSpecIM(i,m), DIC(c,i,o).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenSpecIM(i,m), DIC(c,i,o), C_full(c).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenSpecIM(i,m), DIC(c,i,o), I_full(i).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenSpecIM(i,m), DIC(c,i,o), C_full(o).
+CICM(c,i,o,m) :- reachableCI(c,i), kobjSenSpecIM(i,m), DIC(c,i,o), M_full(m).
+
+#ORIG: CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), C_full(c).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), I_full(i).
+CICM(c,i,0,m) :- reachableCI(c,i), ctxtInsStatIM(i,m), M_full(m).
+
+#ORIG: CICM(c,i,d,m) :- reachableCI(c,i), ctxtCpyStatIM(i,m), d=c.
+CICM(c,i,d,m) :- reachableCI(c,i), ctxtCpyStatIM(i,m), C_full(c), d=c.
+CICM(c,i,d,m) :- reachableCI(c,i), ctxtCpyStatIM(i,m), I_full(i), d=c.
+CICM(c,i,d,m) :- reachableCI(c,i), ctxtCpyStatIM(i,m), M_full(m), d=c.
+
+###
+
+#ORIG: DVC(c,v,o) :- reachableCM(c,m), MspcMethArg(m,v), o=c.
+DVC(c,v,o) :- reachableCM(c,m), MspcMethArg(m,v), V_full(v), o=c.
+DVC(c,v,o) :- reachableCM(c,m), MspcMethArg(m,v), C_full(c), o=c.
+DVC(c,v,o) :- reachableCM(c,m), MspcMethArg(m,v), M_full(m), o=c.
+
+###
+
+#ORIG: DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), V_full(u).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), V_full(v).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), C_full(c).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), I_full(i).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), C_full(d).
+DVDV(d,v,c,u) :- argCopy(i,u,m,v), CICM(c,i,d,m), M_full(m).
+
+#ORIG: DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), V_full(u).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), V_full(v).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), C_full(c).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), I_full(i).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), C_full(d).
+DVDV(c,u,d,v) :- retCopy(i,u,m,v), CICM(c,i,d,m), M_full(m).
+
+#ORIG: DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_full(c).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), V_full(u).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_full(d).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), V_full(v).
+DVC(c,u,o) :- DVDV(c,u,d,v), DVC(d,v,o), VCfilter(u,o), C_full(o).
+
+###
+
+#ORIG: RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), C_full(c).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), M_full(m).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), V_full(l).
+RobjValAsgnInst(c,l,h) :- reachableCM(c,m), MobjValAsgnInst(m,l,h), H_full(h).
+
+#ORIG: DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), C_full(c).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), V_full(l).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), H_full(h).
+DVC(c,l,o) :- RobjValAsgnInst(c,l,h), CHC(c,h,o), C_full(o).
+
+###
+
+#ORIG: RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), C_full(c).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), M_full(m).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), V_full(l).
+RobjVarAsgnInst(c,l,r) :- reachableCM(c,m), MobjVarAsgnInst(m,l,r), V_full(r).
+
+#ORIG: DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), C_full(c).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), V_full(l).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), C_full(c1).
+DVC(c,l,c1) :- RobjVarAsgnInst(c,l,r), DVC(c,r,c1), VCfilter(l,c1), V_full(r).
+
+###
+
+#ORIG: RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), C_full(c).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), V_full(l).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), V_full(b).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), F_full(f).
+RgetInstFldInst(c,l,b,f) :- reachableCM(c,m), MgetInstFldInst(m,l,b,f), M_full(m).
+
+#ORIG: DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_full(c).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), V_full(l).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), V_full(b).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), F_full(f).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_full(c1).
+DVC(c,l,c2) :- RgetInstFldInst(c,l,b,f), DVC(c,b,c1), CFC(c1,f,c2), C_full(c2).
+
+###
+
+#ORIG: RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), C_full(c).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), V_full(l).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), F_full(f).
+RgetStatFldInst(c,l,f) :- reachableCM(c,m), MgetStatFldInst(m,l,f), M_full(m).
+
+#ORIG: DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), C_full(c).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), V_full(l).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), C_full(o).
+DVC(c,l,o) :- RgetStatFldInst(c,l,f), FC(f,o), F_full(f).
+
+###
+
+#ORIG: RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), C_full(c).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), V_full(b).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), F_full(f).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), V_full(r).
+RputInstFldInst(c,b,f,r) :- reachableCM(c,m), MputInstFldInst(m,b,f,r), M_full(m).
+
+#ORIG: CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_full(c).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), V_full(b).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), F_full(f).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), V_full(r).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_full(c1).
+CFC(c1,f,c2) :- RputInstFldInst(c,b,f,r), DVC(c,b,c1), DVC(c,r,c2), C_full(c2).
+
+###
+
+#ORIG: RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), C_full(c).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), F_full(f).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), V_full(r).
+RputStatFldInst(c,f,r) :- reachableCM(c,m), MputStatFldInst(m,f,r), M_full(m).
+
+#ORIG: FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), C_full(c).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), F_full(f).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), V_full(r).
+FC(f,o) :- RputStatFldInst(c,f,r), DVC(c,r,o), C_full(o).
+
+## reflection handling rules
+
+#ORIG: reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), C_full(c).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), M_full(m).
+reachableCM(c,m) :- reachableCI(c,i), objNewInstIM(i,m), I_full(i).
+
+#ORIG: reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), C_full(c).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), M_full(m).
+reachableCM(c,m) :- reachableCI(c,i), conNewInstIM(i,m), I_full(i).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), C_full(c).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), I_full(i).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), M_full(m).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), V_full(v).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), H_full(h).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIM(i,m), MmethArg(m,0,v), objNewInstIH(i,h), CHC(c,h,o), C_full(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(c).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_full(i).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_full(h).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_full(v).
+DVC(c,v,o)  :- reachableCI(c,i), objNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(o).
+
+#ORIG: DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_full(c).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), I_full(i).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), M_full(m).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), V_full(u).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), V_full(v).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_full(o).
+DVC(c,v,o2) :- reachableCI(c,i), conNewInstIM(i,m), IinvkArg(i,1,u), MmethArg(m,1,v), DVC(c,u,o), CFC(o,0,o2), C_full(o2).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), C_full(c).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), I_full(i).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), M_full(m).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), V_full(v).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), H_full(h).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIM(i,m), MmethArg(m,0,v), conNewInstIH(i,h), CHC(c,h,o), C_full(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(c).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_full(i).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_full(h).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_full(v).
+DVC(c,v,o)  :- reachableCI(c,i), conNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(o).
+
+#ORIG: DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(c).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), I_full(i).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), H_full(h).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), V_full(v).
+DVC(c,v,o)  :- reachableCI(c,i), aryNewInstIH(i,h), IinvkRet(i,0,v), CHC(c,h,o), C_full(o).
+
+
+### rules propagating reachableT
+
+#ORIG: reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t).
+reachableT(t) :- reachableCI(c,i), conNewInstIH(i,h), HT(h,t), C_full(c).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), I_full(i).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), H_full(h).
+reachableT(t) :- reachableCI(_,i), conNewInstIH(i,h), HT(h,t), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t).
+reachableT(t) :- reachableCI(c,i), objNewInstIH(i,h), HT(h,t), C_full(c).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), I_full(i).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), H_full(h).
+reachableT(t) :- reachableCI(_,i), objNewInstIH(i,h), HT(h,t), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t).
+reachableT(t) :- reachableCI(c,i), clsForNameIT(i,t), C_full(c).
+reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t), I_full(i).
+reachableT(t) :- reachableCI(_,i), clsForNameIT(i,t), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t).
+reachableT(t) :- reachableCM(c,m), MobjValAsgnInst(m,_,h), HT(h,t), C_full(c).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), M_full(m).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,v,h), HT(h,t), V_full(v).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), H_full(h).
+reachableT(t) :- reachableCM(_,m), MobjValAsgnInst(m,_,h), HT(h,t), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), staticTM(t,m).
+reachableT(t) :- reachableCM(c,m), staticTM(t,m), C_full(c).
+reachableT(t) :- reachableCM(_,m), staticTM(t,m), M_full(m).
+reachableT(t) :- reachableCM(_,m), staticTM(t,m), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f).
+reachableT(t) :- reachableCM(c,m), MputStatFldInst(m,f,_), staticTF(t,f), C_full(c).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), M_full(m).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), F_full(f).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,v), staticTF(t,f), V_full(v).
+reachableT(t) :- reachableCM(_,m), MputStatFldInst(m,f,_), staticTF(t,f), T_full(t).
+
+#ORIG: reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f).
+reachableT(t) :- reachableCM(c,m), MgetStatFldInst(m,_,f), staticTF(t,f), C_full(c).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), M_full(m).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,v,f), staticTF(t,f), V_full(v).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), F_full(f).
+reachableT(t) :- reachableCM(_,m), MgetStatFldInst(m,_,f), staticTF(t,f), T_full(t).
+
+#ORIG: reachableT(t) :- classT(t), reachableT(s), sub(s,t).
+reachableT(t) :- classT(t), reachableT(s), sub(s,t), T_full(s).
+reachableT(t) :- classT(t), reachableT(s), sub(s,t), T_full(t).
+
+### CVC <- DVC (clean up context-insensitive stuff)
+
+CVC(c,v,o) :- DVC(c,v,o).
+
+rootCM(0,0).
+#ORIG: rootCM(0,m) :- reachableT(t), clinitTM(t,m).
+rootCM(0,m) :- reachableT(t), clinitTM(t,m), M_full(m).
+rootCM(0,m) :- reachableT(t), clinitTM(t,m), T_full(t).
+
+#ORIG: CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), C_full(c).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), I_full(i).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), C_full(d).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), M_full(n).
+CMCM(c,m,d,n) :- CICM(c,i,d,n), MI(m,i), M_full(m).

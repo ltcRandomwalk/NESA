@@ -1,0 +1,19 @@
+<!ENTITY % Mlist SYSTEM "Mlist.dtd">
+<!ENTITY % Ilist SYSTEM "Ilist.dtd">
+<!ENTITY % Hlist SYSTEM "Hlist.dtd">
+<!ELEMENT results (groups, Mlist, Ilist, Hlist)>
+<!ELEMENT groups (group)*>
+<!ELEMENT group (query)*> 
+<!ATTLIST group
+	Xlower	CDATA	#REQUIRED
+	Xupper	CDATA	#REQUIRED
+	Y		CDATA	#REQUIRED
+	Prob	CDATA	#REQUIRED
+	Mids	IDREFS	#REQUIRED>
+<!ELEMENT query EMPTY>
+<!ATTLIST query
+	Iid		IDREF	#REQUIRED
+	Hid		IDREF	#REQUIRED>
+%Mlist;
+%Ilist;
+%Hlist;

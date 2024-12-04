@@ -1,0 +1,42 @@
+# name=flowins-thresc-cs-dlog_XZ89_
+.include "M.dom"
+.include "V.dom"
+.include "C.dom"
+.include "P.dom"
+.include "Z.dom"
+.include "F.dom"
+.include "E.dom"
+.include "T.dom"
+.include "H.dom"
+.bddvarorder E0_M0xP0_V0_C0_F0_C1_Z0_T0_H0_H1
+
+
+#Input relations
+CVC(c1:C0,v:V0,c2:C1) input
+FC(f:F0,c:C0) input
+CFC(c1:C0,f:F0,c2:C1) input
+MmethArg(m:M0,z:Z0,v:V0) input
+EV(e:E0,v:V0) input
+escE(e:E0) input
+
+#Output relations
+escO(o:C0) output
+CEC(c:C0,e:E0,o:C1) output
+
+#Instrumented relations
+escO_XZ89_0_5(o:C0,v_XZ89_0:F0) output
+escO_XZ89_1_5(o:C0,v:V0,v_XZ89_0:C1) output
+escO_XZ89_2_5(o2:C0,o1:C1,v_XZ89_0:F0) output
+CEC_XZ89_3_5(c:C0,e:E0,o:C1,v:V0) output
+
+#Original rules
+escO(o) :- FC(_,o).
+escO(o) :- MmethArg(1,0,v), CVC(_,v,o).
+escO(o2) :- CFC(o1,_,o2), escO(o1).
+CEC(c,e,o) :- CVC(c,v,o), EV(e,v), escO(o), escE(e).
+
+#Instrumented rules
+escO_XZ89_0_5(o,v_XZ89_0) :- FC(v_XZ89_0,o).
+escO_XZ89_1_5(o,v,v_XZ89_0) :- MmethArg(1,0,v), CVC(v_XZ89_0,v,o).
+escO_XZ89_2_5(o2,o1,v_XZ89_0) :- CFC(o1,v_XZ89_0,o2), escO(o1).
+CEC_XZ89_3_5(c,e,o,v) :- CVC(c,v,o), EV(e,v), escO(o), escE(e).

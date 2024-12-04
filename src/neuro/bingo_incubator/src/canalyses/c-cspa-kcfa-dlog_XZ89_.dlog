@@ -1,0 +1,51 @@
+# name=c-cspa-kcfa-dlog_XZ89_
+.include "ZV.dom"
+.include "ZI.dom"
+.include "ZC.dom"
+.include "ZF.dom"
+.bddvarorder ZV0xZV1xZV2_ZC0xZC1xZC2xZI0xZF0
+
+
+#Input relations
+copy(v1:ZV0,v2:ZV1) input
+store(v1:ZV0,v2:ZV1) input
+load(v1:ZV0,v2:ZV1) input
+pt(v1:ZV0,v2:ZV1) input
+pass(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+ret(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+ie(c1:ZC0,i:ZI0,c2:ZC1,f:ZF0) input
+
+#Output relations
+copyC(c1:ZC0,x:ZV0,c2:ZC1,y:ZV1) output
+ptC(c1:ZC0,x:ZV0,y:ZV1) output
+pt0(v1:ZV0,v2:ZV1) output
+
+#Instrumented relations
+ptC_XZ89_6_46(c1:ZC0,x:ZV0,y:ZV1,c2:ZC1,z:ZV2) output
+copyC_XZ89_5_46(c1:ZC0,x:ZV0,c2:ZC1,y:ZV1,i:ZI0,f:ZF0) output
+pt0_XZ89_7_46(x:ZV0,y:ZV1,v_XZ89_0:ZC0) output
+ptC_XZ89_0_46(c:ZC0,x:ZV0,y:ZV1,v_XZ89_0:ZI0,v_XZ89_1:ZC1,v_XZ89_2:ZF0) output
+copyC_XZ89_1_46(c1:ZC0,x:ZV0,c2:ZC1,y:ZV1,v_XZ89_0:ZI0,v_XZ89_1:ZC2,v_XZ89_2:ZF0) output
+copyC_XZ89_2_46(c1:ZC0,y:ZV0,c2:ZC1,z:ZV1,x:ZV2) output
+copyC_XZ89_3_46(c1:ZC0,z:ZV0,c2:ZC1,y:ZV1,x:ZV2) output
+copyC_XZ89_4_46(c2:ZC0,x:ZV0,c1:ZC1,y:ZV1,i:ZI0,f:ZF0) output
+
+#Original rules
+ptC(c,x,y) :- pt(x,y), ie(c,_,_,_).
+copyC(c1,x,c2,y) :- copy(x,y), ie(c1,_,_,_), c1=c2.
+copyC(c1,y,c2,z) :- ptC(c1,x,z), load(x,y), c1=c2.
+copyC(c1,z,c2,y) :- ptC(c1,x,z), store(x,y), c1=c2.
+copyC(c2,x,c1,y) :- ie(c1,i,c2,f), pass(i,f,x,y).
+copyC(c1,x,c2,y) :- ie(c1,i,c2,f), ret(i,f,x,y).
+ptC(c1,x,y) :- copyC(c1,x,c2,z), ptC(c2,z,y).
+pt0(x,y) :- ptC(_,x,y).
+
+#Instrumented rules
+ptC_XZ89_0_46(c,x,y,v_XZ89_0,v_XZ89_1,v_XZ89_2) :- pt(x,y), ie(c,v_XZ89_0,v_XZ89_1,v_XZ89_2).
+copyC_XZ89_1_46(c1,x,c2,y,v_XZ89_0,v_XZ89_1,v_XZ89_2) :- copy(x,y), ie(c1,v_XZ89_0,v_XZ89_1,v_XZ89_2), c1=c2.
+copyC_XZ89_2_46(c1,y,c2,z,x) :- ptC(c1,x,z), load(x,y), c1=c2.
+copyC_XZ89_3_46(c1,z,c2,y,x) :- ptC(c1,x,z), store(x,y), c1=c2.
+copyC_XZ89_4_46(c2,x,c1,y,i,f) :- ie(c1,i,c2,f), pass(i,f,x,y).
+copyC_XZ89_5_46(c1,x,c2,y,i,f) :- ie(c1,i,c2,f), ret(i,f,x,y).
+ptC_XZ89_6_46(c1,x,y,c2,z) :- copyC(c1,x,c2,z), ptC(c2,z,y).
+pt0_XZ89_7_46(x,y,v_XZ89_0) :- ptC(v_XZ89_0,x,y).

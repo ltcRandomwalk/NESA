@@ -1,0 +1,53 @@
+# name=c-cipa-0cfa-dlog_XZ89_
+.include "ZV.dom"
+.include "ZI.dom"
+.include "ZC.dom"
+.include "ZF.dom"
+.bddvarorder ZV0xZV1xZV2_ZC0xZC1xZI0xZF0
+
+
+#Input relations
+copy(v1:ZV0,v2:ZV1) input
+store(v1:ZV0,v2:ZV1) input
+load(v1:ZV0,v2:ZV1) input
+pt(v1:ZV0,v2:ZV1) input
+pass(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+ret(i:ZI0,f:ZF0,v1:ZV0,v2:ZV1) input
+ie(c1:ZC0,i:ZI0,c2:ZC1,f:ZF0) input
+
+#Output relations
+copy0(v1:ZV0,v2:ZV1) output
+pt0(v1:ZV0,v2:ZV1) output
+
+#Instrumented relations
+copy0_XZ89_7_45(x:ZV0,y:ZV1,v_XZ89_0:ZC0,i:ZI0,v_XZ89_1:ZC1,f:ZF0) output
+pt0_XZ89_6_45(x:ZV0,y:ZV1,z:ZV2) output
+copy0_XZ89_8_45(x:ZV0,y:ZV1,v_XZ89_0:ZC0,i:ZI0,v_XZ89_1:ZC1,f:ZF0) output
+copy0_XZ89_0_45(x:ZV0,z:ZV1,v_XZ89_0:ZV2) output
+copy0_XZ89_1_45(x:ZV0,y:ZV1) output
+copy0_XZ89_2_45(x:ZV0,y:ZV1) output
+copy0_XZ89_3_45(y:ZV0,z:ZV1,x:ZV2) output
+copy0_XZ89_4_45(z:ZV0,y:ZV1,x:ZV2) output
+pt0_XZ89_5_45(x:ZV0,y:ZV1) output
+
+#Original rules
+copy0(x,z) :- copy0(x,_), x=z.
+copy0(x,y) :- copy0(y,x).
+copy0(x,y) :- copy(x,y).
+copy0(y,z) :- pt0(x,z), load(x,y).
+copy0(z,y) :- pt0(x,z), store(x,y).
+pt0(x,y) :- pt(x,y).
+pt0(x,y) :- copy0(x,z), pt0(z,y).
+copy0(x,y) :- ie(_,i,_,f), pass(i,f,x,y).
+copy0(x,y) :- ie(_,i,_,f), ret(i,f,x,y).
+
+#Instrumented rules
+copy0_XZ89_0_45(x,z,v_XZ89_0) :- copy0(x,v_XZ89_0), x=z.
+copy0_XZ89_1_45(x,y) :- copy0(y,x).
+copy0_XZ89_2_45(x,y) :- copy(x,y).
+copy0_XZ89_3_45(y,z,x) :- pt0(x,z), load(x,y).
+copy0_XZ89_4_45(z,y,x) :- pt0(x,z), store(x,y).
+pt0_XZ89_5_45(x,y) :- pt(x,y).
+pt0_XZ89_6_45(x,y,z) :- copy0(x,z), pt0(z,y).
+copy0_XZ89_7_45(x,y,v_XZ89_0,i,v_XZ89_1,f) :- ie(v_XZ89_0,i,v_XZ89_1,f), pass(i,f,x,y).
+copy0_XZ89_8_45(x,y,v_XZ89_0,i,v_XZ89_1,f) :- ie(v_XZ89_0,i,v_XZ89_1,f), ret(i,f,x,y).

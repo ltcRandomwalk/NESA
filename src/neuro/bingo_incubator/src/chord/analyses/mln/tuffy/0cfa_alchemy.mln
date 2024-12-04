@@ -1,0 +1,90 @@
+//predicate declarations
+VT(var, type)
+HT(alloc, type)
+cha(meth, type, meth)
+sub(type, type)
+MmethArg(meth, index, var)
+MmethRet(meth, index, var)
+IinvkArg0(invk, var)
+IinvkArg(invk, index, var)
+IinvkRet(invk, index, var)
+MI(meth, invk)
+statIM(invk, meth)
+specIM(invk, meth)
+virtIM(invk, meth)
+
+MobjValAsgnInst(meth, var, alloc)
+MobjVarAsgnInst(meth, var, var)
+MgetInstFldInst(meth, var, var, fld)
+MputInstFldInst(meth, var, fld, var)
+MgetStatFldInst(meth, var, fld)
+MputStatFldInst(meth, fld, var)
+
+classT(type)
+staticTM(type, meth)
+staticTF(type, fld)
+clinitTM(type, meth)
+
+IHM(invk, alloc, meth)
+VV(var, var)
+specIMV(invk, meth, var)
+
+objValAsgnInst(var, alloc) 
+objVarAsgnInst(var, var) 
+getInstFldInst(var, var, fld) 
+putInstFldInst(var, fld, var) 
+getStatFldInst(var, fld) 
+putStatFldInst(fld, var) 
+
+VHfilter(var, alloc)
+reachableT(type)
+VH(var, alloc)
+FH(fld, alloc)
+HFH(alloc, fld, alloc)
+reachableI(invk)
+reachableM(meth)
+IM(invk, meth)
+
+//formulas
+1000000 VT(v,t) ^ HT(h,s) ^ sub(s,t) => VHfilter(v,h)
+VHfilter(v, 0).
+
+1000000 virtIM(i, m1) ^ HT(h, t) ^ cha(m1, t, m2) => IHM(i, h, m2)
+
+reachableM(0).
+1000000 reachableT(t) ^ clinitTM(t, m) => reachableM(m)
+1000000 IM(i, m) => reachableM(m) 
+
+1000000 MI(m,i) ^ reachableM(m) => reachableI(i)
+
+1000000 reachableI(i) ^ IinvkArg0(i, v) ^ VH(v, h) ^ IHM(i, h, m) => IM(i, m)
+1000000 specIM(i, m) ^ IinvkArg0(i, v) => specIMV(i, m, v)
+
+1000000 reachableI(i) ^ specIMV(i, m, v) ^ VH(v, h) => IM(i, m)
+1000000 reachableI(i) ^ statIM(i, m) => IM(i, m)
+
+1000000 IinvkArg(i, z, u) ^ IM(i, m) ^ MmethArg(m, z, v) => VV(v, u)
+1000000 IinvkRet(i, z, u) ^ IM(i, m) ^ MmethRet(m, z, v) => VV(u, v)
+
+1000000 VV(u, v) ^ VH(v, h) ^ VHfilter(u, h) => VH(u, h)
+
+1000000 reachableM(m) ^ MobjValAsgnInst(m, l, h) => objValAsgnInst(l, h)
+1000000 reachableM(m) ^ MobjVarAsgnInst(m, l, r) => objVarAsgnInst(l, r)
+1000000 reachableM(m) ^ MgetInstFldInst(m, l, b, f) => getInstFldInst(l, b, f)
+1000000 reachableM(m) ^ MputInstFldInst(m, b, f, r) => putInstFldInst(b, f, r)
+1000000 reachableM(m) ^ MgetStatFldInst(m, l, f) => getStatFldInst(l, f)
+1000000 reachableM(m) ^ MputStatFldInst(m, f, r) => putStatFldInst(f, r)
+
+1000000 objValAsgnInst(l, h) ^ VHfilter(l, h) => VH(l, h)
+1000000 objVarAsgnInst(l, r) ^ VH(r, h) ^ VHfilter(l, h) => VH(l, h)
+1000000 getInstFldInst(l, b, f) ^ VH(b, h1) ^ HFH(h1, f, h2) ^ VHfilter(l, h2) => VH(l, h2) 
+1000000 putInstFldInst(b, f, r) ^ VH(b, h1) ^ VH(r, h2) => HFH(h1, f, h2)
+1000000 getStatFldInst(l, f) ^ FH(f, h) ^ VHfilter(l, h) => VH(l, h)
+1000000 putStatFldInst(f, r) ^ VH(r, h) => FH(f, h)
+
+1000000 objValAsgnInst(v, h) ^ HT(h, t) => reachableT(t)
+1000000 reachableM(m) ^ staticTM(t, m) => reachableT(t)
+1000000 putStatFldInst(f, r) ^ staticTF(t, f) => reachableT(t)
+1000000 getStatFldInst(r, f) ^ staticTF(t, f) => reachableT(t)
+1000000 classT(t) ^ reachableT(s) ^ sub(s, t) => reachableT(t)
+

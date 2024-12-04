@@ -1,0 +1,36 @@
+# name=infoflow-dlog_XZ89_
+.include "H.dom"
+.include "M.dom"
+.include "V.dom"
+.include "C.dom"
+.bddvarorder M0_V0xV1_C0xH0xC1
+
+
+#Input relations
+reachableCM(c:C0,m:M0) input
+sourceH(h:H0) input
+sinkV(v:V0) input
+CVC(c:C0,v:V0,o:C1) input
+CH(c:C0,h:H0) input
+MV(m:M0,v:V0) input
+MH(m:M0,h:H0) input
+
+#Output relations
+reachableV(v:V0) output
+reachableH(h:H0) output
+flowHV(h:H0,v:V0) output
+
+#Instrumented relations
+reachableV_XZ89_0_3(v:V0,m:M0,v_XZ89_0:C0) output
+reachableH_XZ89_1_3(h:H0,m:M0,v_XZ89_0:C0) output
+flowHV_XZ89_2_3(h:H0,v:V0,v_XZ89_0:C0,o:C1) output
+
+#Original rules
+reachableV(v) :- MV(m,v), reachableCM(_,m), sinkV(v).
+reachableH(h) :- MH(m,h), reachableCM(_,m), sourceH(h).
+flowHV(h,v) :- CVC(_,v,o), CH(o,h), reachableV(v), reachableH(h).
+
+#Instrumented rules
+reachableV_XZ89_0_3(v,m,v_XZ89_0) :- MV(m,v), reachableCM(v_XZ89_0,m), sinkV(v).
+reachableH_XZ89_1_3(h,m,v_XZ89_0) :- MH(m,h), reachableCM(v_XZ89_0,m), sourceH(h).
+flowHV_XZ89_2_3(h,v,v_XZ89_0,o) :- CVC(v_XZ89_0,v,o), CH(o,h), reachableV(v), reachableH(h).
