@@ -6,7 +6,7 @@ from typing import List
 from alias_model import GraphCodeBERTMeanPooling, getDataSet
 import os
 
-device = 'cuda:1'
+device = os.getenv("DEFAULT_DEVICE")
 model_save_path = sys.argv[4]
 aliasFile = sys.argv[1]
 processedFile = sys.argv[2]

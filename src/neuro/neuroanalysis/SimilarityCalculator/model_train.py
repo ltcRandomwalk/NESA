@@ -6,7 +6,7 @@ import numpy as np
 from typing import List, Tuple, Dict
 import sys
 
-device = 'cuda:1'
+device = os.getenv("DEFAULT_DEVICE")
 #torch.set_default_tensor_type(torch.DoubleTensor)
 
 dataset_file = sys.argv[1]

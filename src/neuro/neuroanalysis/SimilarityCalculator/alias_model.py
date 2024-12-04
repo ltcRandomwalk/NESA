@@ -8,7 +8,7 @@ from typing import List, Tuple
 import random
 import os
 
-device = 'cuda:1'
+device = os.getenv("DEFAULT_DEVICE")
 torch.set_default_dtype(torch.float32)
 torch.set_default_device(device)
 

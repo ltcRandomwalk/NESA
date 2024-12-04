@@ -5,7 +5,7 @@ from transformers import RobertaModel, RobertaTokenizer
 import numpy as np
 from typing import List, Tuple, Dict
 
-device = 'cuda:1'
+device = os.getenv("DEFAULT_DEVICE")
 torch.set_default_tensor_type(torch.DoubleTensor)
 
 class CodeDataset(Dataset):
