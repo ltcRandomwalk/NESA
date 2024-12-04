@@ -178,6 +178,42 @@ To run all sensitivity experiments in the background, run:
 
 ### Dynamic Information Experiment
 
+To get the result for a dynamic analysis benchmark (e.g. `cflow-1.5`), run:
+
+```
+cd src/dynamic/dynaboost
+
+source ./init.sh
+
+cd dfsan-plugin
+
+./runbingo.sh cflow-1.5 ${ARTIFACT_ROOT_DIR}/data/dynamic/cflow-1.5/ interval cflow 
+
+```
+
+The results will be stored in `src/dynamic/bingo/`. `cflowbaseline-stats.txt`, `cflowNESA-stats.txt`, and `cflowDynaboost-stats.txt` represent the result of the baseline approach, our approach and Dynaboost, respectively. The total line of the rank stands for the number of iterations required by a user to identify all true alarms. The initial rankings are the files whose suffix has ``combined0.out''. The average rank of true alarms without user feedback can be calculated there.
+
+To run all dynamic information experiment in the background, run:
+
+```
+./scripts/exp-dynamic-all.sh
+```
+
+## Part III: Evaluation Results
+
+All of our evaluation results are stored in `/results` folder. 
+
+- To check the overall results, please refer to `results/statistics`. The CSV files include statiscal results of all experiments, such as inversion count, mean rank and median rank.
+- To check the exact results of one benchmark, please refer to `results/benchmarks`. For pointer and taint analysis benchmarks, the rankings are in the specific benchmark folder. For dynamic analysis benchmark, the results are all in `./dynamic/txts` folder and are named with the benchmark name.
+- To check the results of Bingo, please refer to `results/RQ3/txts`. The txt files with suffix "bingo" represent the number of true alarms found by the iterations.
+
+In `/results` folder, the experiment result figures in our paper can be reproduced.
+
+- To reproduce Figure 8, go to `./RQ1` and run `./plot-figure8.sh`. The figures will be stored in `./RQ1/figs`.
+- To reproduce Figure 9-10, go to `./benchmarks` and run `./plot-all-boxplot.sh`. The figures will be stored in `./benchmarks/boxplot`.
+- To reproduce Figure 11, go to `./RQ3` and run `./plot-all-RQ3.sh`. The figures will be stored in `./RQ3/figs`.
+- To reproduce Figure 12-14, go to `./benchmarks` and run  `./plot-all-RQ3.sh`. The figures will be stored in `./benchmarks/RQ4-figs`.
+
 
 
 
