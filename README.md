@@ -67,7 +67,7 @@ cd ../../neuro/bingo  # src/neuro/bingo
 
 Due to the storage limit of Anonymous Github, we set our benchmarks and data used in the evaluation on ***URL***.
 
-You should copy the `benchmarks` and `data` folder to the NESA main folder.
+You should copy the `benchmarks/` and `data/` folder to the NESA main folder.
 
 ### Step 6. Setting Environment Variables
 
@@ -89,3 +89,100 @@ export GRAPHCODEBERT_DIR=microsoft/graphcodebert-base
 export DEFAULT_DEVICE=cuda:1
 export MLN=1
 ```
+
+## Part II: Running All Experiments
+
+### RQ1-2. 
+
+To get the alarm rankings of a pointer analysis benchmark (e.g. `moldyn`), run:
+
+```
+cd src/neuro/neuroanalysis/Driver
+
+python driver.py -lspbr moldyn small
+```
+
+For a taint analysis benchmark (e.g. `app-324`), run:
+
+```
+cd src/neuro/neuroanalysis/Driver
+
+python taintdriver.py -blr app-324 ICCmodel
+```
+
+The benchmarks for the pointer analysis lie in `benchmarks/pjbench`, while those for the taint analysis lie in `benchmarks/android_bench`. The rankings will be stored in `chord_output_mln-{pts/taint}-problem/` in the corresponding benchmark folder. `rank-baseline.txt`, `rank-our-approach-\*.txt`, and `rank-oracle.txt` represent the results of the baseline approach, our approach and the oracle, respectively. At the bottom of each ranking file, the inversion count, mean rank, and median rank are listed. The inference time is listed here as well.
+
+To run all pointer analysis experiments in the background, run:
+
+```
+./scripts/exp-pts-all.sh
+```
+
+To run all taint analysis experiments in the background, run:
+
+```
+./scripts/exp-taint-all.sh
+```
+
+
+---
+
+### RQ3.
+
+To run Bingo on a pointer analysis benchmark (e.g. `moldyn`), run:
+
+```
+cd src/neuro/neuroanalysis/Driver
+
+python driver.py -n moldyn 
+
+```
+
+The result ranking will be stored as `chord_output_mln-pts-problem/naivebingo.txt` in the corresponding benchmark folder. **The Bingo experiment can take extremely long time, it is possible to stop it during the process, and the result will be updated in time.** In our experiment, we set a time limit of one week.
+
+To run all Bingo experiments, run:
+
+```
+./scripts/exp-bingo-pts.sh
+```
+
+---
+
+### RQ4. 
+
+**Note: Before running the experiments in this part, please make sure the experiment in RQ1-2 is finished, which can provide the analysis frontend results.**
+
+To get the alarm ranking for a pointer analysis benchmark (e.g. `moldyn`) using a fine-tuned model (e.g. `toba-s+hedc`), run:
+
+```
+cd src/neuro/neuroanalysis/Driver
+
+python driver.py -pb moldyn toba-s+hedc
+```
+
+There are four available models: `toba-s+hedc`, `ftp+moldyn`, `javasrc-p+montecarlo`, and `weblech+jspider`, which are all stored in the `data/alias_model/` folder.
+
+The rankings will be stored as `chord_output_mln-pts-problem/rank-our-approach-{model_name}.txt` in the corresponding benchmark folder.
+
+To run all sensitivity experiments in the background, run:
+
+```
+./scripts/sensitivity1.sh
+./scripts/sensitivity2.sh
+./scripts/sensitivity3.sh
+./scripts/sensitivity4.sh
+```
+
+**Note: For the above four scripts, please make sure that the tasks in one script are all finished before running another one.**
+
+
+### Dynamic Information Experiment
+
+
+
+
+
+
+
+
+
