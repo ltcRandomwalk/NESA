@@ -1,0 +1,9 @@
+mkdir -p figs
+python plot.py montecarlo
+python plot.py moldyn
+python plot.py hedc
+python plot.py jspider
+python plot.py weblech
+python plot.py toba-s
+python plot.py javasrc-p
+python plot.py ftp

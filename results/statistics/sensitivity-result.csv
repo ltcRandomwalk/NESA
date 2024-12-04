@@ -1,0 +1,10 @@
+﻿benchmark,ftp-moldyn,,,javasrc-montecarlo,,,jspider-weblech,,,toba-hedc,,
+,inversion-count,mean-rank,median-rank,inversion-count,mean-rank,median-rank,inversion-count,mean-rank,median-rank,inversion-count,mean-rank,median-rank
+moldyn,null,null,null,83282,450.6,320.5,83212,450.5,320.5,83282,450.6,320.5
+montecarlo,296420,789.9,311,null,null,null,299315,794.7,313,296630,790.3,311
+weblech,14865981,7073.4,4992,14993952,7123.3,5116,null,null,null,15169609,7191.7,5178.5
+toba-s,295795249,66888,35240,296317166,67002,35240,294955649,66704,35240,null,null,null
+hedc,1243942,1725,1494,1268304,1736,1497,1241076,1724,1495,null,null,null
+jspider,5163553,3216,1760.5,5163316,3216,1750.5,null,null,null,5157804,3214,1760.5
+javasrc-p,656021433,36286,28873,null,null,null,668173168,36643,31970,663775187,36514,29348
+ftp,null,null,null,62600774,13074,7974.5,62719821,13093,8033,62517998,13061,7974.5

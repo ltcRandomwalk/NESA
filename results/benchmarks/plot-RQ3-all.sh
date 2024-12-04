@@ -1,0 +1,25 @@
+mkdir -p RQ3-figs
+python RQ3-plot.py -i ./pts/moldyn/inversion.CSV -rotateXLabel 15 -o RQ3-fig/moldyn-inversion.pdf
+python RQ3-plot.py -i ./pts/moldyn/mean.CSV -rotateXLabel 15 -o RQ3-fig/moldyn-mean.pdf
+python RQ3-plot.py -i ./pts/moldyn/median.CSV -rotateXLabel 15 -o RQ3-fig/moldyn-median.pdf
+python RQ3-plot.py -i ./pts/montecarlo/inversion.CSV -rotateXLabel 15 -o RQ3-fig/montecarlo-inversion.pdf
+python RQ3-plot.py -i ./pts/montecarlo/mean.CSV -rotateXLabel 15 -o RQ3-fig/montecarlo-mean.pdf
+python RQ3-plot.py -i ./pts/montecarlo/median.CSV -rotateXLabel 15 -o RQ3-fig/montecarlo-median.pdf
+python RQ3-plot.py -i ./pts/ftp/inversion.CSV -rotateXLabel 15 -o RQ3-fig/ftp-inversion.pdf
+python RQ3-plot.py -i ./pts/ftp/mean.CSV -rotateXLabel 15 -o RQ3-fig/ftp-mean.pdf
+python RQ3-plot.py -i ./pts/ftp/median.CSV -rotateXLabel 15 -o RQ3-fig/ftp-median.pdf
+python RQ3-plot.py -i ./pts/hedc/inversion.CSV -rotateXLabel 15 -o RQ3-fig/hedc-inversion.pdf
+python RQ3-plot.py -i ./pts/hedc/mean.CSV -rotateXLabel 15 -o RQ3-fig/hedc-mean.pdf
+python RQ3-plot.py -i ./pts/hedc/median.CSV -rotateXLabel 15 -o RQ3-fig/hedc-median.pdf
+python RQ3-plot.py -i ./pts/javasrc-p/inversion.CSV -rotateXLabel 15 -o RQ3-fig/javasrc-p-inversion.pdf
+python RQ3-plot.py -i ./pts/javasrc-p/mean.CSV -rotateXLabel 15 -o RQ3-fig/javasrc-p-mean.pdf
+python RQ3-plot.py -i ./pts/javasrc-p/median.CSV -rotateXLabel 15 -o RQ3-fig/javasrc-p-median.pdf
+python RQ3-plot.py -i ./pts/jspider/inversion.CSV -rotateXLabel 15 -o RQ3-fig/jspider-inversion.pdf
+python RQ3-plot.py -i ./pts/jspider/mean.CSV -rotateXLabel 15 -o RQ3-fig/jspider-mean.pdf
+python RQ3-plot.py -i ./pts/jspider/median.CSV -rotateXLabel 15 -o RQ3-fig/jspider-median.pdf
+python RQ3-plot.py -i ./pts/toba-s/inversion.CSV -rotateXLabel 15 -o RQ3-fig/toba-s-inversion.pdf
+python RQ3-plot.py -i ./pts/toba-s/mean.CSV -rotateXLabel 15 -o RQ3-fig/toba-s-mean.pdf
+python RQ3-plot.py -i ./pts/toba-s/median.CSV -rotateXLabel 15 -o RQ3-fig/toba-s-median.pdf
+python RQ3-plot.py -i ./pts/weblech/inversion.CSV -rotateXLabel 15 -o RQ3-fig/weblech-inversion.pdf
+python RQ3-plot.py -i ./pts/weblech/mean.CSV -rotateXLabel 15 -o RQ3-fig/weblech-mean.pdf
+python RQ3-plot.py -i ./pts/weblech/median.CSV -rotateXLabel 15 -o RQ3-fig/weblech-median.pdf
