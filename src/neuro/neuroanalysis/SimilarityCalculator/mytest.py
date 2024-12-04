@@ -4,6 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import RobertaModel, RobertaTokenizer
 import numpy as np
 from typing import List, Tuple, Dict
+import os
 
 device = os.getenv("DEFAULT_DEVICE")
 torch.set_default_tensor_type(torch.DoubleTensor)

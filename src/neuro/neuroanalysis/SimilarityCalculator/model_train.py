@@ -5,6 +5,7 @@ from transformers import RobertaModel, RobertaTokenizer
 import numpy as np
 from typing import List, Tuple, Dict
 import sys
+import os
 
 device = os.getenv("DEFAULT_DEVICE")
 #torch.set_default_tensor_type(torch.DoubleTensor)
