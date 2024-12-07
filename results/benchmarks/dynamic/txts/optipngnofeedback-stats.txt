@@ -1,3 +1,0 @@
-Tuple	Confidence	Ground	NumTrue	NumFalse	Fraction	InversionCount	YetToConvergeFraction	Time(s)
-Alarm(minitiff_read_info-31881,minitiff_read_info-31947)	0.0984771	FalseGround	0	1	0.0	1	0.0	0
-Alarm(minitiff_read_info-31886,minitiff_read_info-31947)	0.0490971	TrueGround	1	1	0.5	0	0.0	0

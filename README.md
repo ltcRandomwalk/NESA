@@ -65,7 +65,7 @@ cd ../../neuro/bingo  # src/neuro/bingo
 
 ### Step 5. Getting Benchmarks and Data
 
-Due to the storage limit of Anonymous Github, we set our benchmarks and data used in the evaluation on ***URL***.
+Due to the storage limit of Anonymous Github, we set our benchmarks and data used in the evaluation on <http://surl.li/xqwfve>.
 
 You should copy the `benchmarks/` and `data/` folder to the NESA main folder.
 
@@ -204,15 +204,16 @@ To run all dynamic information experiment in the background, run:
 All of our evaluation results are stored in `/results` folder. 
 
 - To check the overall results, please refer to `results/statistics`. The CSV files include statiscal results of all experiments, such as inversion count, mean rank and median rank.
-- To check the exact results of one benchmark, please refer to `results/benchmarks`. For pointer and taint analysis benchmarks, the rankings are in the specific benchmark folder. For dynamic analysis benchmark, the results are all in `./dynamic/txts` folder and are named with the benchmark name.
-- To check the results of Bingo, please refer to `results/RQ3/txts`. The txt files with suffix "bingo" represent the number of true alarms found by the iterations.
+- To check the exact results of a pointer or taint analysis benchmark, please refer to `results/neuro`. The results are in the specific benchmark folder, including the rankings in RQ1-4.
+- To check the exact results of a dynamic analysis benchmark, please refer to `results/dynamic`. The result ranking is named with the benchmark name, 
+
 
 In `/results` folder, the experiment result figures in our paper can be reproduced.
 
 - To reproduce Figure 8, go to `./RQ1` and run `./plot-figure8.sh`. The figures will be stored in `./RQ1/figs`.
-- To reproduce Figure 9-10, go to `./benchmarks` and run `./plot-all-boxplot.sh`. The figures will be stored in `./benchmarks/boxplot`.
+- To reproduce Figure 9-10, go to `./RQ1` and run `./plot-all-boxplot.sh`. The figures will be stored in `./RQ1/boxplot`.
 - To reproduce Figure 11, go to `./RQ3` and run `./plot-all-RQ3.sh`. The figures will be stored in `./RQ3/figs`.
-- To reproduce Figure 12-14, go to `./benchmarks` and run  `./plot-all-RQ3.sh`. The figures will be stored in `./benchmarks/RQ4-figs`.
+- To reproduce Figure 12-14, go to `./RQ4` and run  `./plot-all-RQ4.sh`. The figures will be stored in `./benchmarks/RQ4-figs`.
 
 
 

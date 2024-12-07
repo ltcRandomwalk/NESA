@@ -1,6 +1,0 @@
-Tuple	Confidence	Ground	NumTrue	NumFalse	Fraction	InversionCount	YetToConvergeFraction	Time(s)
-Alarm(main-44350,fprintRTF-45668)	0.59073	FalseGround	0	1	0.0	10	0.0	3
-Alarm(getPngChunk-26897,getPngChunk-26908)	0.313811	FalseGround	0	2	0.0	8	0.0	6
-Alarm(main-44350,my_strndup-43724)	0.123073	FalseGround	0	3	0.0	6	0.0	5
-Alarm(getRawTexChar-42915,fprintRTF-45668)	0.00380344	TrueGround	1	3	0.25	2	0.0	6
-Alarm(getRawTexChar-42922,fprintRTF-45668)	0.0768122	TrueGround	2	3	0.4	0	0.0	8
