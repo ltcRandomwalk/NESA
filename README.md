@@ -205,7 +205,7 @@ All of our evaluation results are stored in `/results` folder.
 
 - To check the overall results, please refer to `results/statistics`. The CSV files include statiscal results of all experiments, such as inversion count, mean rank and median rank.
 - To check the exact results of a pointer or taint analysis benchmark, please refer to `results/neuro`. The results are in the specific benchmark folder, including the rankings in RQ1-4.
-- To check the exact results of a dynamic analysis benchmark, please refer to `results/dynamic`. The result ranking is named with the benchmark name, 
+- To check the exact results of a dynamic analysis benchmark, please refer to `results/dynamic`. The result rankings are named with the benchmark name.
 
 
 In `/results` folder, the experiment result figures in our paper can be reproduced.
