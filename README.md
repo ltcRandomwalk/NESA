@@ -254,7 +254,7 @@ The information will be printed to `stdout` in this case.
 
 #### Run Bingo with Dynamic Feedback
 
-The following command will apply Bingo to <benchmark> with three methods: our method (NESA), DynaBoost, and the baseline:
+The following command will apply Bingo to `<benchmark>` with three methods: our method (NESA), DynaBoost, and the baseline:
 
 ```
 ~/NESA/scripts/run_dynamic.sh <benchmark>
@@ -277,7 +277,7 @@ Besides, if the experiment is still running when you try to reproduce the table,
 
 The following command will reproduce Table 3 of our paper using the results calculated above:
 
-```
+```bash
 python ~/NESA/scripts/gen_table_3.py
 ```
 
@@ -301,7 +301,7 @@ In our experiment, we apply a 0-CFA pointer analysis to get such pairs of variab
 
 The following command will apply these 2 analyses to `<benchmark>`:
 
-```
+```bash
 cd ~/NESA/src/neuro/neuroanalysis/Driver
 python driver.py -l <benchmark>
 ```
@@ -312,7 +312,7 @@ The labelled results are stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_
 
 The following command can extract the variable names for each alias tuple:
 
-```
+```bash
 cd ~/NESA/src/neuro/neuroanalysis/Driver
 python driver.py -s <benchmark>
 ```
@@ -349,7 +349,7 @@ d+
 
 After the training data is prepared, you can run the following command to train a neural network:
 
-```
+```bash
 cd ~/NESA/src/neuro/neuroanalysis/SimilarityCalculator
 python alias_model.py
 ```
