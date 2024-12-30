@@ -53,7 +53,7 @@ for varIndex in range(numVars):
     ruleName = components[1] if factorType == '*' else None
     numParents = int(components[2]) if factorType == '*' else int(components[1])
     parents = [ int(p) for p in components[3:] ] if factorType == '*' else [ int(p) for p in components[2:] ]
-    safeProb = 0.5
+    safeProb = 0.8
     outLines.append('# Factor {0} of {1}. Finished printing {2}% of factors.'.format(varIndex, numVars, 100 * varIndex / numVars))
     outLines.append('# {0}'.format(line))
     # Each block describing a factor starts with a line containing the number of variables in that factor.

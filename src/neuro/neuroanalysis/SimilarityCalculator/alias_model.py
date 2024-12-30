@@ -11,6 +11,7 @@ import os
 device = os.getenv("DEFAULT_DEVICE")
 torch.set_default_dtype(torch.float32)
 torch.set_default_device(device)
+learning_rate = 0.000001
 
 def getDataSet(aliasLabelFile, processedFile, reservedTuple=False):
     labels = {line.strip()[:-1]: line.strip()[-1] for line in open(aliasLabelFile, 'r').readlines() }
@@ -84,7 +85,7 @@ class GraphCodeBERTMeanPooling(nn.Module):
 
 if __name__ == "__main__":
     labelFile = './aliasLabels.txt'
-    processedFile = './processed.txt'
+    processedFile = './processedAlias.txt'
     dataSet = getDataSet(labelFile, processedFile)
     dataSet = random.sample(dataSet, 1200)
     trainSet = random.sample(dataSet, len(dataSet) // 5 * 4)
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     
     model = GraphCodeBERTMeanPooling()
     criterion = nn.BCELoss()
-    optimizer = optim.RMSprop(model.parameters(), lr = 0.000001)
+    optimizer = optim.RMSprop(model.parameters(), lr = learning_rate)
     num_epochs = 1000
     model.train()
     global_step = 0

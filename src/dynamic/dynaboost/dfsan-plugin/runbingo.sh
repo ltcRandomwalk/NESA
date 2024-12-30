@@ -19,6 +19,10 @@ rm -rf *
 ln -s $BINGO_CI/benchmark/$APP/sparrow-out/$TYPE/bnet/Alarm.txt base_queries.txt
 ln -s $BINGO_CI/benchmark/$APP/sparrow-out/$TYPE/bnet/GroundTruth.txt oracle_queries.txt
 ln -s $BINGO_CI/benchmark/$APP/sparrow-out/$TYPE/bnet/named_cons_all.txt named_cons_all.txt
+RESULT_DIR=$ARTIFACT_ROOT_DIR/reproduced_results/dynamic/${APP}
+rm -rf $RESULT_DIR
+mkdir -p $RESULT_DIR
+
 touch rule-prob.txt
 popd
 pushd $BINGO
@@ -32,7 +36,7 @@ pushd $BINGO
 	### @no feedback
 	if [ -z "$SKIP_NOFEEDBACK" ]
 	then
-		echo "AC 1e-6 500 1000 100 ${RUNNAME}baseline-stats.txt ${RUNNAME}baseline-combined out"| ./scripts/bnet/driver.py $PROBLEM_DIR/bnet/noaugment_base/bnet-dict.out $PROBLEM_DIR/bnet/noaugment_base/factor-graph.fg $PROBLEM_DIR/base_queries.txt $PROBLEM_DIR/oracle_queries.txt >/dev/null 2>&1 &
+		echo "AC 1e-6 500 1000 100 $RESULT_DIR/${RUNNAME}baseline-stats.txt $RESULT_DIR/${RUNNAME}baseline out"| ./scripts/bnet/driver.py $PROBLEM_DIR/bnet/noaugment_base/bnet-dict.out $PROBLEM_DIR/bnet/noaugment_base/factor-graph.fg $PROBLEM_DIR/base_queries.txt $PROBLEM_DIR/oracle_queries.txt >/dev/null 2>&1 &
 	fi
 popd
 # dummy feedbacks for workflow
@@ -76,13 +80,13 @@ set -x
 cd $BINGO #bingo
 time bash -x  ./scripts/bnet/build-bnet.sh $PROBLEM_DIR noaugment_base $PROBLEM_DIR/rule-prob.txt
 #./scripts/bnet/elim-inconsistent-fb.py $PROBLEM_DIR/bnet/noaugment_base/named_cons_all.txt.pruned.edbobsderived $PROBLEM_DIR/feedback.txt /dev/null | sponge $PROBLEM_DIR/feedback.txt
-echo "AC 1e-6 500 1000 100 ${RUNNAME}NESA-stats.txt ${RUNNAME}NESA-combined out" >> $PROBLEM_DIR/feedback.txt
+echo "AC 1e-6 500 1000 100 $RESULT_DIR/${RUNNAME}NESA-stats.txt $RESULT_DIR/${RUNNAME}NESA out" >> $PROBLEM_DIR/feedback.txt
 sed 's/DUPath/ObsDUPath/g' $PROBLEM_DIR/feedback.txt > $PROBLEM_DIR/feedbackfull.txt
 ### @full
 #cat $PROBLEM_DIR/feedbackfull.txt|./scripts/bnet/driver.py $PROBLEM_DIR/bnet/noaugment_base/bnet-dict.out $PROBLEM_DIR/bnet/noaugment_base/factor-graph.fg $PROBLEM_DIR/base_queries.txt $PROBLEM_DIR/oracle_queries.txt &
 time ./scripts/bnet/driver.py $PROBLEM_DIR/bnet/noaugment_base/bnet-dict.out $PROBLEM_DIR/bnet/noaugment_base/factor-graph.fg $PROBLEM_DIR/base_queries.txt $PROBLEM_DIR/oracle_queries.txt <$PROBLEM_DIR/feedbackfull.txt >/dev/null  2>&1 &
 grep ' true' $PROBLEM_DIR/feedback.txt > $PROBLEM_DIR/feedbacktrue.txt
-echo "AC 1e-6 500 1000 100 ${RUNNAME}Dynaboost-stats.txt ${RUNNAME}Dynaboost-combined out" >> $PROBLEM_DIR/feedbacktrue.txt
+echo "AC 1e-6 500 1000 100 $RESULT_DIR/${RUNNAME}Dynaboost-stats.txt $RESULT_DIR/${RUNNAME}Dynaboost out" >> $PROBLEM_DIR/feedbacktrue.txt
 ### @true
 time ./scripts/bnet/driver.py $PROBLEM_DIR/bnet/noaugment_base/bnet-dict.out $PROBLEM_DIR/bnet/noaugment_base/factor-graph.fg $PROBLEM_DIR/base_queries.txt $PROBLEM_DIR/oracle_queries.txt <$PROBLEM_DIR/feedbacktrue.txt >/dev/null  2>&1 &
 ### random true baseline

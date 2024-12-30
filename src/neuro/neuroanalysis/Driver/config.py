@@ -6,6 +6,6 @@ bench_folder_path = os.path.join(os.getenv("ARTIFACT_ROOT_DIR"), "benchmarks/pjb
 bingo_path = os.path.join(os.getenv("ARTIFACT_ROOT_DIR"), "src/neuro/bingo")
 taint_bench_folder_path = os.path.join(os.getenv("ARTIFACT_ROOT_DIR"), "benchmarks/android_bench")
 alias_model_path = os.path.join(os.getenv("ARTIFACT_ROOT_DIR"), "data/alias_model")
-java11_path = "/usr/lib/jvm/java-11-openjdk-amd64/bin/java"
+java11_path = os.getenv("JAVA11_PATH")
 chord_main_path = ""
 oracle_k = 2

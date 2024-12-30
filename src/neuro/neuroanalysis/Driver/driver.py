@@ -64,7 +64,7 @@ bench_path_map = {p : os.path.join(bench_folder_path,bench_path_map[p]) for p in
 parser = argparse.ArgumentParser(description="run a Bayesian analysis with soft evidence")
 
 parser.add_argument("bench", help="benchmark name")
-parser.add_argument("model", help="model name")
+parser.add_argument("model", nargs="?", help="model name", default="small")
 parser.add_argument("-f", "--frontend", help="run front-end analysis through jchord", action="store_true")
 parser.add_argument("-s", "--similarity", help="run javaparser and CodeGraphBERT to calculate similarity scoares of var names", action="store_true")
 parser.add_argument("-b", "--backend", help="run the backend bayesian analysis", action="store_true")

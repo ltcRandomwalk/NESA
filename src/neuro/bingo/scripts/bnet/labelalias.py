@@ -21,7 +21,7 @@ import time
 import re
 
 testDir = sys.argv[1]
-#testDir = '/home/tcli/neuro/pjbench/dacapo/benchmarks/antlr/chord_output_mln-pts-problem'
+
 # augmentDir = sys.argv[2]
 augmentDir = 'noaugment_base'
 

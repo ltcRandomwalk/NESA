@@ -2,7 +2,7 @@
 cd $AHOME
 read -d '-' -a shortname <<<"$1"
 if [[ " ${BENCHMARKi[@]} " =~ " $1 " ]]; then
-	./runbingo.sh $1 /tmp/$1 interval $shortname
+	./runbingo.sh $1 ${ARTIFACT_ROOT_DIR}/data/dynamic/$1 interval $shortname
 else
-	./runbingo.sh $1 /tmp/$1 taint $shortname
+	./runbingo.sh $1 ${ARTIFACT_ROOT_DIR}/data/dynamic/$1 taint $shortname
 fi
