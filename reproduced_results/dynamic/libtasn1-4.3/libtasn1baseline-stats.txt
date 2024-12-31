@@ -1,0 +1,7 @@
+Tuple	Confidence	Ground	NumTrue	NumFalse	Fraction	InversionCount	YetToConvergeFraction	Time(s)
+Alarm(_G_-ENTRY,_asn1_yyparse-16651)	0.890368	FalseGround	0	1	0.0	223	0.0	0
+Alarm(_G_-ENTRY,_asn1_yyparse-16697)	0.761416	FalseGround	0	2	0.0	126	0.0	1
+Alarm(_G_-ENTRY,asn1_get_length_der-12155)	0.729485	FalseGround	0	3	0.0	14	0.0	1
+Alarm(_G_-ENTRY,yysyntax_error-15515)	0.722206	FalseGround	0	4	0.0	7	0.0	1
+Alarm(_G_-ENTRY,_asn1_ltostr-10264)	0.678498	TrueGround	1	4	0.2	5	0.0	1
+Alarm(_G_-ENTRY,_asn1_ltostr-10260)	0.669916	TrueGround	2	4	0.3333333333333333	0	0.0	2

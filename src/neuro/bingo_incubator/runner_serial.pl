@@ -47,6 +47,7 @@ my %benchmarks = (
     "series" => "java_grande/series",
     "montecarlo" => "java_grande/montecarlo",
     "raytracer" => "java_grande/raytracer",
+    "philo" => "java_grande/philo",
     "section1" => "java_grande/grande/src/section1",
     "section2" => "java_grande/grande/src/section2",
     "section3" => "java_grande/grande/src/section3",

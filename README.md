@@ -46,11 +46,72 @@ Then, to compile the relevant code, run the following command:
 ~/NESA/build.sh
 ```
 
+To confirm the environment is configured successfully, we provide a testing script which applies our tool on a tiny program `philo`. Run the following command to test:
+
+```bash
+~/NESA/test.sh
+```
+
+The script will print `Test Passed!` to `stdout` if it runs successfully. Otherwise, the error will be printed. You can also manully check the output files `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-our-approach-small.txt` and `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-baseline.txt`. They should be look like the following:
+
+```
+Rank	Confidence	Ground	Label	Comments	Tuple
+1	0.877303	TrueGround	Unlabelled	SPOkGoodGood	ptsVH(11,3)
+2	0.877303	TrueGround	Unlabelled	SPOkGoodGood	ptsVH(3,1)
+...
+```
+
+The script will download Graphcodebert from [huggingface](https://huggingface.co/microsoft/graphcodebert-base) the first time you run it.
+An error will occur if it fails to connect to huggingface. The following error message will be printed:
+
+```
+OSError: We couldn't connect to 'https://huggingface.co' to load this file,...
+Check your internet connection or see how to run the library in offline mode.
+```
+
+In this case, you should manually download Graphcodebert from [huggingface](https://huggingface.co/microsoft/graphcodebert-base) following the steps on <https://huggingface.co/docs/transformers/installation#offline-mode>, and then mount it to the Docker image.
+Assume that you have downloaded Graphcodebert in `/path/to/graphcodebert-base` on your machine, use the following command to run the docker image:
+
+```bash
+docker run -v /path/to/graphcodebert-base:/home/user/graphcodebert-base --gpus all -it paper382
+```
+
+After that, you should modify `~/.bashrc` to set the environment variable `GRAPHCODEBERT_DIR` to `/home/user/graphcodebert-base`, and run `source ~/.bashrc`.
+
+
 For large benchmarks, it can take significant memory usage and time cost to run the experiments.
-Some results of the baseline approach can take up to one week to reproduce.
+Some results of the baseline approach can take up to one week to reproduce. This mainly contains the baseline approach Bingo run in Section 7.2.3 (RQ3).
+**For this approach, it is possible to use incomplete results to reproduce the figures, which does not affect the main claim in our paper.**
+We will provide detailed guide in Step by Step Instructions.
+
+We list the small benchmarks below for each analysis. We suggest running experiments only on those small benchmarks if there is a time or resource constraint.
+We also list the time cost for each part of our experiments on our machine to help reviewers schedule their time to run all the experiments.
 For different benchmarks, the experiments can run in parallel. 
 
-**Small benchmarks**: For pointer analysis, `moldyn` and `montecarlo` are small benchmarks. For taint analysis, all the benchmarks are small benchmarks. For the experiment with dynamic feedback, `bc-1.06` and `cflow-1.5` are small benchmarks. These benchmarks have low memory usage and short running time, most of which can be finished within one hour.
+**Small benchmarks**: For pointer analysis, `moldyn` and `montecarlo` are small benchmarks. For taint analysis, all the benchmarks are small benchmarks. For the experiment with dynamic feedback, `libtasn1-4.3` and `patch-2.7.1` are small benchmarks. These benchmarks have low memory usage and short running time, most of which can be finished within one hour.
+
+### Running Time for Each Benchmark
+
+#### Pointer Analysis
+
+| Benchmark | RQ1-2 | RQ3 (Bingo) | RQ4 |
+| ------ | ------ | ------ | ------ |
+| moldyn | < 1 hour | 1 hour | < 1 hour |
+| montecarlo | < 1 hour | 12 hours | < 1 hour |
+| weblech | 6 hours | 4 days |  6 hours |
+| jspider | 6 hours | 5 days |  6 hours |
+| hedc | 2 hours | timeout | 3 hours |
+| toba-s | 10 hours | timeout | 3 hours |
+| javasrc-p | 3 days | timeout | 3 days |
+| ftp | 3 days | timeout | 3 days |
+
+#### Taint Analysis
+
+For all benchmarks, the experiment can finish within one hour. 
+
+#### Experiments on Dynamic Information
+
+For all benchmarks, the experiment can finish within 6 hours. The time cost of the two small benchmarks `libtasn1-4.3` and `patch-2.7.1` is less than one hour. 
 
 ## Step by Step Instructions
 
@@ -262,7 +323,7 @@ The following command will apply Bingo to `<benchmark>` with three methods: our 
 
 `<benchmark>` can be one of the followings: `bc-1.06`, `cflow-1.5`, `grep-2.19`, `gzip-1.2.4a`, `latex2rtf-2.1.1`, `libtasn1-4.3`, `optipng-0.5.3`, `patch-2.7.1`, `readelf-2.24`, `sed-4.3`, `shntool-3.0.5`, `sort-7.2`, and `tar-1.28`. 
 
-`bc-1.06` and `cflow-1.5` are two **small benchmarks**, which can be finished in about ten minutes.
+`libtasn1-4.3` and `patch-2.7.1` are two **small benchmarks**, which can be finished in about ten minutes.
 
 The results are stored in `~/NESA/reproduced_results/dynamic/<benchmark>`. 
 There are lots of output files, but the following two files are the most important and are used to reproduce the table:
@@ -287,42 +348,26 @@ The table will be stored as `~/NESA/reproduced_results/dynamic/table3.csv`. In t
 
 If the above two messages are printed to `stdout`, **please check if this meets your expectations.**
 
-## Reusability Guide
+### Training Neural Networks (Optional)
 
-We offer a detailed introduction to the reusable parts of our artifact, including getting training data, training the neural network, and using the trained neural network to analyze a program with soft evidence.
-Then, we provide guide on how to apply our framework on a new benchmark and on a new analysis instance.
+The above experiments apply the fine-tuned neural networks which are the same as what we used.
+We also introduce how to train a new neural network and use it to analyze a program via soft evidence.
+**Note, the experiments in this section is optional, and the results do not relate to any part in our paper.**
 
-### Getting Training Data
+#### Getting Training Data
 
-As we mentioned in Section 6.2 of our paper, we need to train a neural network to produce soft evidences.
-The input of the neural network should be a pair of variable names.
-Besides, to do supervised learning, we need to get the label of whether the two variables alias to each other.
-In our experiment, we apply a 0-CFA pointer analysis to get such pairs of variables, and apply a 2-obj pointer analysis to get the oracle label.
-
-The following command will apply these 2 analyses to `<benchmark>`:
+The following command will generate training data from `<benchmark>`:
 
 ```bash
 cd ~/NESA/src/neuro/neuroanalysis/Driver
-python driver.py -l <benchmark>
+python driver.py -ls <benchmark>
 ```
 
-The command first run the 2 analyses on `<benchmark>` using `Chord` framework. The analysis results are stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem`.
-It then applys `~/NESA/src/neuro/neuroanalysis/AliasLabeler/label_alias.py` to automatically label the alias tuples generated by the 0-CFA analysis.
-The labelled results are stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/aliasLabels.txt`, with one line an alias tuple and its label.
-
-The following command can extract the variable names for each alias tuple:
-
-```bash
-cd ~/NESA/src/neuro/neuroanalysis/Driver
-python driver.py -s <benchmark>
-```
-
-It will call `~/NESA/src/neuro/neuroanalysis/VarNameExtractor.jar` to automatically extract variable names for each alias tuples generated by the above analysis.
-The source code is stored in `~/NESA/src/neuro/neuroanalysis/VarNameExtractor`.
-The results will be stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/processedAlias.txt`.
+The labelled alias tuples are stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/aliasLabels.txt`, with one line an alias tuple and its label.
+The extracted variable names will be stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/processedAlias.txt`.
 In this file, the alias tuple and its corresponding variable names are listed per three lines.
 
-### Training the Neural Network
+#### Training the Neural Network
 
 Before training the neural network, the training data `aliasLabels.txt` and `processedAlias.txt` should be put to `~/NESA/src/neuro/neuroanalysis/SimilarityCalculator` with the same file name.
 There are two example files in the directory.
@@ -359,12 +404,9 @@ Every two epoches, the loss values will be printed to `stdout`, and a set of tra
 It is named with `my_model<n>.pth`, where n is the number of epoches of the training process.
 Therefore, the training script will generate a sequence of models. 
 You can pick one based on the loss values.
+You can modify the `learning_rate` hyperparameter at the top of `alias_label.py` to help do better training.
 
-The structure of the neural network is represented in the class `GraphCodeBERTMeanPooling` in `alias_model.py`. 
-You can modify the structure or the hyperparameters in this class.
-Besides, you can modify the `learning_rate` hyperparameter at the top of `alias_label.py`.
-
-### Applying the Neural Network to Get Soft Evidences
+#### Applying the Neural Network to Run Analysis
 
 To apply the model trained above, you should first put it to `~/NESA/data/alias_model` and rename it to `<model>.pth`. (The model name can be anything you like.)
 
@@ -372,29 +414,26 @@ Then, the following command will apply `<model>.pth` to generate soft evidences 
 
 ```bash
 cd ~/NESA/src/neuro/neuroanalysis/Driver
-python driver.py -lsp <benchmark> <model>
+python driver.py -lspb <benchmark> <model>
 ```
 
 The explanation of the parameters:
 - `-l`: Apply `Chord` to get the pointer analysis result of `<benchmark>`.
 - `-s`: Apply `VarNameExtractor` to extract variable names for the alias tuples.
 - `-p`: Apply `<model>` to get the soft evidences.
+- `-b`: Apply Bayesian program analysis to get the alarm ranking.
 
-The above three steps can be done separately. For example, if you have already run `-ls` to get the analysis results, then you can run `-p` only to get the soft evidences.
+The above steps can be done separately. For example, if you have already run `-ls` to get the analysis results, then you can run `-p` only to get the soft evidences.
 
-The generated soft evidences will be stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/soft_evi.txt`, with each line an alias tuple and the confidence of whether it is true.
-
-### Running Bayesian Program Analysis
-
-After getting the soft evidences, you can run the following command to apply Bayesian program analysis with soft evidences on `<benchmark>`:
-
-```bash
-cd ~/NESA/src/neuro/neuroanalysis/Driver
-python driver.py -b <benchmark> <model>
-```
-
-The Bayesian network is generated, and the Bayesian inference will run on it. It will produce two rankings of all alarms: one is the baseline method with no feedback, the other is our method with soft evidence feedback.
 The result ranking will be stored in `~/NESA/benchmarks/pjbench/<benchmark>/chord_output_mln-pts-problem/`, where `rank-baseline.txt` and `rank-our-approach-<model>.txt` are the alarm ranking of the baseline and our method, respectively.
+
+
+## Reusability Guide
+
+We offer a detailed introduction to the reusable parts of our artifact, including getting training data, training the neural network, and using the trained neural network to analyze a program with soft evidence.
+Then, we provide guide on how to apply our framework on a new benchmark and on a new analysis instance.
+
+
 
 ### New Benchmarks
 

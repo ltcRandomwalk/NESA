@@ -1,0 +1,15 @@
+Tuple	Confidence	Ground	NumTrue	NumFalse	Fraction	InversionCount	YetToConvergeFraction	Time(s)
+Alarm(_G_-ENTRY,yyparse-40353)	0.899078	FalseGround	0	1	0.0	57	0.0	6
+Alarm(_G_-ENTRY,pch_swap-49354)	0.88597	FalseGround	0	2	0.0	55	0.0	5
+Alarm(_G_-ENTRY,copy_till-51986)	0.856952	FalseGround	0	3	0.0	49	0.0	6
+Alarm(_G_-ENTRY,main-49828)	0.850004	FalseGround	0	4	0.0	50	0.0	11
+Alarm(_G_-ENTRY,yyparse-40403)	0.844562	FalseGround	0	5	0.0	49	0.0	11
+Alarm(_G_-ENTRY,another_hunk-48040)	0.840986	FalseGround	0	6	0.0	45	0.0	12
+Alarm(_G_-ENTRY,check_line_endings-52093)	0.815146	FalseGround	0	7	0.0	41	0.0	13
+Alarm(_G_-ENTRY,get_charset_aliases-41423)	0.812598	FalseGround	0	8	0.0	37	0.0	16
+Alarm(_G_-ENTRY,main-49829)	0.811531	FalseGround	0	9	0.0	36	0.0	12
+Alarm(_G_-ENTRY,yyparse-40470)	0.81126	FalseGround	0	10	0.0	35	0.0	12
+Alarm(_G_-ENTRY,another_hunk-48903)	0.809033	FalseGround	0	11	0.0	19	0.0	11
+Alarm(_G_-ENTRY,intuit_diff_type-47106)	0.807941	FalseGround	0	12	0.0	18	0.0	15
+Alarm(_G_-ENTRY,quotearg_buffer_restyled-38935)	0.805346	FalseGround	0	13	0.0	2	0.0	12
+Alarm(_G_-ENTRY,pch_write_line-49430)	0.802701	TrueGround	1	13	0.07142857142857142	0	0.0	14
