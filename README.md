@@ -78,17 +78,30 @@ docker run -v /path/to/graphcodebert-base:/home/user/graphcodebert-base --gpus a
 
 After that, you should modify `~/.bashrc` to set the environment variable `GRAPHCODEBERT_DIR` to `/home/user/graphcodebert-base`, and run `source ~/.bashrc`.
 
+## Step by Step Instructions
 
-For large benchmarks, it can take significant memory usage and time cost to run the experiments.
-Some results of the baseline approach can take up to one week to reproduce. This mainly contains the baseline approach Bingo run in Section 7.2.3 (RQ3).
+All scripts are stored in `~/NESA/scripts`. 
+The benchmarks we used in our experiment are stored in `~/NESA/benchmarks`.
+The original results of our experiment are stored in `~/NESA/original_results`.
+All reproduced results will be stored in `~/NESA/reproduced_results`.
+The contents of `~/NESA/original_results` can be reproduced in `~/NESA/reproduced_results`.
+
+Since some of the compilations in libDAI (used for Bayesian inference in Bingo) are hardware-dependent, its behavior may not be the same as that in our experiments.
+This can lead to minor differences in the reproduced results.
+
+Note that, for large benchmarks, it can take significant memory usage and time cost to run the experiments.
+Some results of the baseline approach can take up to one week to reproduce. This mainly contains the baseline approach Bingo evaluated in Section 7.2.3 (RQ3).
 **For this approach, it is possible to use incomplete results to reproduce the figures, which does not affect the main claim in our paper.**
-We will provide detailed guide in Step by Step Instructions.
+We will provide detailed guide in the corresponding section.
 
 We list the small benchmarks below for each analysis. We suggest running experiments only on those small benchmarks if there is a time or resource constraint.
-We also list the time cost for each part of our experiments on our machine to help reviewers schedule their time to run all the experiments.
-For different benchmarks, the experiments can run in parallel. 
+
 
 **Small benchmarks**: For pointer analysis, `moldyn` and `montecarlo` are small benchmarks. For taint analysis, all the benchmarks are small benchmarks. For the experiment with dynamic feedback, `libtasn1-4.3` and `patch-2.7.1` are small benchmarks. These benchmarks have low memory usage and short running time, most of which can be finished within one hour.
+
+We also list the time cost for each part of our experiments on our machine to help reviewers schedule their time to run all the experiments.
+For different benchmarks, the experiments can run in parallel. 
+**For a certain benchmark, please run the experiments by the order of research questions.**
 
 ### Running Time for Each Benchmark
 
@@ -113,16 +126,9 @@ For all benchmarks, the experiment can finish within one hour.
 
 For all benchmarks, the experiment can finish within 6 hours. The time cost of the two small benchmarks `libtasn1-4.3` and `patch-2.7.1` is less than one hour. 
 
-## Step by Step Instructions
+--- 
 
-All scripts are stored in `~/NESA/scripts`. 
-The benchmarks we used in our experiment are stored in `~/NESA/benchmarks`.
-The original results of our experiment are stored in `~/NESA/original_results`.
-All reproduced results will be stored in `~/NESA/reproduced_results`.
-The contents of `~/NESA/original_results` can be reproduced in `~/NESA/reproduced_results`.
-
-Since some of the compilations in libDAI (used for Bayesian inference in Bingo) are hardware-dependent, its behavior may not be the same as that in our experiments.
-This can lead to minor differences in the reproduced results.
+Next, we provide detailed step-by-step instructions to reproduce all evaluation results in our paper.
 
 ### Reproducing the results in Section 7.2.1 & 7.2.2 (RQ1-2)
 
@@ -215,11 +221,12 @@ The following command will run Bingo on `<benchmark>`:
 ```
 
 `<benchmark>` can be one of the followings: `montecarlo`, `moldyn`, `weblech`, `toba-s`, `hedc`, `jspider`, `javasrc-p`, `ftp`.
+
 For Bingo, all of these benchmarks are large benchmarks. Note that, it can take **extremely long time** to reproduce the results of Bingo.
-We suggest running this experiment in the background, and the results will be updated in real time.
 In our experiment and the script, we set a time limit of one week.
-Since Bingo is an iterative process, the temporary results will be updated continuously.
+Since Bingo is an iterative process, the results will be updated continuously.
 Therefore, it is possible to get incomplete results at any time when the script runs.
+**Bingo is the baseline approach we compare against, while using the incomplete results does not affect the main claim in our paper.**
 
 If you want to use the incomplete results to reproduce the figures and tables, run the following command before reproducing:
 
