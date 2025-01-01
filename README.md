@@ -101,7 +101,7 @@ We list the small benchmarks below for each analysis. We suggest running experim
 
 We also list the time cost for each part of our experiments on our machine to help reviewers schedule their time to run all the experiments.
 For different benchmarks, the experiments can run in parallel. 
-**For a certain benchmark, please run the experiments by the order of research questions.**
+**For a certain benchmark, please run the experiments in the order of research questions.**
 
 ### Running Time for Each Benchmark
 
