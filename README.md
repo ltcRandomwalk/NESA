@@ -564,7 +564,7 @@ The python file `~/NESA/src/neuro/bingo/bnet/bnet2fg.py` transforms a Bayesion n
 This is because the Bayesian inference algorithm actually runs on a factor graph instead of a Bayesian network.
 For more details about the format of the factor graph, you can refer to [libDAI](http://www.libdai.org).
 At this step, we attach conditional probabilities to the Bayesian network.
-For a soft evidence $t$ and its related noisy sensor $t'$, the code reads the confidence $p$ that it holds, and sets the conditional probabilities as $P(t'\,|\,t)=p, P(t'\,|\,\lnot t)=1-p$.
+For a soft evidence $t$ and its related noisy sensor $t'$, the code reads the confidence $p$ that it holds, and sets the conditional probabilities as $P(t'|t)=p, P(t'|\lnot t)=1-p$.
 
 The python file `~/NESA/src/neuro/bingo/bnet/softdriver2.py` accepts the factor graph as input and runs Bayesian inference algorithm on it.
 It observes all the soft evidences, and runs loopy belief propogation algorithm to get the marginal probabilites of all alarms.
