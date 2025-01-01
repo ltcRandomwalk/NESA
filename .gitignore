@@ -3,4 +3,3 @@
 java-packages
 **/__pycache__/
 **/nohup.out
-/reproduced_results/
