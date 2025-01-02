@@ -17,7 +17,7 @@ torch.set_default_device(device)
 
 if __name__ == "__main__":
     model = GraphCodeBERTMeanPooling().to(device)
-    loaded_paras = torch.load(model_save_path)
+    loaded_paras = torch.load(model_save_path, map_location=torch.device(device))
     model.load_state_dict(loaded_paras)
     print("begin...")
     model.eval()

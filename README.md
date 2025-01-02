@@ -97,7 +97,7 @@ We will provide detailed guide in the corresponding section.
 We list the small benchmarks below for each analysis. We suggest running experiments only on those small benchmarks if there is a time or resource constraint.
 
 
-**Small benchmarks**: For pointer analysis, `moldyn` and `montecarlo` are small benchmarks. For taint analysis, all the benchmarks are small benchmarks. For the experiment with dynamic feedback, `libtasn1-4.3` and `patch-2.7.1` are small benchmarks. These benchmarks have low memory usage and short running time, most of which can be finished within one hour.
+**Small benchmarks**: For pointer analysis, `moldyn` and `montecarlo` are small benchmarks. For taint analysis, `app-324`, `andors-trail`, `noisy-sounds`, `tilt-mazes` are small benchmarks. For the experiment with dynamic feedback, `libtasn1-4.3` and `patch-2.7.1` are small benchmarks. These benchmarks have low memory usage and short running time, most of which can be finished within one hour.
 
 We also list the time cost for each part of our experiments on our machine to help reviewers schedule their time to run all the experiments.
 For different benchmarks, the experiments can run in parallel. 
@@ -120,11 +120,11 @@ For different benchmarks, the experiments can run in parallel.
 
 #### Taint Analysis
 
-For all benchmarks, the experiment can finish within one hour. 
+For all benchmarks, the experiment can finish within 6 hours. The time costs of the four small benchmarks `app-324`, `andors-trail`, `noisy-sounds`, and `tilt-mazes` are less than one hour.
 
 #### Experiments on Dynamic Information
 
-For all benchmarks, the experiment can finish within 6 hours. The time cost of the two small benchmarks `libtasn1-4.3` and `patch-2.7.1` is less than one hour. 
+For all benchmarks, the experiment can finish within 6 hours. The time costs of the two small benchmarks `libtasn1-4.3` and `patch-2.7.1` are less than one hour. 
 
 --- 
 
@@ -161,7 +161,7 @@ The following command will apply NESA to `<benchmark>`:
 ```
 
 `<benchmark>` can be one of the followings: `app-324`, `noisy-sounds`, `app-ca7`, `app-kQm`, `tilt-mazes`, `andors-trail`, `ginger-master`, `app-018`.
-All of these benchmarks are **small benchmarks**, which can be finished in a few minutes.
+Among them, `app-324`, `andors-trail`, `noisy-sounds`, and `tilt-mazes` are **small benchmarks**, which can be finished within one hour.
 
 The result rankings will be stored in `~/NESA/reproduced_results/neuro/taint/<benchmark>`, which are copied from the corresponding directory in `~/NESA/benchmarks/android_bench/`.
 `rank-baseline.txt`, `rank-our-approach-ICCmodel.txt`, and `rank-oracle.txt` represent the results of the baseline approach, our approach, and the oracle, respectively.
