@@ -4,7 +4,7 @@ This is the artifact document of the paper *Combining Formal and Informal Inform
 
 ## Introduction
 
-Our artifact includes all source code, scripts, data and statistics in our experiments. Concretely, it supports the following things:
+Our artifact includes all source code, scripts, data, and statistics in our experiments. Concretely, it supports the following things:
 
 1. Reproduction of all results in our experiments.
 2. Reproduction of Tables 2-3 and Figures 8-14 in our paper.
@@ -46,13 +46,13 @@ Then, to compile the relevant code, run the following command:
 ~/NESA/build.sh
 ```
 
-To confirm the environment is configured successfully, we provide a testing script which applies our tool on a tiny program `philo`. Run the following command to test:
+To confirm the environment is configured successfully, we provide a testing script that applies our tool on a tiny program `philo`. Run the following command to test:
 
 ```bash
 ~/NESA/test.sh
 ```
 
-The script will print `Test Passed!` to `stdout` if it runs successfully. Otherwise, the error will be printed. You can also manully check the output files `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-our-approach-small.txt` and `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-baseline.txt`. They should be look like the following:
+The script will print `Test Passed!` to `stdout` if it runs successfully. Otherwise, the error will be printed. You can also manually check the output files `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-our-approach-small.txt` and `~/NESA/benchmarks/pjbench/java_grande/philo/chord_output_mln-pts-problem/rank-baseline.txt`. They should look like the following:
 
 ```
 Rank	Confidence	Ground	Label	Comments	Tuple
@@ -92,7 +92,7 @@ This can lead to minor differences in the reproduced results.
 Note that, for large benchmarks, it can take significant memory usage and time cost to run the experiments.
 Some results of the baseline approach can take up to one week to reproduce. This mainly contains the baseline approach Bingo evaluated in Section 7.2.3 (RQ3).
 **For this approach, it is possible to use incomplete results to reproduce the figures, which does not affect the main claim in our paper.**
-We will provide detailed guide in the corresponding section.
+We will provide a detailed guide in the corresponding section.
 
 We list the small benchmarks below for each analysis. We suggest running experiments only on those small benchmarks if there is a time or resource constraint.
 
@@ -149,7 +149,7 @@ The result rankings will be stored in `~/NESA/reproduced_results/neuro/pts/<benc
 `rank-baseline.txt`, `rank-our-approach-small.txt`, and `rank-oracle.txt` represent the results of the baseline approach, our approach, and the oracle, respectively.
 In these ranking files, alarms are ranked by their marginal probabilities from high to low.
 The `Ground` column shows whether the alarm is true or false.
-At the bottom of the ranking file, the statistics used in our experiment are listed, including the inversion count, the average rank and the midean rank of true alarms.
+At the bottom of the ranking file, the statistics used in our experiment are listed, including the inversion count, the average rank, and the median rank of true alarms.
 The inference time is listed here as well.
 
 #### Taint Analysis
@@ -165,7 +165,7 @@ Among them, `app-324`, `andors-trail`, `noisy-sounds`, and `tilt-mazes` are **sm
 
 The result rankings will be stored in `~/NESA/reproduced_results/neuro/taint/<benchmark>`, which are copied from the corresponding directory in `~/NESA/benchmarks/android_bench/`.
 `rank-baseline.txt`, `rank-our-approach-ICCmodel.txt`, and `rank-oracle.txt` represent the results of the baseline approach, our approach, and the oracle, respectively.
-The meanings of the rankings and the statistics are the same of those in the pointer analysis.
+The meanings of the rankings and the statistics are the same as those in the pointer analysis.
 
 #### Reproducing Tables and Figures
 
@@ -178,7 +178,7 @@ The following command will reproduce Figure 8 based on the alarm rankings calcul
 ```
 
 The reproduced figures will be stored in `~/NESA/reproduced_results/RQ1/figure8`. 
-If the results of a benchmark are missed, the orginal results will be used.
+If the results of a benchmark are missed, the original results will be used.
 For example, if you don't run `~/NESA/scripts/run_pts.sh hedc` to get the alarm rankings of benchmark `hedc`, then the corresponding results in `~/NESA/original_results` will be applied to plot the figure.
 The script will print this information to `stdout`.
 **Please check if this meets your expectations.**
@@ -300,7 +300,7 @@ For example, the model `ftp+moldyn` is not applied to evaluate the benchmark `ft
 **Note, make sure that the results in Section 7.2.1 (RQ1) have been reproduced before running the above script.** Otherwise, the frontend analysis result will be missed.
 
 The result rankings will be stored in `~/NESA/reproduced_results/neuro/pts/<benchmark>/rank-our-approach-<model>.txt`, which are copied from the corresponding directory in `~/NESA/benchmarks/pjbench`.
-The meanings of the rankings and the statistics are the same of those in the pointer analysis.
+The meanings of the rankings and the statistics are the same as those in the pointer analysis.
 
 #### Reproducing Figures 12-14
 
@@ -350,8 +350,8 @@ python ~/NESA/scripts/gen_table_3.py
 ```
 
 The table will be stored as `~/NESA/reproduced_results/dynamic/table3.csv`. In the following two cases, The original data instead of the reproduced data will be used to reproduce the table:
-1. The reproduced results for some benchmark do not exist. The script will print "WARNING: XXX file does not exist! Using original data."
-2. The result exists but is incomplete. This can occurs if Bingo is still running or terminates before detecting all true alarms on this benchmark. In this case, the script will print "WARNING: Bingo has not finished for <benchmark>! The result stat is not complete. Using original data."
+1. The reproduced results for some benchmarks do not exist. The script will print "WARNING: XXX file does not exist! Using original data."
+2. The result exists but is incomplete. This can occur if Bingo is still running or terminates before detecting all true alarms on this benchmark. In this case, the script will print "WARNING: Bingo has not finished for <benchmark>! The resulting stat is not complete. Using original data."
 
 If the above two messages are printed to `stdout`, **please check if this meets your expectations.**
 
@@ -359,7 +359,7 @@ If the above two messages are printed to `stdout`, **please check if this meets 
 
 The above experiments apply the fine-tuned neural networks which are the same as what we used.
 We also introduce how to train a new neural network and use it to analyze a program via soft evidence.
-**Note, the experiments in this section is optional, and the results do not relate to any part in our paper.**
+**Note, the experiments in this section are optional, and the results do not relate to any part of our paper.**
 
 #### Getting Training Data
 
@@ -379,8 +379,8 @@ In this file, the alias tuple and its corresponding variable names are listed pe
 Before training the neural network, the training data `aliasLabels.txt` and `processedAlias.txt` should be put to `~/NESA/src/neuro/neuroanalysis/SimilarityCalculator` with the same file name.
 There are two example files in the directory.
 If you want to train the neural network with data of more than one benchmark, you should first generate `aliasLabels.txt` and `processedAlias.txt` for each benchmark.
-Then, you should combined them in a single file and put it in the `SimilarityCalculator` directory.
-For example, if `aliasLabels.txt` for benchmark A and B are like:
+Then, you should combine them in a single file and put it in the `SimilarityCalculator` directory.
+For example, if `aliasLabels.txt` for benchmarks A and B are like:
 ```
 a+
 b-
@@ -407,8 +407,8 @@ python alias_model.py
 ```
 
 This Python script automatically generates training set and test set using the provided data.
-Every two epoches, the loss values will be printed to `stdout`, and a set of trained parameters is stored in `~/NESA/src/neuro/neuroanalysis/SimilarityCalculator/model`.
-It is named with `my_model<n>.pth`, where n is the number of epoches of the training process.
+Every two epochs, the loss values will be printed to `stdout`, and a set of trained parameters is stored in `~/NESA/src/neuro/neuroanalysis/SimilarityCalculator/model`.
+It is named with `my_model<n>.pth`, where n is the number of epochs of the training process.
 Therefore, the training script will generate a sequence of models. 
 You can pick one based on the loss values.
 You can modify the `learning_rate` hyperparameter at the top of `alias_label.py` to help do better training.
@@ -437,7 +437,7 @@ The result ranking will be stored in `~/NESA/benchmarks/pjbench/<benchmark>/chor
 
 ## Reusability Guide
 
-We offer reusablility guide for three use cases of our framework:
+We offer a reusability guide for three use cases of our framework:
 1. Applying our framework to analyze a new program.
 2. Implementing a new analysis instance using our framework.
 3. Implementing a new feature using our framework.
@@ -447,7 +447,7 @@ For each use case, we explain which parts of our artifact can be reused and how 
 ### New Program
 
 We will use an example to show how to apply our framework to new benchmarks for pointer analysis, which is our main experiment.
-For taint analysis and the dynamic information experiment, the implement details of the analysis frontend can be found in [Apposcopy](https://github.com/utopia-group/apposcopy) and [DynaBoost](https://zenodo.org/records/4731470).
+For taint analysis and the dynamic information experiment, the implementation details of the analysis frontend can be found in [Apposcopy](https://github.com/utopia-group/apposcopy) and [DynaBoost](https://zenodo.org/records/4731470).
 
 We assume the new benchmark is called "new_benchmark". Next, we introduce what configurations should be made and how to run Bayesian program analysis with soft evidence on it.
 
@@ -490,7 +490,7 @@ In this section, we first introduce what inputs should be prepared for the Bayes
 
 #### Input Files
 
-In order to implement a new analysis instance, you need to apply an analysis frontend to get a Datalog derivation graph. Besides, you should also provide the confidence that each soft evidence holds. Next, we list the name and content of these files concretely. We assume all the input files are stored in `/path/to/new_analysis`. In the directory `~/NESA/benchmarks/pjbench/cache4j/chord_output_mln-pts-problem`, we provide examples of these files.
+In order to implement a new analysis instance, you need to apply an analysis frontend to get a Datalog derivation graph. Besides, you should also provide the confidence that each soft evidence holds. Next, we list the names and format of these files concretely. We assume all the input files are stored in `/path/to/new_analysis`. In the directory `~/NESA/benchmarks/pjbench/cache4j/chord_output_mln-pts-problem`, we provide examples of these files.
 
 First, you need a Datalog derivation graph generated by the analysis frontend, named with `named_cons_all.txt`. The format of this file is as follow:
 
@@ -501,10 +501,10 @@ R0: NOT thisMV(91,417), NOT VH(417,557), HM(557,91)
 ...
 ```
 
-In this file, each line stands for a ground Datalog rule. It is started with a rule name which is defined by users, and followed by a ground rule. The tuples started with "NOT" stand for conditions, and the last tuple stands for the conclusion.
+In this file, each line stands for a ground Datalog rule. It starts with a rule name which is defined by users, and followed by a ground rule. The tuples started with "NOT" stand for conditions, and the last tuple stands for the conclusion.
 For example, the ground rule in the first line stands for `thisMV(1,3565), VH(3565,607) ==> HM(607,1)`.
 
-Second, you need a file that stores the rule probability of each rule, named with `rule-prob.txt`. The rule probability can be set manually or by training. The format of this file is as follow:
+Second, you need a file that stores the rule probability of each rule, named `rule-prob.txt`. The rule probability can be set manually or by training. The format of this file is as follow:
 
 ```
 R4: 0.984119
@@ -515,7 +515,7 @@ R75: 0.98511
 
 In this file, each line contains a rule name followed by its probability. The rule probability should stay in 0 to 1. Note that, the rule name should be consistent with that in `named_cons_all.txt`.
 
-Third, you need a file stores the confidence that each soft evidence holds, named with `soft_evi.txt`. The format of this file is as follow:
+Third, you need a file that stores the confidence that each soft evidence holds, named  `soft_evi.txt`. The format of this file is as follow:
 
 ```
 VV(13051,13060) 0.985
@@ -524,7 +524,7 @@ VV(13051,13077) 0.2
 ...
 ```
 
-In this file, each line contains a tuple which served as the soft evidence, followed by the confidence it holds.
+In this file, each line contains a tuple which serves as the soft evidence, followed by the confidence it holds.
 For example, the soft evidence `VV(13051,13060)` holds for a likelihood of 0.985. The likelihood should stay in 0 to 1. Besides, the soft evidence should appear in `named_cons_all.txt`.
 
 Last, you need to identify the alarms and true alarms. `based_queries.txt` lists the alarms generated  by the analysis, while `oracle_queries.txt` lists the true alarms. The format of these two files is as follow, with each line an alarm:
@@ -555,19 +555,19 @@ The <model> argument can be defined by users, which is just a suffix of the resu
 
 ### New Features
 
-To help users implement new features using our framework, we briefly introduce the codes that related to the Bayesian analysis with soft evidence.
+To help users implement new features using our framework, we briefly introduce the codes that relate to the Bayesian analysis with soft evidence.
 We build our framework atop [Bingo](https://github.com/difflog-project/bingo), which is an interactive Bayesian analysis engine with user feedback.
 The main logic for building a Bayesian network and doing Bayesian inference is the same as Bingo. 
 Therefore, we mainly introduce the code that integrates soft evidence.
 
 The python file `~/NESA/src/neuro/bingo/bnet/cons_all2bnet.py` transforms a Datalog derivation graph to a Bayesian network.
 It takes the Datalog derivation graph, the rule probabilities and the soft evidences as inputs.
-As described in Section 5 in our paper, we encode the soft evidence as a virtual "noisy sensor" in the Bayesian network.
+As described in Section 5 of our paper, we encode the soft evidence as a virtual "noisy sensor" in the Bayesian network.
 In particular, for a program fact $t$ that the soft evidence is observed on, we add another event $t'$ which serves as a noisy sensor of $t$.
 At this step, for each tuple `T(...)` that serves as a soft evidence, we add a node `_T(...)` in the output Bayesian network, and mark it as a noisy sensor using special symbols. (`^` in our code).
 The confidence that the soft evidence holds is also logged.
 
-The python file `~/NESA/src/neuro/bingo/bnet/bnet2fg.py` transforms a Bayesion network into a factor graph.
+The python file `~/NESA/src/neuro/bingo/bnet/bnet2fg.py` transforms a Bayesian network into a factor graph.
 This is because the Bayesian inference algorithm actually runs on a factor graph instead of a Bayesian network.
 For more details about the format of the factor graph, you can refer to [libDAI](http://www.libdai.org).
 At this step, we attach conditional probabilities to the Bayesian network.
