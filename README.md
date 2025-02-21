@@ -447,7 +447,6 @@ For each use case, we explain which parts of our artifact can be reused and how 
 ### New Program
 
 We will use an example to show how to apply our framework to new benchmarks for pointer analysis, which is our main experiment.
-For taint analysis and the dynamic information experiment, the implementation details of the analysis frontend can be found in [Apposcopy](https://github.com/utopia-group/apposcopy) and [DynaBoost](https://zenodo.org/records/4731470).
 
 We assume the new benchmark is called "new_benchmark". Next, we introduce what configurations should be made and how to run Bayesian program analysis with soft evidence on it.
 
@@ -483,6 +482,69 @@ The explanation of the above parameters:
 The above steps can be done separately. For example, you can run `-b` only to run Bayesian program analysis based on the result of previous steps.
 
 The result ranking will be stored in `~/NESA/benchmarks/pjbench/new_benchmark/chord_output_mln-pts-problem/`, where `rank-baseline.txt` and `rank-our-approach-<model>.txt` are the alarm ranking of the baseline and our method, respectively.
+
+----
+
+For taint analysis and the dynamic information experiment, the implementation details of the analysis frontend can be found in [Apposcopy](https://github.com/utopia-group/apposcopy) and [DynaBoost](https://zenodo.org/records/4902828).
+Next, we introduce how to use these analysis frontend tools and how to match the outputs of these tools to our tool's inputs.
+
+#### Taint Analysis
+
+For the taint analysis, the frontend tool has been incorporated in `~/NESA/apposcopy` folder of our tool. If you want to apply the frontend tool on a new benchmark, you need to put the benchmark folder to `~/NESA/apposcopy/stamp-benches`, and add its information to the `bench_path_map` dict in `~/NESA/apposcopy/driver.py`. In particular, you should add a key-value element, where the key is the benchmark's name, and the value is the path to its apk file.
+You can refer to the examples in the original file.
+
+After the setting, run the following commands to get the outputs of the analysis frontend:
+
+```bash
+cd ~/NESA/apposcopy
+python driver.py -fci <benchmark>
+```
+
+The outputs will be stored in `~/NESA/apposcopy/android_bench/stamp_output/<benchmark>`. Move this folder to `~/benchmarks/android_bench/<benchmark>`, which will serve as the inputs to our tool.
+
+The next step is to set soft evidences to the benchmark.
+As described in Section 7.1.1 of our paper, we simulate inter-component communication (ICC) links by substituting a subset of data flows via method invocations with ICC links. Those data flows are represented as "transferRefRef" relation by the analysis frontend. In the input folder `~/benchmarks/android_bench/<benchmark>/chord_output_mln-taint-problem`, all such data flows are stored in `ICCNames.txt`, while the true ones are stored in `oracle_ICCNames.txt`. You need to create a file to represent soft evidences, named `soft_evi.txt`. In this file, declare each evidence with its confidence in the following format:
+
+```
+transferRefRef(284,283) 0.0007488492992706597
+transferRefRef(622,621) 0.00912020169198513
+transferRefRef(654,653) 0.986536979675293
+...
+```
+
+For the probabilities, you can sample them from `~/data/ICC_model/trueprob.txt` and `~/data/ICC_model/falseprob.txt`, which are the probabilities of real-world ICC links predicted by the neural network.
+
+Now, the inputs are all ready. Run the following commands to apply our tool to the benchmark:
+
+```bash
+cd ~/NESA/src/neuro/neuroanalysis/Driver
+python taintdriver.py -blr <benchmark>
+```
+
+The result rankings will be stored in the benchmark folder.
+
+#### Dynamic Information
+
+For the dynamic information experiment, we use [DynaBoost](https://zenodo.org/records/4902828) to get the inputs of our tool. The detailed documentation of Dynaboost can be downloaded [here](https://zenodo.org/records/4902828/files/README.pdf). To get the input of our tool, you can implement Dynaboost and follow steps 1-4 of the *Running the Experiments* section in the document. Specifically, you can use the following commands to get the input folders for a new benchmark. Note that these commands run in the Dynaboost tool, not ours.
+
+```bash
+~/dynaboost/bingo-ci-experiment: $ ./run.sh ./benchmark/program/program.c [interval/taint]
+~/dynaboost/eval: $ ./instrument.sh <benchmark>
+```
+
+After these commands, the outputs of the static analyzer and the dynamic analyzer will be generated in the related folder (`~/dynaboost/bingo-ci-experiment` and `/tmp`). 
+Next, you need to copy these two result folders to `~/NESA/data/bingo-ci-experiment` and `~/NESA/data/dynamic` in our tool respectively, which form the inputs of our tool.
+Then, run the following command to apply our tool to the benchmark:
+
+```bash
+cd $ARTIFACT_ROOT_DIR/src/dynamic/dynaboost
+source ./init.sh
+
+cd eval
+./exp1.sh <benchmark>
+```
+
+The results are stored in `~/NESA/reproduced_results/dynamic/<benchmark>`. 
 
 ### New Analysis Instance
 
